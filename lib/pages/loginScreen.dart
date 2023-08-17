@@ -33,7 +33,10 @@ class LoginScreen extends StatelessWidget {
               ),
               Text(
                 "Welcome to Manoy!".toUpperCase(),
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1),
               ),
               const SizedBox(
                 height: 20,

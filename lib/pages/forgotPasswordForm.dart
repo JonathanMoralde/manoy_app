@@ -19,6 +19,13 @@ class ForgotPassPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(
+                "RESET PASSWORD",
+                style: TextStyle(letterSpacing: 1, fontSize: 24),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
               StyledTextField(
                   controller: emailController,
                   hintText: "Enter a valid Email",
