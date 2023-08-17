@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manoy_app/pages/forgotPasswordForm.dart';
+import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/pages/signup.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
@@ -77,7 +78,17 @@ class LoginScreen extends StatelessWidget {
               ),
               StyledButton(
                 btnText: "SIGN IN",
-                onClick: () {},
+                onClick: () {
+                  // TODO AUTH
+
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) {
+                        return HomePage();
+                      },
+                    ),
+                  );
+                },
                 btnWidth: 250,
               ),
               const SizedBox(

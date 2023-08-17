@@ -21,6 +21,11 @@ class SignupDetails extends ConsumerWidget {
 
     final gender = ref.watch(genderProvider);
 
+    final selectedDate = ref.watch(selectedDateProvider);
+    final emailController = ref.watch(emailControllerProvider('email'));
+    final passwordController =
+        ref.watch(passwordControllerProvider('password'));
+
     void onDateSelected(DateTime? date) {
       ref.read(selectedDateProvider.notifier).state = date;
     }
