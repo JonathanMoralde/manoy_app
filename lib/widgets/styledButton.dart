@@ -41,7 +41,7 @@ class StyledButton extends StatelessWidget {
             elevation: noShadow == true ? 0 : 2,
             shape:
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            backgroundColor: btnColor ?? const Color(0xFFE2B563),
+            backgroundColor: btnColor ?? const Color(0xFF00A2FF),
             foregroundColor: const Color.fromARGB(255, 37, 37, 37),
             textStyle: const TextStyle(
                 letterSpacing: 1, fontWeight: FontWeight.w500, fontSize: 16),

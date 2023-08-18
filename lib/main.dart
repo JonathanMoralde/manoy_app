@@ -31,14 +31,14 @@ class MyApp extends StatelessWidget {
               fontSize: 20, letterSpacing: 1, fontWeight: FontWeight.w500),
         ),
         appBarTheme: const AppBarTheme(
-          centerTitle: true,
+          // centerTitle: true,
           titleTextStyle: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w500,
             letterSpacing: 1,
             color: Color(0xFF252525),
           ), //w500 is medium
-          color: Color(0xFFF8F8F7),
+          color: Colors.white10,
           iconTheme: IconThemeData(color: Color(0xFF252525)),
           elevation: 0,
         ),
