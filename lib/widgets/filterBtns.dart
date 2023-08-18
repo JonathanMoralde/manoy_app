@@ -87,7 +87,7 @@ class FilterBtns extends ConsumerWidget {
       "TAGA TUHOG"
     ];
     return Padding(
-      padding: const EdgeInsets.only(left: 16),
+      padding: const EdgeInsets.only(left: 8),
       child: SizedBox(
         height: 45,
         child: ListView.builder(

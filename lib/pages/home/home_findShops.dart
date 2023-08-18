@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:manoy_app/widgets/filterBtns.dart';
+import 'package:manoy_app/widgets/shopCard.dart';
 
 class FindShops extends StatelessWidget {
   const FindShops({super.key});
@@ -12,7 +13,34 @@ class FindShops extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8),
           child: FilterBtns(),
         ),
-        Text("test")
+        ShopCard(
+          name: "Jonnel Angel Red",
+          address: "Polangui Albay",
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        ShopCard(
+          name: "Jonnel Angel Red",
+          address: "Polangui Albay",
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        ShopCard(
+          name: "Jonnel Angel Red",
+          address: "Polangui Albay",
+        ),
+        const SizedBox(
+          height: 10,
+        ),
+        ShopCard(
+          name: "Jonnel Angel Red",
+          address: "Polangui Albay",
+        ),
+        const SizedBox(
+          height: 10,
+        ),
       ],
     );
   }

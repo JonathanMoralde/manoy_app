@@ -27,7 +27,10 @@ class PostCard extends StatelessWidget {
                 const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Manoy Jonnel Angelo Destroyer"),
+                    Text(
+                      "Manoy Jonnel Angelo Destroyer",
+                      style: TextStyle(fontWeight: FontWeight.w700),
+                    ),
                     Text(
                       "34 Minutes Ago",
                       style: TextStyle(fontSize: 12),

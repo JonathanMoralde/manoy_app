@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manoy_app/widgets/shopCard.dart';
 
 class SearchPage extends StatelessWidget {
   SearchPage({super.key});
@@ -17,17 +18,35 @@ class SearchPage extends StatelessWidget {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(
-              child: TextField(
-            controller: searchController,
-            decoration: InputDecoration(
+            child: TextField(
+              controller: searchController,
+              decoration: InputDecoration(
                 hintText: "Search...",
                 border: InputBorder.none,
                 prefixIcon: const Icon(Icons.search),
-                suffix: IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.clear),
-                )),
-          )),
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    searchController.clear();
+                  },
+                  icon: Icon(
+                    Icons.clear,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              ShopCard(
+                name: "John Doe",
+                address: "Polangui, Albay",
+              ), //TODO REPLACE THIS WITH ACTUAL SEARCH ITEMS
+            ],
+          ),
         ),
       ),
     );
