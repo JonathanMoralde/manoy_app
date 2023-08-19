@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
 import 'package:manoy_app/pages/settings/applyProvider.dart';
 import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
+import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
+import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/styled_settings_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,6 +22,9 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final fullName = ref.watch(fullnameProvider);
+    final uid = ref.watch(uidProvider);
+    final serviceName = ref.watch(serviceNameProvider);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -44,14 +49,18 @@ class SettingsPage extends ConsumerWidget {
                 SizedBox(height: 20),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: CircleAvatar(
-                      radius: 60,
-                      backgroundImage: AssetImage(
-                        'lib/images/avatar.png',
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.account_circle_rounded,
+                        size: 80,
+                      )
+                      // CircleAvatar(
+                      //   radius: 60,
+                      //   backgroundImage: AssetImage(
+                      //     'lib/images/avatar.png',
+                      //   ),
+                      // ),
                       ),
-                    ),
-                  ),
                 ),
                 Expanded(
                   child: Padding(
@@ -72,13 +81,15 @@ class SettingsPage extends ConsumerWidget {
             ),
             StyledSettingsButton(
               buttonText: 'Apply Service Provider Account',
-              onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (BuildContext context) {
-                    return ApplyProvider();
-                  }),
-                );
-              },
+              onPressed: serviceName == null
+                  ? () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (BuildContext context) {
+                          return ApplyProvider(uid: uid!);
+                        }),
+                      );
+                    }
+                  : null,
             ),
             SizedBox(
               height: 5,
@@ -138,6 +149,13 @@ class SettingsPage extends ConsumerWidget {
                 ref.read(addressProvider.notifier).state = null;
                 ref.read(genderProvider.notifier).state = null;
                 ref.read(birthdayProvider.notifier).state = null;
+                ref.read(serviceNameProvider.notifier).state = null;
+                ref.read(serviceAddressProvider.notifier).state = null;
+                ref.read(descriptionProvider.notifier).state = null;
+                ref.read(businessHoursProvider.notifier).state = null;
+                ref.read(categoryProvider.notifier).state = null;
+                ref.read(profilePhotoProvider.notifier).state = null;
+                ref.read(coverPhotoProvider.notifier).state = null;
 
                 // store role in sharedPreferences
                 SharedPreferences prefs = await SharedPreferences.getInstance();

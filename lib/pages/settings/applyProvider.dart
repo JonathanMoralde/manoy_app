@@ -1,13 +1,21 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:manoy_app/pages/home/home.dart';
+import 'package:manoy_app/pages/main_page.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledDropdown.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 import 'package:manoy_app/widgets/timePicker.dart';
 import 'package:manoy_app/widgets/uploadImage_input.dart';
+import 'package:uuid/uuid.dart';
 
 class ApplyProvider extends StatefulWidget {
-  ApplyProvider({super.key});
+  final String uid;
+  ApplyProvider({super.key, required this.uid});
 
   @override
   State<ApplyProvider> createState() => _ApplyProviderState();
@@ -76,6 +84,85 @@ class _ApplyProviderState extends State<ApplyProvider> {
   Widget build(BuildContext context) {
     String? time1 = selectedTime1?.format(context).toString();
     String? time2 = selectedTime2?.format(context).toString();
+
+    Future addProvider() async {
+      try {
+        final serviceName = providerNameController.text;
+        final serviceAddress = providerAddressController.text;
+        final description = providerDescriptionController.text;
+        final businessHours = '$time1 - $time2';
+        final categoryName = category;
+
+        if (serviceName.isEmpty ||
+            serviceAddress.isEmpty ||
+            description.isEmpty ||
+            time1 == null ||
+            time2 == null ||
+            categoryName == null ||
+            selectedImagePath1 == null ||
+            selectedImagePath2 == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Please fill up all the details above!"),
+            ),
+          );
+
+          return;
+        }
+
+        final file1 = File(selectedImagePath1!);
+        final file2 = File(selectedImagePath2!);
+
+        // Generate a unique image name using UUID
+        final imageName1 = Uuid().v4(); // Generates a random UUID
+        final imageName2 = Uuid().v4(); // Generates a random UUID
+
+        final storageRef1 = FirebaseStorage.instance
+            .ref()
+            .child('provider_profile')
+            .child('$imageName1.jpg'); // Use the unique image name
+        final storageRef2 = FirebaseStorage.instance
+            .ref()
+            .child('provider_profile')
+            .child('$imageName2.jpg'); // Use the unique image name
+
+        // final metadata = SettableMetadata(
+        //   contentType: 'image/jpeg', // Set the content type to image/jpeg
+        //   cacheControl: 'max-age=0', // Disable caching for the updated image
+        // );
+
+        final uploadTask1 = storageRef1.putFile(file1);
+        final uploadTask2 = storageRef2.putFile(file2);
+
+        // Wait for the upload to complete and get the download URL
+        final TaskSnapshot snapshot1 = await uploadTask1;
+        final imageUrl1 = await snapshot1.ref.getDownloadURL();
+        final TaskSnapshot snapshot2 = await uploadTask2;
+        final imageUrl2 = await snapshot2.ref.getDownloadURL();
+
+        await FirebaseFirestore.instance
+            .collection('service_provider')
+            .doc(widget.uid)
+            .set({
+          'Service Name': serviceName,
+          'Service Address': serviceAddress,
+          'Description': description,
+          'Business Hours': businessHours,
+          'Category': categoryName,
+          'Profile Photo': imageUrl1,
+          'Cover Photo': imageUrl2,
+        }).then((value) {
+          SnackBar(
+            content: Text("Created Successfully!"),
+          );
+        }).catchError((error) {
+          print(error);
+        });
+      } catch (e) {
+        print(e);
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(),
       body: SafeArea(
@@ -212,7 +299,18 @@ class _ApplyProviderState extends State<ApplyProvider> {
               const SizedBox(
                 height: 20,
               ),
-              StyledButton(btnText: "CONFIRM", onClick: () {})
+              StyledButton(
+                  btnText: "CONFIRM",
+                  onClick: () {
+                    addProvider();
+                    // print("executed");
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => MainPage(),
+                      ),
+                      (Route<dynamic> route) => false,
+                    );
+                  })
             ],
           ),
         ),

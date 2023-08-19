@@ -11,6 +11,7 @@ import 'package:manoy_app/provider/userDetails/birthday_provider.dart';
 import 'package:manoy_app/provider/userDetails/fullname_provider.dart';
 import 'package:manoy_app/provider/userDetails/gender_provider.dart';
 import 'package:manoy_app/provider/userDetails/phoneNum_provider.dart';
+import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 
@@ -62,6 +63,7 @@ class LoginScreen extends ConsumerWidget {
         ref.read(addressProvider.notifier).state = address;
         ref.read(genderProvider.notifier).state = gender;
         ref.read(birthdayProvider.notifier).state = birthday;
+        ref.read(uidProvider.notifier).state = uid;
 
         // store role in sharedPreferences
         SharedPreferences prefs = await SharedPreferences.getInstance();
