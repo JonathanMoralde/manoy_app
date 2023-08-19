@@ -49,7 +49,7 @@ class SignupPage extends ConsumerWidget {
             .set({
           'First Name': firstName,
           'Last Name': lastName,
-          'Phone Numner': int.parse(phoneNum),
+          'Phone Number': int.parse(phoneNum),
           'Address': address,
           'Gender': gender,
           'Birthday': birthday,

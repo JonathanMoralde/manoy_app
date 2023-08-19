@@ -50,9 +50,11 @@ class SignupDetails extends ConsumerWidget {
         ),
         Text("Phone Number"),
         StyledTextField(
-            controller: phoneNumController,
-            hintText: "Enter Phone Number",
-            obscureText: false),
+          controller: phoneNumController,
+          hintText: "Enter Phone Number",
+          obscureText: false,
+          keyboardType: TextInputType.number,
+        ),
         const SizedBox(
           height: 10,
         ),

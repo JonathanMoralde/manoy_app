@@ -12,7 +12,7 @@ class BookmarkPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Manoy!"),
+        title: Text("Bookmarks"),
         actions: [
           IconButton(
             onPressed: () {

@@ -1,23 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
+import 'package:manoy_app/pages/settings/applyProvider.dart';
+import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/styled_settings_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class SettingsPage extends StatelessWidget {
+import '../../provider/userDetails/address_provider.dart';
+import '../../provider/userDetails/birthday_provider.dart';
+import '../../provider/userDetails/fullname_provider.dart';
+import '../../provider/userDetails/gender_provider.dart';
+import '../../provider/userDetails/phoneNum_provider.dart';
+
+class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final fullName = ref.watch(fullnameProvider);
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
         title: const Text('Settings'),
         actions: [
           Padding(
@@ -53,7 +57,7 @@ class SettingsPage extends StatelessWidget {
                   child: Padding(
                     padding: EdgeInsets.only(right: 40),
                     child: Text(
-                      'Jonnel Angelo Red Kaldagero Ekalam Etits',
+                      fullName ?? "User",
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -68,7 +72,13 @@ class SettingsPage extends StatelessWidget {
             ),
             StyledSettingsButton(
               buttonText: 'Apply Service Provider Account',
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return ApplyProvider();
+                  }),
+                );
+              },
             ),
             SizedBox(
               height: 5,
@@ -119,6 +129,15 @@ class SettingsPage extends StatelessWidget {
               buttonText: 'Log out',
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
+
+                // RESET STATES
+                ref.read(currentIndexProvider.notifier).state = 0;
+                // store user details in provider
+                ref.read(fullnameProvider.notifier).state = null;
+                ref.read(phoneNumProvider.notifier).state = null;
+                ref.read(addressProvider.notifier).state = null;
+                ref.read(genderProvider.notifier).state = null;
+                ref.read(birthdayProvider.notifier).state = null;
 
                 // store role in sharedPreferences
                 SharedPreferences prefs = await SharedPreferences.getInstance();
