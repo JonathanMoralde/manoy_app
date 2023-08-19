@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:manoy_app/pages/forgotPasswordForm.dart';
 import 'package:manoy_app/pages/home/home.dart';
+import 'package:manoy_app/pages/settings/settings_page.dart';
 import 'package:manoy_app/pages/signup.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
@@ -34,7 +35,7 @@ class LoginScreen extends StatelessWidget {
               ),
               Text(
                 "Welcome to Manoy!".toUpperCase(),
-                style: TextStyle(
+                style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1),
@@ -66,7 +67,7 @@ class LoginScreen extends StatelessWidget {
                       }),
                     );
                   },
-                  child: Text(
+                  child: const Text(
                     "Forgot Password?",
                     style: TextStyle(letterSpacing: 1),
                     textAlign: TextAlign.end,
@@ -84,7 +85,7 @@ class LoginScreen extends StatelessWidget {
                   Navigator.of(context).pushReplacement(
                     MaterialPageRoute(
                       builder: (BuildContext context) {
-                        return HomePage();
+                        return const SettingsPage();
                       },
                     ),
                   );
@@ -97,7 +98,7 @@ class LoginScreen extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     "Don't have an account?",
                     style: TextStyle(letterSpacing: 1),
                   ),
@@ -105,7 +106,7 @@ class LoginScreen extends StatelessWidget {
                     width: 5,
                   ),
                   GestureDetector(
-                    child: Text(
+                    child: const Text(
                       "SIGN UP",
                       style: TextStyle(
                           letterSpacing: 1, fontWeight: FontWeight.w700),
