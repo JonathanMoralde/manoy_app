@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:manoy_app/pages/loginScreen.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/styled_settings_button.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsPage extends StatelessWidget {
-
   const SettingsPage({super.key});
 
   @override
@@ -28,7 +30,7 @@ class SettingsPage extends StatelessWidget {
           )
         ],
       ),
-      body: const SingleChildScrollView(
+      body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -66,56 +68,69 @@ class SettingsPage extends StatelessWidget {
             ),
             StyledSettingsButton(
               buttonText: 'Apply Service Provider Account',
-              onPressed: null,
+              onPressed: () {},
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Contact Information',
-              onPressed: null,
+              onPressed: () {},
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Change Profile Picture',
-              onPressed: null,
+              onPressed: () {},
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Change Password',
-              onPressed: null,
+              onPressed: () {},
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Contact Us',
-              onPressed: null,
+              onPressed: () {},
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Terms and Condition',
-              onPressed: null,
+              onPressed: () {},
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Help',
-              onPressed: null,
+              onPressed: () {},
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Log out',
-              onPressed: null,
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+
+                // store role in sharedPreferences
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setBool('isLogged', false);
+
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (context) => LoginScreen(),
+                  ),
+                  (Route<dynamic> route) => false,
+                );
+              },
             ),
           ],
         ),

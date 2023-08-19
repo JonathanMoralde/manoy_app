@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "750175973294",
+    "project_id": "manoy-app-d3d62",
+    "storage_bucket": "manoy-app-d3d62.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:750175973294:android:716f22c925995deb47223f",
+        "android_client_info": {
+          "package_name": "com.example.manoy_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "750175973294-q7etng0isvpspfee7eep0d5kohe0a0j2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOo43g9Aceo9oyZFQmzOxrVh0rPWq-0js"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "750175973294-q7etng0isvpspfee7eep0d5kohe0a0j2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

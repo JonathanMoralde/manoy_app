@@ -18,9 +18,46 @@ import '../provider/signup/signup_provider.dart';
 class SignupPage extends ConsumerWidget {
   SignupPage({super.key});
 
+//   @override
+//   State<SignupPage> createState() => _SignupPageState();
+// }
+
+// class _SignupPageState extends State<SignupPage> {
+
+  // final emailController = TextEditingController();
+
+  // final passwordController = TextEditingController();
+
+  // final phoneNumController = TextEditingController();
+
+  // final addressController = TextEditingController();
+
+  // String? gender;
+
+  // DateTime? selectedDate;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // ref.read(isNextProvider.notifier).state = false;
     final isNext = ref.watch(isNextProvider);
+
+    // ACCOUNT DETAILS
+    final firstNameValue =
+        ref.watch(firstNameControllerProvider('first_name')).text;
+    final lastNameValue =
+        ref.watch(lastNameControllerProvider('last_name')).text;
+    final phoneNumValue =
+        ref.watch(phoneNumControllerProvider('phoneNum')).text;
+    final addressValue = ref.watch(addressControllerProvider('address')).text;
+
+    final gender = ref.watch(genderProvider);
+
+    final selectedDate = ref.watch(selectedDateProvider);
+
+    // CREATE ACC
+    final emailValue = ref.watch(emailControllerProvider('email')).text;
+    final passwordValue =
+        ref.watch(passwordControllerProvider('password')).text;
 
     void resetState() {
       ref.read(firstNameControllerProvider('first_name')).clear();
@@ -34,29 +71,29 @@ class SignupPage extends ConsumerWidget {
       ref.read(passwordControllerProvider('password')).clear();
     }
 
-    Future addUser(
-        authResult,
-        String firstName,
-        String lastName,
-        String phoneNum,
-        String address,
-        String gender,
-        DateTime birthday) async {
+    Future addUser(authResult, String firstName, String lastName, int phoneNum,
+        String address, String gender, DateTime birthday) async {
+      // await FirebaseFirestore.instance.collection('users').add({
+      //   'First Name': firstName,
+      //   'Last Name': lastName,
+      //   'Phone Numner': phoneNum,
+      //   'Address': address,
+      //   'Gender': gender,
+      //   'Birthday': birthday,
+      // });
       try {
         await FirebaseFirestore.instance
             .collection('users')
             .doc(authResult.user!.uid)
             .set({
-          'First Name': firstName,
-          'Last Name': lastName,
-          'Phone Numner': int.parse(phoneNum),
-          'Address': address,
+          'First Name': firstNameValue,
+          'Last Name': lastNameValue,
+          'Phone Numner': int.parse(phoneNumValue),
+          'Address': addressValue,
           'Gender': gender,
-          'Birthday': birthday,
+          'Birthday': selectedDate,
         }).then((value) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Signed Up successfully!")),
-          );
+          print("success");
           resetState();
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (BuildContext context) {
@@ -72,32 +109,18 @@ class SignupPage extends ConsumerWidget {
     }
 
     Future signUp() async {
-      // CREATE ACC
-      final emailValue = ref.watch(emailControllerProvider('email')).text;
-      final passwordValue =
-          ref.watch(passwordControllerProvider('password')).text;
-
-      // ACCOUNT DETAILS
-      final firstNameValue =
-          ref.watch(firstNameControllerProvider('first_name')).text;
-      final lastNameValue =
-          ref.watch(lastNameControllerProvider('last_name')).text;
-      final phoneNumValue =
-          ref.watch(phoneNumControllerProvider('phoneNum')).text;
-      final addressValue = ref.watch(addressControllerProvider('address')).text;
-
-      final gender = ref.watch(genderProvider);
-
-      final selectedDate = ref.watch(selectedDateProvider);
       try {
+        print("executed");
         final authResult =
             await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailValue,
           password: passwordValue,
         );
 
-        addUser(authResult, firstNameValue, lastNameValue, phoneNumValue,
-            addressValue, gender!, selectedDate!);
+        print("here");
+
+        addUser(authResult, firstNameValue, lastNameValue,
+            int.parse(phoneNumValue), addressValue, gender!, selectedDate!);
       } catch (e) {
         print(e);
       }

@@ -1,13 +1,18 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
+import 'package:manoy_app/pages/main_page.dart';
 
-void main() {
+Future main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   runApp(
-    ProviderScope(
-      child: const MyApp(),
+    const ProviderScope(
+      child: MyApp(),
     ),
   );
 }
@@ -43,7 +48,7 @@ class MyApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
-      home: LoginScreen(),
+      home: MainPage(),
     );
   }
 }

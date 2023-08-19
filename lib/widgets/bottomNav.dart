@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/bookmark/bookmark.dart';
 import 'package:manoy_app/pages/home/home.dart';
+import 'package:manoy_app/pages/settings/settings_page.dart';
 import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 
 class BottomNav extends ConsumerWidget {
@@ -29,6 +30,12 @@ class BottomNav extends ConsumerWidget {
                 Navigator.of(context).pushReplacement(
                   MaterialPageRoute(builder: (BuildContext context) {
                     return BookmarkPage();
+                  }),
+                );
+              } else {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return SettingsPage();
                   }),
                 );
               }

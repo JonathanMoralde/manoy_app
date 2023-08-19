@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:manoy_app/pages/forgotPasswordForm.dart';
 import 'package:manoy_app/pages/home/home.dart';
@@ -5,6 +7,9 @@ import 'package:manoy_app/pages/settings/settings_page.dart';
 import 'package:manoy_app/pages/signup.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
+
+// sharedpreference
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -16,6 +21,39 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Future handleSignIn() async {
+      if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Please enter both email and password")),
+        );
+        return;
+      }
+
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+              email: emailController.text.trim(),
+              password: passwordController.text)
+          .then((value) async {
+        // store role in sharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('isLogged', true);
+
+        // NAVIGATE TO HOMEPAGE
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (BuildContext context) {
+              return HomePage();
+            },
+          ),
+        );
+      }).catchError((error) {
+        print(error);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Incorrect Email or Password")),
+        );
+      });
+    }
+
     return Scaffold(
       body: SizedBox(
         width: double.infinity,
@@ -81,14 +119,7 @@ class LoginScreen extends StatelessWidget {
                 btnText: "SIGN IN",
                 onClick: () {
                   // TODO AUTH
-
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) {
-                        return const SettingsPage();
-                      },
-                    ),
-                  );
+                  handleSignIn();
                 },
                 btnWidth: 250,
               ),

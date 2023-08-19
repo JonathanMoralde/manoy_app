@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 
 class StyledSettingsButton extends StatelessWidget {
   final String buttonText;
-  final VoidCallbackAction? onPressed;
+  final Function()? onPressed;
   final double width;
 
   const StyledSettingsButton({
     super.key,
     required this.buttonText,
-    required this.onPressed,
+    this.onPressed,
     this.width = 300,
   });
 
@@ -18,7 +18,7 @@ class StyledSettingsButton extends StatelessWidget {
       child: SizedBox(
         width: width,
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: onPressed,
           style: ElevatedButton.styleFrom(
             foregroundColor: Colors.white,
             backgroundColor: const Color(0xFF00A2FF),

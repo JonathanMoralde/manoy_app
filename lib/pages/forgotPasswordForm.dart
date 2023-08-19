@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:manoy_app/widgets/emailWarning.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
@@ -7,6 +8,10 @@ class ForgotPassPage extends StatelessWidget {
   ForgotPassPage({super.key});
 
   final emailController = TextEditingController();
+
+  Future handleConfirm(String email) async {
+    FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +40,14 @@ class ForgotPassPage extends StatelessWidget {
               ),
               StyledButton(
                 btnText: "CONFIRM",
-                onClick: () {},
+                onClick: () {
+                  final email = emailController.text;
+                  try {
+                    handleConfirm(email);
+                  } catch (e) {
+                    print(e);
+                  }
+                },
                 btnWidth: 250,
               ),
               const SizedBox(
