@@ -1,17 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/forgotPasswordForm.dart';
 import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/pages/settings/settings_page.dart';
 import 'package:manoy_app/pages/signup.dart';
+import 'package:manoy_app/provider/userDetails/address_provider.dart';
+import 'package:manoy_app/provider/userDetails/birthday_provider.dart';
+import 'package:manoy_app/provider/userDetails/fullname_provider.dart';
+import 'package:manoy_app/provider/userDetails/gender_provider.dart';
+import 'package:manoy_app/provider/userDetails/phoneNum_provider.dart';
+import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 
 // sharedpreference
 import 'package:shared_preferences/shared_preferences.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   LoginScreen({super.key});
 
   final emailController =
@@ -20,7 +27,7 @@ class LoginScreen extends StatelessWidget {
       TextEditingController(); //* passwordController.text
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     Future handleSignIn() async {
       if (emailController.text.isEmpty || passwordController.text.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -34,9 +41,33 @@ class LoginScreen extends StatelessWidget {
               email: emailController.text.trim(),
               password: passwordController.text)
           .then((value) async {
+        // final User? user = await FirebaseAuth.instance.currentUser;
+
+        final uid = value.user!.uid;
+
+        // print(uid);
+
+        DocumentSnapshot userSnapshot =
+            await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+        String fullname =
+            userSnapshot['First Name'] + " " + userSnapshot['Last Name'];
+        int phoneNum = userSnapshot['Phone Number'];
+        String address = userSnapshot['Address'];
+        String gender = userSnapshot['Gender'];
+        Timestamp birthday = userSnapshot['Birthday'];
+
+        // store user details in provider
+        ref.read(fullnameProvider.notifier).state = fullname;
+        ref.read(phoneNumProvider.notifier).state = phoneNum;
+        ref.read(addressProvider.notifier).state = address;
+        ref.read(genderProvider.notifier).state = gender;
+        ref.read(birthdayProvider.notifier).state = birthday;
+        ref.read(uidProvider.notifier).state = uid;
+
         // store role in sharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setBool('isLogged', true);
+        // SharedPreferences prefs = await SharedPreferences.getInstance();
+        // prefs.setBool('isLogged', true);
 
         // NAVIGATE TO HOMEPAGE
         Navigator.of(context).pushReplacement(

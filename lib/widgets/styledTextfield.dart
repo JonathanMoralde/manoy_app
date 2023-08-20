@@ -5,6 +5,7 @@ class StyledTextField extends StatelessWidget {
   final String hintText; //dynamic label or hint
   final bool obscureText; //true = for password
   final dynamic keyboardType;
+  final double? height;
 
   const StyledTextField({
     super.key,
@@ -12,12 +13,13 @@ class StyledTextField extends StatelessWidget {
     required this.hintText,
     required this.obscureText,
     this.keyboardType,
+    this.height,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 45,
+      height: height ?? 45,
       width: 250,
       child: TextField(
         keyboardType: keyboardType ?? TextInputType.text,

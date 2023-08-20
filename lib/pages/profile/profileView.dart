@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manoy_app/widgets/bottomNav.dart';
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
@@ -116,6 +117,7 @@ class ProfileView extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: BottomNav(),
     );
   }
 }

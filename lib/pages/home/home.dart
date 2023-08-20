@@ -1,12 +1,17 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/home/home_findShops.dart';
 import 'package:manoy_app/pages/home/home_forYou.dart';
+import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 import 'package:manoy_app/provider/home/activeDisplay_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/searchPage.dart';
 import 'package:manoy_app/widgets/slider.dart';
+
+import '../../provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
+import '../../provider/userDetails/uid_provider.dart';
 
 // PROVIDER
 
@@ -16,6 +21,42 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final activeDisplay = ref.watch(activeDisplayProvider);
+
+    final uid = ref.watch(uidProvider);
+
+    void setServiceProviderDetails() async {
+      DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
+          .collection('service_provider')
+          .doc(uid)
+          .get();
+
+      String serviceName = serviceSnapshot['Service Name'];
+      String serviceAddress = serviceSnapshot['Service Address'];
+      String description = serviceSnapshot['Description'];
+      String businessHours = serviceSnapshot['Business Hours'];
+      String category = serviceSnapshot['Category'];
+      String profilePhoto = serviceSnapshot['Profile Photo'];
+      String coverPhoto = serviceSnapshot['Cover Photo'];
+
+      if (serviceName.isNotEmpty &&
+          serviceAddress.isNotEmpty &&
+          description.isNotEmpty &&
+          businessHours.isNotEmpty &&
+          category.isNotEmpty &&
+          profilePhoto.isNotEmpty &&
+          coverPhoto.isNotEmpty) {
+        ref.read(serviceNameProvider.notifier).state = serviceName;
+        ref.read(serviceAddressProvider.notifier).state = serviceAddress;
+        ref.read(descriptionProvider.notifier).state = description;
+        ref.read(businessHoursProvider.notifier).state = businessHours;
+        ref.read(categoryProvider.notifier).state = category;
+        ref.read(profilePhotoProvider.notifier).state = profilePhoto;
+        ref.read(coverPhotoProvider.notifier).state = coverPhoto;
+      }
+    }
+
+    setServiceProviderDetails();
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Manoy!"),
