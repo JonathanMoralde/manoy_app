@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
 import 'package:manoy_app/pages/settings/applyProvider.dart';
+import 'package:manoy_app/pages/settings/settings_supporting_pages/change_password.dart';
+import 'package:manoy_app/pages/settings/settings_supporting_pages/change_profile_picture_page.dart';
+import 'package:manoy_app/pages/settings/settings_supporting_pages/help_page.dart';
+import 'package:manoy_app/pages/settings/settings_supporting_pages/terms_condition.dart';
 import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/styled_settings_button.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../provider/userDetails/address_provider.dart';
 import '../../provider/userDetails/birthday_provider.dart';
@@ -44,10 +47,10 @@ class SettingsPage extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 10),
-            const Row(
+            Row(
               children: [
-                SizedBox(height: 20),
-                Expanded(
+                const SizedBox(height: 20),
+                const Expanded(
                   child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Icon(
@@ -64,10 +67,10 @@ class SettingsPage extends ConsumerWidget {
                 ),
                 Expanded(
                   child: Padding(
-                    padding: EdgeInsets.only(right: 40),
+                    padding: const EdgeInsets.only(right: 40),
                     child: Text(
                       fullName ?? "User",
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -97,7 +100,7 @@ class SettingsPage extends ConsumerWidget {
             StyledSettingsButton(
               buttonText: 'Contact Information',
               onPressed: () {
-                // TODO NAVIGATE TO CHANGE CONTACT INFO FORM
+
                 // TODO 1 textfield for phone number & 1 button
               },
             ),
@@ -107,6 +110,10 @@ class SettingsPage extends ConsumerWidget {
             StyledSettingsButton(
               buttonText: 'Change Profile Picture',
               onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ChangeProfilePicturePage()));
                 // TODO NAVIGATE TO CHANGE PROFILE PHOTO FORM
                 // TODO import uploadImage_input.dart and button
                 // TODO PASS BELOW AS PARAMETER FOR TEXT & ONPRESSED
@@ -134,6 +141,11 @@ class SettingsPage extends ConsumerWidget {
             StyledSettingsButton(
               buttonText: 'Change Password',
               onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ChangePasswordPage()));
+
                 // TODO NAVIGATE TO CHANGE PASSWORD FORM
                 // TODO 1 styledtextfield for email & 1 button
               },
@@ -142,17 +154,13 @@ class SettingsPage extends ConsumerWidget {
               height: 5,
             ),
             StyledSettingsButton(
-              buttonText: 'Contact Us',
-              onPressed: () {
-                // TODO NAVIGATE TO CONTACT US
-              },
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            StyledSettingsButton(
               buttonText: 'Terms and Condition',
               onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const TermsAndConditionsScreen()));
+
                 // TODO NAVIGATE TO TERMS AND CONDITION PAGE
               },
             ),
@@ -162,6 +170,9 @@ class SettingsPage extends ConsumerWidget {
             StyledSettingsButton(
               buttonText: 'Help',
               onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const HelpPage()));
+
                 // TODO NAVIGATE TO HELP PAGE
               },
             ),
