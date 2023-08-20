@@ -34,8 +34,8 @@ class SettingsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(height: 10),
-            Row(
+            const SizedBox(height: 10),
+            const Row(
               children: [
                 SizedBox(height: 20),
                 Expanded(
@@ -63,56 +63,56 @@ class SettingsPage extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(
+            const SizedBox(
               height: 20,
             ),
             StyledSettingsButton(
               buttonText: 'Apply Service Provider Account',
               onPressed: () {},
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Contact Information',
               onPressed: () {},
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Change Profile Picture',
               onPressed: () {},
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Change Password',
               onPressed: () {},
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Contact Us',
               onPressed: () {},
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Terms and Condition',
               onPressed: () {},
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Help',
               onPressed: () {},
             ),
-            SizedBox(
+            const SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
