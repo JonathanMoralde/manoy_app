@@ -45,7 +45,7 @@ class LoginScreen extends ConsumerWidget {
 
         final uid = value.user!.uid;
 
-        print(uid);
+        // print(uid);
 
         DocumentSnapshot userSnapshot =
             await FirebaseFirestore.instance.collection('users').doc(uid).get();
@@ -66,8 +66,8 @@ class LoginScreen extends ConsumerWidget {
         ref.read(uidProvider.notifier).state = uid;
 
         // store role in sharedPreferences
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setBool('isLogged', true);
+        // SharedPreferences prefs = await SharedPreferences.getInstance();
+        // prefs.setBool('isLogged', true);
 
         // NAVIGATE TO HOMEPAGE
         Navigator.of(context).pushReplacement(

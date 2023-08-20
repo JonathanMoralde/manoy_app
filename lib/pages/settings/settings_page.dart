@@ -96,42 +96,74 @@ class SettingsPage extends ConsumerWidget {
             ),
             StyledSettingsButton(
               buttonText: 'Contact Information',
-              onPressed: () {},
+              onPressed: () {
+                // TODO NAVIGATE TO CHANGE CONTACT INFO FORM
+                // TODO 1 textfield for phone number & 1 button
+              },
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Change Profile Picture',
-              onPressed: () {},
+              onPressed: () {
+                // TODO NAVIGATE TO CHANGE PROFILE PHOTO FORM
+                // TODO import uploadImage_input.dart and button
+                // TODO PASS BELOW AS PARAMETER FOR TEXT & ONPRESSED
+                // ? import Imagepicker package
+                /* 
+                String? selectedImagePath;
+
+                Future<void> _pickImage() async {
+                final ImagePicker _picker = ImagePicker();
+                final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+                if (image != null) {
+                  setState(() {
+                    selectedImagePath1 = image.path; // Store the selected image path
+                  });
+                }
+              }
+
+                */
+              },
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Change Password',
-              onPressed: () {},
+              onPressed: () {
+                // TODO NAVIGATE TO CHANGE PASSWORD FORM
+                // TODO 1 styledtextfield for email & 1 button
+              },
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Contact Us',
-              onPressed: () {},
+              onPressed: () {
+                // TODO NAVIGATE TO CONTACT US
+              },
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Terms and Condition',
-              onPressed: () {},
+              onPressed: () {
+                // TODO NAVIGATE TO TERMS AND CONDITION PAGE
+              },
             ),
             SizedBox(
               height: 5,
             ),
             StyledSettingsButton(
               buttonText: 'Help',
-              onPressed: () {},
+              onPressed: () {
+                // TODO NAVIGATE TO HELP PAGE
+              },
             ),
             SizedBox(
               height: 5,
@@ -143,7 +175,6 @@ class SettingsPage extends ConsumerWidget {
 
                 // RESET STATES
                 ref.read(currentIndexProvider.notifier).state = 0;
-                // store user details in provider
                 ref.read(fullnameProvider.notifier).state = null;
                 ref.read(phoneNumProvider.notifier).state = null;
                 ref.read(addressProvider.notifier).state = null;
@@ -158,8 +189,8 @@ class SettingsPage extends ConsumerWidget {
                 ref.read(coverPhotoProvider.notifier).state = null;
 
                 // store role in sharedPreferences
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.setBool('isLogged', false);
+                // SharedPreferences prefs = await SharedPreferences.getInstance();
+                // prefs.setBool('isLogged', false);
 
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(
