@@ -4,7 +4,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/home/home_findShops.dart';
 import 'package:manoy_app/pages/home/home_forYou.dart';
-import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 import 'package:manoy_app/provider/home/activeDisplay_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/searchPage.dart';

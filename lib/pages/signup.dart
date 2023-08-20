@@ -6,9 +6,6 @@ import 'package:manoy_app/provider/signup/isNext_provider.dart';
 import 'package:manoy_app/widgets/signup_details.dart';
 import 'package:manoy_app/widgets/signup_next.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
-import 'package:manoy_app/widgets/styledDatapicker.dart';
-import 'package:manoy_app/widgets/styledDropdown.dart';
-import 'package:manoy_app/widgets/styledTextfield.dart';
 
 // PROVIDER
 import "package:flutter_riverpod/flutter_riverpod.dart";
@@ -53,15 +50,20 @@ class SignupPage extends ConsumerWidget {
           'Address': address,
           'Gender': gender,
           'Birthday': birthday,
-        }).then((value) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Signed Up successfully!")),
-          );
-          resetState();
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (BuildContext context) {
-            return LoginScreen();
-          }));
+        }).then((value) async {
+          await FirebaseFirestore.instance
+              .collection('bookmarks')
+              .doc(authResult.user!.uid)
+              .set({'shops': []}).then((value) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text("Signed Up successfully!")),
+            );
+            resetState();
+            Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (BuildContext context) {
+              return LoginScreen();
+            }));
+          });
         }).catchError((error) {
           print(error);
           print("test");

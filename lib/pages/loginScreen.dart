@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/forgotPasswordForm.dart';
 import 'package:manoy_app/pages/home/home.dart';
-import 'package:manoy_app/pages/settings/settings_page.dart';
 import 'package:manoy_app/pages/signup.dart';
 import 'package:manoy_app/provider/userDetails/address_provider.dart';
 import 'package:manoy_app/provider/userDetails/birthday_provider.dart';
@@ -14,9 +13,6 @@ import 'package:manoy_app/provider/userDetails/phoneNum_provider.dart';
 import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
-
-// sharedpreference
-import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends ConsumerWidget {
   LoginScreen({super.key});

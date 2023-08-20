@@ -1,13 +1,13 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/profile/shopView_message.dart';
 import 'package:manoy_app/provider/bookmark/bookmarkData_provider.dart';
 import 'package:manoy_app/provider/bookmark/isBookmark_provider.dart';
-import 'package:manoy_app/provider/userDetails/uid_provider.dart';
+import 'package:manoy_app/provider/ratedShops/ratedShops_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 
@@ -36,7 +36,26 @@ class ShopView extends ConsumerWidget {
     // this.isBookmarked
   });
 
-  Future<void> rateModal(BuildContext context) async {
+  // Fetch rated shops from SharedPreferences
+  // Future<List<String>> fetchRatedShops() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final ratedShops = prefs.getStringList('ratedShops') ?? [];
+  //   return ratedShops;
+  // }
+
+  // Check if a shop has been rated by the user
+  Future<bool> hasRatedShop(String shopId) async {
+    final shopRated = await FirebaseFirestore.instance
+        .collection('shop_ratings')
+        .where('user_id', isEqualTo: userId)
+        .get();
+    final List<String> ratedShopIds =
+        shopRated.docs.map<String>((doc) => doc['shop_id'] as String).toList();
+
+    return ratedShopIds.contains(shopId);
+  }
+
+  Future<void> rateModal(BuildContext context, WidgetRef ref) async {
     double userRating = 0;
     final reviewController = TextEditingController();
 
@@ -92,11 +111,41 @@ class ShopView extends ConsumerWidget {
                 ),
                 StyledButton(
                     btnText: "SUBMIT",
-                    onClick: () {
-                      print(userRating);
-                      print(reviewController.text);
-                      // TODO INSERT TO DB
-                      Navigator.of(context).pop();
+                    onClick: () async {
+                      final currentRating = userRating;
+                      final review = reviewController.text;
+                      if (userRating > 0 && review.isNotEmpty) {
+                        try {
+                          // final userId = ref.read(uidProvider);
+                          final shopId = uid; // Replace with the actual shop ID
+                          final id = userId;
+
+                          // print(shopId);
+
+                          // // Create a new document in the 'shop_ratings' collection
+                          await FirebaseFirestore.instance
+                              .collection('shop_ratings')
+                              .add({
+                            'user_id': id,
+                            'shop_id': shopId,
+                            'rating': currentRating,
+                            'review': review,
+                            'timestamp': FieldValue.serverTimestamp(),
+                          });
+
+                          // // Store the shop ID in local storage to indicate that the user has rated this shop
+                          // final prefs = await SharedPreferences.getInstance();
+                          // final ratedShops =
+                          //     await fetchRatedShops(); // Fetch rated shops again to get the updated list
+                          // ratedShops.add(shopId!);
+                          // await prefs.setStringList('ratedShops', ratedShops);
+                          ref.read(isRatedProvider.notifier).state = true;
+
+                          Navigator.of(context).pop(); // Close the dialog
+                        } catch (e) {
+                          print('Error submitting rating and review: $e');
+                        }
+                      }
                     }),
                 const SizedBox(
                   height: 15,
@@ -129,6 +178,7 @@ class ShopView extends ConsumerWidget {
       // await fetchBookmarks();
 
       final shopData = {
+        'uid': uid,
         'Service Name': name,
         'Service Address': address,
         'Business Hours': businessHours,
@@ -168,199 +218,205 @@ class ShopView extends ConsumerWidget {
     }
 
     final isBookmark = ref.watch(isBookmarkProvider);
-    print(isBookmark);
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Worker Profile"),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            // Handle back button action here
-            ref.read(isBookmarkProvider.notifier).state = false;
-            Navigator.of(context)
-                .pop(); // This pops the current screen off the navigation stack
-          },
-        ),
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: SizedBox(
-                        height: 250,
-                        width: double.infinity,
-                        child: CachedNetworkImage(
-                          imageUrl: coverPhoto,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ), // PROFILE PHOTO
-                    Positioned(
-                      bottom: -50,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(50),
-                          border: Border.all(
-                            color: Colors.white, // Border color
-                            width: 4, // Border width
+    final isRated = ref.watch(isRatedProvider);
+
+    return FutureBuilder<bool>(
+        future: hasRatedShop(uid ?? FirebaseAuth.instance.currentUser!.uid),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return CircularProgressIndicator(); // Display a loading indicator
+          } else if (snapshot.hasError) {
+            return Text('Error: ${snapshot.error}'); // Display an error message
+          } else {
+            final hasRatedThisShop = snapshot.data ?? false;
+            return WillPopScope(
+              onWillPop: () async {
+                ref.read(isRatedProvider.notifier).state = false;
+                return true;
+              },
+              child: Scaffold(
+                appBar: AppBar(
+                  title: Text("Worker Profile"),
+                  leading: IconButton(
+                    icon: Icon(Icons.arrow_back),
+                    onPressed: () {
+                      // Handle back button action here
+                      ref.read(isBookmarkProvider.notifier).state = false;
+                      ref.read(isRatedProvider.notifier).state = false;
+                      Navigator.of(context)
+                          .pop(); // This pops the current screen off the navigation stack
+                    },
+                  ),
+                ),
+                body: SafeArea(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        children: [
+                          Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(24),
+                                child: SizedBox(
+                                  height: 250,
+                                  width: double.infinity,
+                                  child: CachedNetworkImage(
+                                    imageUrl: coverPhoto,
+                                    width: double.infinity,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ), // PROFILE PHOTO
+                              Positioned(
+                                bottom: -50,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(50),
+                                    border: Border.all(
+                                      color: Colors.white, // Border color
+                                      width: 4, // Border width
+                                    ),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(50),
+                                    child: SizedBox(
+                                      width: 100,
+                                      height: 100,
+                                      child: CachedNetworkImage(
+                                        imageUrl: profilePhoto,
+                                        width: double.infinity,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
-                          child: SizedBox(
-                            width: 100,
-                            height: 100,
-                            child: CachedNetworkImage(
-                              imageUrl: profilePhoto,
-                              width: double.infinity,
-                              fit: BoxFit.cover,
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: IconButton(
+                              onPressed: () {
+                                handleBookmark();
+
+                                if (isBookmark == true) {
+                                  ref.read(isBookmarkProvider.notifier).state =
+                                      false;
+                                } else {
+                                  ref.read(isBookmarkProvider.notifier).state =
+                                      true;
+                                }
+                              },
+                              icon: isBookmark == true
+                                  ? Icon(
+                                      Icons.bookmark,
+                                      size: 35,
+                                    )
+                                  : Icon(
+                                      Icons.bookmark_add_outlined,
+                                      size: 35,
+                                    ),
                             ),
                           ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    onPressed: () {
-                      handleBookmark();
-
-                      if (isBookmark == true) {
-                        ref.read(isBookmarkProvider.notifier).state = false;
-                      } else {
-                        ref.read(isBookmarkProvider.notifier).state = true;
-                      }
-                    },
-                    icon: isBookmark == true
-                        ? Icon(
-                            Icons.bookmark,
-                            size: 35,
-                          )
-                        : Icon(
-                            Icons.bookmark_add_outlined,
-                            size: 35,
+                          const SizedBox(
+                            height: 0,
                           ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 0,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: Text(
-                    name,
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text("No ratings yet") //! TEMPORARY
-                ,
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(address),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text("Business Hours: ${businessHours}"),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text("Category: ${category}"),
-                const SizedBox(
-                  height: 5,
-                ),
-                Divider(
-                  height: 0,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(description),
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Divider(
-                  height: 0,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    StyledButton(
-                        btnText: "RATE",
-                        onClick: () {
-                          rateModal(context);
-                        }),
-                    const SizedBox(
-                      width: 10,
+                          SizedBox(
+                            width: 300,
+                            child: Text(
+                              name,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.w700, fontSize: 16),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text("No ratings yet") //TODO REPLACE
+                          ,
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text(address),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text("Business Hours: ${businessHours}"),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text("Category: ${category}"),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Divider(
+                            height: 0,
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(description),
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          Divider(
+                            height: 0,
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              StyledButton(
+                                btnText: hasRatedThisShop || isRated
+                                    ? "RATED"
+                                    : "RATE",
+                                onClick: hasRatedThisShop || isRated
+                                    ? null
+                                    : () {
+                                        rateModal(context, ref);
+                                        // ref
+                                        //     .read(isRatedProvider.notifier)
+                                        //     .state = true;
+                                      },
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              StyledButton(
+                                  btnText: "MESSAGE",
+                                  onClick: () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                          builder: (BuildContext context) {
+                                        return MessagePage(name: name);
+                                      }),
+                                    );
+                                  }),
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          StyledButton(
+                              btnText: "MAKE APPOINTMENT", onClick: () {}),
+                        ],
+                      ),
                     ),
-                    StyledButton(
-                        btnText: "MESSAGE",
-                        onClick: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return MessagePage(name: name);
-                            }),
-                          );
-                        }),
-                  ],
+                  ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                StyledButton(btnText: "MAKE APPOINTMENT", onClick: () {}),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+              ),
+            );
+          }
+        });
   }
-
-  // List<Map<String, dynamic>> bookmarks = [];
-
-  // Future fetchBookmarks() async {
-  //   DocumentSnapshot userDoc = await FirebaseFirestore.instance
-  //       .collection('bookmarks')
-  //       .doc(widget.userId)
-  //       .get();
-
-  //   if (userDoc.exists) {
-  //     final data = userDoc.data()
-  //         as Map<String, dynamic>?; // Cast to Map<String, dynamic>
-  //     if (data != null) {
-  //       if (data != null) {
-  //         setState(() {
-  //           bookmarks = List<Map<String, dynamic>>.from(data['shops'] ?? []);
-  //         });
-  //       }
-  //     } else {
-  //       // Document doesn't exist or no bookmarks, set bookmarks list to empty
-  //       setState(() {
-  //         bookmarks = [];
-  //       });
-  //     }
-  //   }
-  // }
 }

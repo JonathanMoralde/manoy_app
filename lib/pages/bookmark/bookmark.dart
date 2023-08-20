@@ -1,9 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/provider/bookmark/bookmarkData_provider.dart';
-import 'package:manoy_app/provider/bookmark/isBookmark_provider.dart';
-import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/shopCard.dart';
 
@@ -14,28 +11,7 @@ class BookmarkPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userId = ref.watch(uidProvider);
-    // final userBookmarks = ref.watch(bookmarkShopsProvider);
-
-    // final bookmarkData = userBookmarks.data() as <Map<String, dynamic>>;
-
-    // Future<Map<String, dynamic>> grabBookmark() async {
-    //   final docRef =
-    //       await FirebaseFirestore.instance.collection('bookmarks').doc(userId);
-
-    //   final data = docRef.get().then(
-    //     (DocumentSnapshot doc) {
-    //       final data = doc.data() as Map<String, dynamic>;
-    //       return data;
-    //     },
-    //     onError: (e) => print("Error getting document: $e"),
-    //   );
-
-    //   return data;
-    // }
-
     final bookmarkDataAsyncValue = ref.watch(bookmarkDataProvider);
-    final isBookmark = ref.watch(isBookmarkProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -57,6 +33,7 @@ class BookmarkPage extends ConsumerWidget {
         child: bookmarkDataAsyncValue.when(
           data: (bookmarkData) {
             final List shopsArray = bookmarkData['shops'] ?? [];
+            // print(shopsArray);
 
             if (shopsArray.isEmpty) {
               return Center(child: Text("No bookmarked shops found."));
@@ -70,6 +47,7 @@ class BookmarkPage extends ConsumerWidget {
                     Column(
                       children: [
                         ShopCard(
+                          uid: shopData['uid'],
                           name: shopData['Service Name'],
                           address: shopData['Service Address'],
                           image: shopData['Profile Photo'],
