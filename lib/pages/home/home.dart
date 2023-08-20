@@ -22,6 +22,9 @@ class HomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final activeDisplay = ref.watch(activeDisplayProvider);
 
+    // GETTING ALL SHOP DATA
+
+// GETTING MY SHOP DATA
     final uid = ref.watch(uidProvider);
 
     void setServiceProviderDetails() async {

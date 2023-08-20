@@ -40,7 +40,7 @@ class StyledButton extends StatelessWidget {
             // fixedSize: const Size(250, 32),
             elevation: noShadow == true ? 0 : 2,
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
             backgroundColor: btnColor ?? const Color(0xFF00A2FF),
             foregroundColor: const Color.fromARGB(255, 37, 37, 37),
             textStyle: const TextStyle(
@@ -67,7 +67,7 @@ class StyledButton extends StatelessWidget {
             elevation: noShadow == true ? 0 : 2,
 
             shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
             backgroundColor: btnColor ?? const Color(0xFF00A2FF),
             // foregroundColor: const Color.fromARGB(255, 37, 37, 37),
             foregroundColor: Colors.white,

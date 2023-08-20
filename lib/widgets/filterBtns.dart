@@ -81,10 +81,11 @@ class FilterBtns extends ConsumerWidget {
     // final List<String> category = ref.watch(fetchCategoryProvider).value ?? [];
     final List<String> category = [
       "All",
-      "Electrician",
-      "Kaldagers",
-      "Test",
-      "TAGA TUHOG"
+      "Maintenance and Repairs",
+      "Parts and accessories",
+      "Car Wash and Detailing",
+      "Fuel and charging station",
+      "Inspection and emissions",
     ];
     return Padding(
       padding: const EdgeInsets.only(left: 8),

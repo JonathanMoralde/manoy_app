@@ -1,0 +1,246 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:manoy_app/provider/userDetails/uid_provider.dart';
+import 'package:manoy_app/widgets/styledButton.dart';
+
+class ShopView extends StatefulWidget {
+  final String? uid;
+  final String name;
+  final String address;
+  final String businessHours;
+  final String category;
+  final String description;
+  final String profilePhoto;
+  final String coverPhoto;
+  final String? userId;
+  bool? isBookmarked;
+  ShopView(
+      {super.key,
+      this.userId,
+      this.uid,
+      required this.name,
+      required this.address,
+      required this.businessHours,
+      required this.category,
+      required this.description,
+      required this.profilePhoto,
+      required this.coverPhoto,
+      this.isBookmarked});
+
+  @override
+  State<ShopView> createState() => _ShopViewState();
+}
+
+class _ShopViewState extends State<ShopView> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Worker Profile"),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: SizedBox(
+                        height: 250,
+                        width: double.infinity,
+                        child: CachedNetworkImage(
+                          imageUrl: widget.coverPhoto,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ), // PROFILE PHOTO
+                    Positioned(
+                      bottom: -50,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(
+                            color: Colors.white, // Border color
+                            width: 4, // Border width
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
+                          child: SizedBox(
+                            width: 100,
+                            height: 100,
+                            child: CachedNetworkImage(
+                              imageUrl: widget.profilePhoto,
+                              width: double.infinity,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: IconButton(
+                    onPressed: handleBookmark,
+                    icon: widget.isBookmarked == true
+                        ? Icon(
+                            Icons.bookmark,
+                            size: 35,
+                          )
+                        : Icon(
+                            Icons.bookmark_add_outlined,
+                            size: 35,
+                          ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 0,
+                ),
+                SizedBox(
+                  width: 300,
+                  child: Text(
+                    widget.name,
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text("No ratings yet") //! TEMPORARY
+                ,
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(widget.address),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text("Business Hours: ${widget.businessHours}"),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text("Category: ${widget.category}"),
+                const SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  height: 0,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(widget.description),
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  height: 0,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    StyledButton(btnText: "RATE", onClick: () {}),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    StyledButton(btnText: "MESSAGE", onClick: () {}),
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                StyledButton(btnText: "MAKE APPOINTMENT", onClick: () {}),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Map<String, dynamic>> bookmarks = [];
+
+  handleBookmark() async {
+    await fetchBookmarks();
+    final shopData = {
+      'Service Name': widget.name,
+      'Service Address': widget.address,
+      'Business Hours': widget.businessHours,
+      'Category': widget.category,
+      'Description': widget.description,
+      'Profile Photo': widget.profilePhoto,
+      'Cover Photo': widget.coverPhoto,
+    };
+    if (bookmarks.isEmpty) {
+      bookmarks.add(shopData);
+
+      await FirebaseFirestore.instance
+          .collection('bookmarks')
+          .doc(widget.userId)
+          .set({'shops': bookmarks});
+    } else {
+      // REMOVE THE SHOP FROM THE BOOKMARK
+      int index = bookmarks.indexWhere((bookmark) {
+        return bookmark['Service Name'] == widget.name;
+      });
+
+      if (index != -1) {
+        bookmarks.removeAt(index);
+        setState(() {
+          widget.isBookmarked = false;
+        });
+      } else {
+        bookmarks.add(shopData);
+        setState(() {
+          widget.isBookmarked = true;
+        });
+      }
+
+      await FirebaseFirestore.instance
+          .collection('bookmarks')
+          .doc(widget.userId)
+          .set({'shops': bookmarks});
+    }
+  }
+
+  Future fetchBookmarks() async {
+    DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection('bookmarks')
+        .doc(widget.userId)
+        .get();
+
+    if (userDoc.exists) {
+      final data = userDoc.data()
+          as Map<String, dynamic>?; // Cast to Map<String, dynamic>
+      if (data != null) {
+        if (data != null) {
+          setState(() {
+            bookmarks = List<Map<String, dynamic>>.from(data['shops'] ?? []);
+          });
+        }
+      } else {
+        // Document doesn't exist or no bookmarks, set bookmarks list to empty
+        setState(() {
+          bookmarks = [];
+        });
+      }
+    }
+  }
+}

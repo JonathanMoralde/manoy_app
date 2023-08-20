@@ -266,9 +266,11 @@ class _ApplyProviderState extends State<ApplyProvider> {
                   },
                   hintText: "Select Category",
                   items: const [
-                    "Accessories & Repair Service",
-                    "Accessories",
-                    "Repair Service",
+                    "Maintenance and Repairs",
+                    "Parts and accessories",
+                    "Car Wash and Detailing",
+                    "Fuel and charging station",
+                    "Inspection and emissions",
                   ]),
               const SizedBox(
                 height: 10,

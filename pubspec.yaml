@@ -47,6 +47,7 @@ dependencies:
   cloud_functions: ^4.3.4
   image_picker: ^0.8.1
   uuid: ^3.0.7
+  flutter_hooks: ^0.18.5+1
 
 dev_dependencies:
   flutter_test:

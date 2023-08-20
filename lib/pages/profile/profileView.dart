@@ -1,12 +1,29 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
+import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
+import 'package:manoy_app/widgets/styledButton.dart';
 
-class ProfileView extends StatelessWidget {
-  const ProfileView({super.key});
+class ProfileView extends ConsumerWidget {
+  final bool? fromShopCard;
+  const ProfileView({super.key, this.fromShopCard});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final serviceName = ref.watch(serviceNameProvider);
+    final serviceAddress = ref.watch(serviceAddressProvider);
+    final description = ref.watch(descriptionProvider);
+    final businessHours = ref.watch(businessHoursProvider);
+    final category = ref.watch(categoryProvider);
+    final profilePhoto = ref.watch(profilePhotoProvider);
+    final coverPhoto = ref.watch(coverPhotoProvider);
+
     return Scaffold(
+      appBar: AppBar(
+        title: Text("My Shop/Service"),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -22,7 +39,11 @@ class ProfileView extends StatelessWidget {
                       child: SizedBox(
                         height: 250,
                         width: double.infinity,
-                        child: Image.asset('lib/images/cover.png'),
+                        child: CachedNetworkImage(
+                          imageUrl: coverPhoto!,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ), // PROFILE PHOTO
                     Positioned(
@@ -41,8 +62,9 @@ class ProfileView extends StatelessWidget {
                           child: SizedBox(
                             width: 100,
                             height: 100,
-                            child: Image.asset(
-                              'lib/images/testImage.jpg',
+                            child: CachedNetworkImage(
+                              imageUrl: profilePhoto!,
+                              width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -51,23 +73,13 @@ class ProfileView extends StatelessWidget {
                     )
                   ],
                 ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.bookmark_add_outlined,
-                      size: 35,
-                    ),
-                  ),
-                ),
                 const SizedBox(
-                  height: 0,
+                  height: 60,
                 ),
                 SizedBox(
                   width: 300,
                   child: Text(
-                    "Jonnel Angel Red Kaldag Services",
+                    serviceName!,
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
@@ -75,20 +87,41 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                Text("5/5 Ratings") //! TEMPORARY
+                Text("No ratings yet") //! TEMPORARY
                 ,
                 const SizedBox(
                   height: 10,
                 ),
-                Text("Polangui, Albay"),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    StyledButton(btnText: "EDIT PROFILE", onClick: () {}),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    StyledButton(
+                        btnText: "MESSAGES",
+                        onClick: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (BuildContext context) {
+                              return MessageInbox();
+                            }),
+                          );
+                        }),
+                  ],
+                ),
                 const SizedBox(
                   height: 10,
                 ),
-                Text("Business Hours: 8AM - 5PM"),
+                Text(serviceAddress!),
                 const SizedBox(
                   height: 10,
                 ),
-                Text("Category: Accessories & Repair Shop"),
+                Text('Business Hours: $businessHours'),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text("Category: $category"),
                 const SizedBox(
                   height: 5,
                 ),
@@ -98,11 +131,7 @@ class ProfileView extends StatelessWidget {
                 const SizedBox(
                   height: 5,
                 ),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                      "We offer 11/10 services! Message us and send an appointment!"),
-                ),
+                Text(description!),
                 const SizedBox(
                   height: 5,
                 ),
@@ -117,7 +146,8 @@ class ProfileView extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: BottomNav(),
+      bottomNavigationBar: fromShopCard == true ? null : BottomNav(),
+      // bottomNavigationBar: null,
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
 import 'package:manoy_app/pages/settings/applyProvider.dart';
+import 'package:manoy_app/provider/bookmark/isBookmark_provider.dart';
 import 'package:manoy_app/pages/settings/settings_supporting_pages/change_password.dart';
 import 'package:manoy_app/pages/settings/settings_supporting_pages/change_profile_picture_page.dart';
 import 'package:manoy_app/pages/settings/settings_supporting_pages/help_page.dart';
@@ -100,7 +101,6 @@ class SettingsPage extends ConsumerWidget {
             StyledSettingsButton(
               buttonText: 'Contact Information',
               onPressed: () {
-
                 // TODO 1 textfield for phone number & 1 button
               },
             ),
@@ -113,7 +113,8 @@ class SettingsPage extends ConsumerWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const ChangeProfilePicturePage()));
+                        builder: (context) =>
+                            const ChangeProfilePicturePage()));
                 // TODO NAVIGATE TO CHANGE PROFILE PHOTO FORM
                 // TODO import uploadImage_input.dart and button
                 // TODO PASS BELOW AS PARAMETER FOR TEXT & ONPRESSED
@@ -159,7 +160,8 @@ class SettingsPage extends ConsumerWidget {
                 Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => const TermsAndConditionsScreen()));
+                        builder: (context) =>
+                            const TermsAndConditionsScreen()));
 
                 // TODO NAVIGATE TO TERMS AND CONDITION PAGE
               },
@@ -198,6 +200,7 @@ class SettingsPage extends ConsumerWidget {
                 ref.read(categoryProvider.notifier).state = null;
                 ref.read(profilePhotoProvider.notifier).state = null;
                 ref.read(coverPhotoProvider.notifier).state = null;
+                ref.read(isBookmarkProvider.notifier).state = false;
 
                 // store role in sharedPreferences
                 // SharedPreferences prefs = await SharedPreferences.getInstance();

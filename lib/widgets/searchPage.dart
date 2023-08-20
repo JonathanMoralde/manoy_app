@@ -41,10 +41,10 @@ class SearchPage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              ShopCard(
-                name: "John Doe",
-                address: "Polangui, Albay",
-              ), //TODO REPLACE THIS WITH ACTUAL SEARCH ITEMS
+              // ShopCard(
+              //   name: "John Doe",
+              //   address: "Polangui, Albay",
+              // ), //TODO REPLACE THIS WITH ACTUAL SEARCH ITEMS
             ],
           ),
         ),
