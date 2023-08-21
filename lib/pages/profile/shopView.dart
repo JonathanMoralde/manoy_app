@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/profile/shopView_message.dart';
+import 'package:manoy_app/pages/profile/viewReview.dart';
 import 'package:manoy_app/provider/bookmark/bookmarkData_provider.dart';
 import 'package:manoy_app/provider/bookmark/isBookmark_provider.dart';
 import 'package:manoy_app/provider/ratedShops/ratedShops_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
+
+import '../../provider/rating/averageRating_provider.dart';
 
 class ShopView extends ConsumerWidget {
   final String? uid;
@@ -220,6 +223,19 @@ class ShopView extends ConsumerWidget {
     final isBookmark = ref.watch(isBookmarkProvider);
     final isRated = ref.watch(isRatedProvider);
 
+    // Get average ratings and total ratings from the provider
+    final averageRatingsInfo = ref.watch(averageRatingsProvider);
+    final ratingsInfo = averageRatingsInfo.when(
+      data: (ratings) {
+        return ratings[uid!] ?? {'averageRating': 0.0, 'totalRatings': 0};
+      },
+      loading: () => {'averageRating': 0.0, 'totalRatings': 0},
+      error: (error, stackTrace) => {'averageRating': 0.0, 'totalRatings': 0},
+    );
+
+    final averageRating = ratingsInfo['averageRating'] as double;
+    final totalRatings = ratingsInfo['totalRatings'] as int;
+
     return FutureBuilder<bool>(
         future: hasRatedShop(uid ?? FirebaseAuth.instance.currentUser!.uid),
         builder: (context, snapshot) {
@@ -330,25 +346,59 @@ class ShopView extends ConsumerWidget {
                             child: Text(
                               name,
                               style: TextStyle(
-                                  fontWeight: FontWeight.w700, fontSize: 16),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  letterSpacing: 1),
                               textAlign: TextAlign.center,
                             ),
                           ),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
-                          Text("No ratings yet") //TODO REPLACE
-                          ,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "${averageRating.toStringAsFixed(1)}/5",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: Colors.yellow.shade700,
+                                size: 16,
+                              ),
+                              Text("($totalRatings)"),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) =>
+                                          ViewReviewPage(
+                                        uid: uid,
+                                        name: name,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                icon: Icon(Icons.remove_red_eye_outlined),
+                                padding: EdgeInsets.zero,
+                                constraints: BoxConstraints(),
+                              )
+                            ],
+                          ),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Text(address),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Text("Business Hours: ${businessHours}"),
                           const SizedBox(
-                            height: 10,
+                            height: 5,
                           ),
                           Text("Category: ${category}"),
                           const SizedBox(
@@ -360,10 +410,7 @@ class ShopView extends ConsumerWidget {
                           const SizedBox(
                             height: 5,
                           ),
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(description),
-                          ),
+                          Text(description),
                           const SizedBox(
                             height: 5,
                           ),

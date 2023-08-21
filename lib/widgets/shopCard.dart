@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/profile/profileView.dart';
@@ -8,6 +9,7 @@ import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 
 import '../provider/bookmark/bookmarkData_provider.dart';
+import '../provider/rating/averageRating_provider.dart';
 
 class ShopCard extends ConsumerWidget {
   final String name;
@@ -33,6 +35,29 @@ class ShopCard extends ConsumerWidget {
     required this.coverPhoto,
     // this.isBookmarked
   });
+
+  Future<double> fetchAverageRating(String shopId) async {
+    final QuerySnapshot ratingsSnapshot = await FirebaseFirestore.instance
+        .collection('shop_ratings')
+        .where('shop_id', isEqualTo: shopId)
+        .get();
+
+    if (ratingsSnapshot.size == 0) {
+      return 0.0; // No ratings yet
+    }
+
+    int totalRatings = 0;
+    double totalRatingSum = 0.0;
+
+    for (QueryDocumentSnapshot ratingDoc in ratingsSnapshot.docs) {
+      double rating = ratingDoc['rating'] ?? 0.0;
+      totalRatingSum += rating;
+      totalRatings++;
+    }
+
+    double averageRating = totalRatingSum / totalRatings;
+    return averageRating;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -89,6 +114,20 @@ class ShopCard extends ConsumerWidget {
       }
     }
 
+    // FETCH RATINGS AND TOTAL COUNT
+    final averageRatingsInfo = ref.watch(averageRatingsProvider);
+
+    final ratingsInfo = averageRatingsInfo.when(
+      data: (ratings) {
+        return ratings[uid!] ?? {'averageRating': 0.0, 'totalRatings': 0};
+      },
+      loading: () => {'averageRating': 0.0, 'totalRatings': 0},
+      error: (error, stackTrace) => {'averageRating': 0.0, 'totalRatings': 0},
+    );
+
+    final averageRating = ratingsInfo['averageRating'] as double;
+    final totalRatings = ratingsInfo['totalRatings'] as int;
+
     return GestureDetector(
       onTap: () {
         handleTap();
@@ -129,11 +168,25 @@ class ShopCard extends ConsumerWidget {
                     children: [
                       Text(
                         name,
-                        style: TextStyle(fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                            fontWeight: FontWeight.w700, letterSpacing: 1),
                       ),
-                      Text(
-                        "No Ratings Yet",
-                        style: TextStyle(fontSize: 12),
+                      Row(
+                        children: [
+                          Text(
+                            "${averageRating.toStringAsFixed(1)}/5",
+                            style: TextStyle(fontSize: 12),
+                          ),
+                          Icon(
+                            Icons.star,
+                            color: Colors.yellow.shade700,
+                            size: 16,
+                          ),
+                          const SizedBox(
+                            width: 5,
+                          ),
+                          Text("($totalRatings)")
+                        ],
                       ),
                       Text(
                         address,
