@@ -9,8 +9,14 @@ class ForgotPassPage extends StatelessWidget {
 
   final emailController = TextEditingController();
 
-  Future handleConfirm(String email) async {
-    FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+  Future<bool> handleConfirm(String email) async {
+    try {
+      FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      return true;
+    } catch (error) {
+      print('error');
+      return false;
+    }
   }
 
   @override
@@ -42,11 +48,15 @@ class ForgotPassPage extends StatelessWidget {
                 btnText: "CONFIRM",
                 onClick: () {
                   final email = emailController.text;
-                  try {
-                    handleConfirm(email);
-                  } catch (e) {
-                    print(e);
-                  }
+
+                  handleConfirm(email).then((success) {
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              'Password Reset Link has been sent to your email')));
+                      emailController.clear();
+                    }
+                  });
                 },
                 btnWidth: 250,
               ),

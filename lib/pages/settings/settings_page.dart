@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manoy_app/pages/forgotPasswordForm.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
 import 'package:manoy_app/pages/settings/applyProvider.dart';
+import 'package:manoy_app/pages/settings/settings_supporting_pages/contact_information.dart';
 import 'package:manoy_app/provider/bookmark/isBookmark_provider.dart';
 import 'package:manoy_app/pages/settings/settings_supporting_pages/change_password.dart';
 import 'package:manoy_app/pages/settings/settings_supporting_pages/change_profile_picture_page.dart';
@@ -28,6 +30,10 @@ class SettingsPage extends ConsumerWidget {
     final fullName = ref.watch(fullnameProvider);
     final uid = ref.watch(uidProvider);
     final serviceName = ref.watch(serviceNameProvider);
+    final isServiceNameNull = serviceName != null;
+    print('UID: $uid');
+    print('isServiceNameNull: $isServiceNameNull');
+    print('uid: $uid');
 
     return Scaffold(
       appBar: AppBar(
@@ -85,11 +91,11 @@ class SettingsPage extends ConsumerWidget {
             ),
             StyledSettingsButton(
               buttonText: 'Apply Service Provider Account',
-              onPressed: serviceName == null
+              onPressed: isServiceNameNull && uid != null // Check uid here
                   ? () {
                       Navigator.of(context).push(
                         MaterialPageRoute(builder: (BuildContext context) {
-                          return ApplyProvider(uid: uid!);
+                          return ApplyProvider(uid: uid);
                         }),
                       );
                     }
@@ -101,7 +107,10 @@ class SettingsPage extends ConsumerWidget {
             StyledSettingsButton(
               buttonText: 'Contact Information',
               onPressed: () {
-                // TODO 1 textfield for phone number & 1 button
+                Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (BuildContext context) {
+                  return ContactInfoPage();
+                }));
               },
             ),
             const SizedBox(
@@ -142,13 +151,8 @@ class SettingsPage extends ConsumerWidget {
             StyledSettingsButton(
               buttonText: 'Change Password',
               onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ChangePasswordPage()));
-
-                // TODO NAVIGATE TO CHANGE PASSWORD FORM
-                // TODO 1 styledtextfield for email & 1 button
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => ForgotPassPage()));
               },
             ),
             const SizedBox(

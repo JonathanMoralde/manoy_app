@@ -31,29 +31,32 @@ class HomePage extends ConsumerWidget {
           .collection('service_provider')
           .doc(uid)
           .get();
+      try {
+        String serviceName = serviceSnapshot['Service Name'];
+        String serviceAddress = serviceSnapshot['Service Address'];
+        String description = serviceSnapshot['Description'];
+        String businessHours = serviceSnapshot['Business Hours'];
+        String category = serviceSnapshot['Category'];
+        String profilePhoto = serviceSnapshot['Profile Photo'];
+        String coverPhoto = serviceSnapshot['Cover Photo'];
 
-      String serviceName = serviceSnapshot['Service Name'];
-      String serviceAddress = serviceSnapshot['Service Address'];
-      String description = serviceSnapshot['Description'];
-      String businessHours = serviceSnapshot['Business Hours'];
-      String category = serviceSnapshot['Category'];
-      String profilePhoto = serviceSnapshot['Profile Photo'];
-      String coverPhoto = serviceSnapshot['Cover Photo'];
-
-      if (serviceName.isNotEmpty &&
-          serviceAddress.isNotEmpty &&
-          description.isNotEmpty &&
-          businessHours.isNotEmpty &&
-          category.isNotEmpty &&
-          profilePhoto.isNotEmpty &&
-          coverPhoto.isNotEmpty) {
-        ref.read(serviceNameProvider.notifier).state = serviceName;
-        ref.read(serviceAddressProvider.notifier).state = serviceAddress;
-        ref.read(descriptionProvider.notifier).state = description;
-        ref.read(businessHoursProvider.notifier).state = businessHours;
-        ref.read(categoryProvider.notifier).state = category;
-        ref.read(profilePhotoProvider.notifier).state = profilePhoto;
-        ref.read(coverPhotoProvider.notifier).state = coverPhoto;
+        if (serviceName.isNotEmpty &&
+            serviceAddress.isNotEmpty &&
+            description.isNotEmpty &&
+            businessHours.isNotEmpty &&
+            category.isNotEmpty &&
+            profilePhoto.isNotEmpty &&
+            coverPhoto.isNotEmpty) {
+          ref.read(serviceNameProvider.notifier).state = serviceName;
+          ref.read(serviceAddressProvider.notifier).state = serviceAddress;
+          ref.read(descriptionProvider.notifier).state = description;
+          ref.read(businessHoursProvider.notifier).state = businessHours;
+          ref.read(categoryProvider.notifier).state = category;
+          ref.read(profilePhotoProvider.notifier).state = profilePhoto;
+          ref.read(coverPhotoProvider.notifier).state = coverPhoto;
+        }
+      } catch (error) {
+        print('error');
       }
     }
 
