@@ -4,10 +4,12 @@ class UploadImage extends StatelessWidget {
   final VoidCallback onPressed;
   final String? text;
 
-  const UploadImage({super.key, required this.onPressed, this.text});
+  const UploadImage({Key? key, required this.onPressed, this.text})
+      : super(key: key); // Use super() without arguments
 
   @override
   Widget build(BuildContext context) {
+    print(text);
     return Container(
       height: 45,
       width: 250,

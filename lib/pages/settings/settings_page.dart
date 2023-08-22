@@ -205,6 +205,13 @@ class SettingsPage extends ConsumerWidget {
                 ref.read(profilePhotoProvider.notifier).state = null;
                 ref.read(coverPhotoProvider.notifier).state = null;
                 ref.read(isBookmarkProvider.notifier).state = false;
+                ref.read(serviceNameProvider.notifier).state = null;
+                ref.read(serviceAddressProvider.notifier).state = null;
+                ref.read(descriptionProvider.notifier).state = null;
+                ref.read(businessHoursProvider.notifier).state = null;
+                ref.read(categoryProvider.notifier).state = null;
+                ref.read(profilePhotoProvider.notifier).state = null;
+                ref.read(coverPhotoProvider.notifier).state = null;
 
                 // store role in sharedPreferences
                 // SharedPreferences prefs = await SharedPreferences.getInstance();

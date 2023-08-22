@@ -14,6 +14,8 @@ import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 
+import '../provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
+
 class LoginScreen extends ConsumerWidget {
   LoginScreen({super.key});
 
@@ -60,6 +62,39 @@ class LoginScreen extends ConsumerWidget {
         ref.read(genderProvider.notifier).state = gender;
         ref.read(birthdayProvider.notifier).state = birthday;
         ref.read(uidProvider.notifier).state = uid;
+
+        try {
+          DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
+              .collection('service_provider')
+              .doc(uid)
+              .get();
+
+          String serviceName = serviceSnapshot['Service Name'];
+          String serviceAddress = serviceSnapshot['Service Address'];
+          String description = serviceSnapshot['Description'];
+          String businessHours = serviceSnapshot['Business Hours'];
+          String category = serviceSnapshot['Category'];
+          String profilePhoto = serviceSnapshot['Profile Photo'];
+          String coverPhoto = serviceSnapshot['Cover Photo'];
+
+          if (serviceName.isNotEmpty &&
+              serviceAddress.isNotEmpty &&
+              description.isNotEmpty &&
+              businessHours.isNotEmpty &&
+              category.isNotEmpty &&
+              profilePhoto.isNotEmpty &&
+              coverPhoto.isNotEmpty) {
+            ref.read(serviceNameProvider.notifier).state = serviceName;
+            ref.read(serviceAddressProvider.notifier).state = serviceAddress;
+            ref.read(descriptionProvider.notifier).state = description;
+            ref.read(businessHoursProvider.notifier).state = businessHours;
+            ref.read(categoryProvider.notifier).state = category;
+            ref.read(profilePhotoProvider.notifier).state = profilePhoto;
+            ref.read(coverPhotoProvider.notifier).state = coverPhoto;
+          }
+        } catch (e) {
+          print(e);
+        }
 
         // store role in sharedPreferences
         // SharedPreferences prefs = await SharedPreferences.getInstance();
