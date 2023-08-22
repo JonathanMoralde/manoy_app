@@ -5,6 +5,20 @@ import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
+
+// final locationProvider = FutureProvider<LatLng?>((ref) async {
+//   try {
+//     final position = await Geolocator.getCurrentPosition(
+//       desiredAccuracy: LocationAccuracy.high,
+//     );
+//     return LatLng(position.latitude, position.longitude);
+//   } catch (e) {
+//     // Handle error
+//     return null;
+//   }
+// });
 
 class ProfileView extends ConsumerWidget {
   final bool? fromShopCard;
@@ -12,6 +26,8 @@ class ProfileView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // final locationAsyncValue = ref.watch(locationProvider);
+
     final serviceName = ref.watch(serviceNameProvider);
     final serviceAddress = ref.watch(serviceAddressProvider);
     final description = ref.watch(descriptionProvider);
@@ -19,6 +35,24 @@ class ProfileView extends ConsumerWidget {
     final category = ref.watch(categoryProvider);
     final profilePhoto = ref.watch(profilePhotoProvider);
     final coverPhoto = ref.watch(coverPhotoProvider);
+
+    Position? _currentLocation;
+    late bool servicePermission = false;
+    late LocationPermission permission;
+
+    String currentAddress = '';
+
+    Future<Position> getCurrentLocation() async {
+      servicePermission = await Geolocator.isLocationServiceEnabled();
+      if (!servicePermission) {
+        print('service disabled');
+      }
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+      }
+      return await Geolocator.getCurrentPosition();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -108,6 +142,17 @@ class ProfileView extends ConsumerWidget {
                             }),
                           );
                         }),
+                    StyledButton(
+                        btnText: 'Location',
+                        onClick: () async {
+                          _currentLocation = await getCurrentLocation();
+                          if (_currentLocation != null) {
+                            print('{$_currentLocation}');
+                          }
+                        }),
+                    const SizedBox(
+                      width: 10,
+                    )
                   ],
                 ),
                 const SizedBox(
