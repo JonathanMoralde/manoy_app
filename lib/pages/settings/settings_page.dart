@@ -30,7 +30,7 @@ class SettingsPage extends ConsumerWidget {
     final fullName = ref.watch(fullnameProvider);
     final uid = ref.watch(uidProvider);
     final serviceName = ref.watch(serviceNameProvider);
-    final isServiceNameNull = serviceName != null;
+    final isServiceNameNull = serviceName == null;
     print('UID: $uid');
     print('isServiceNameNull: $isServiceNameNull');
     print('uid: $uid');
