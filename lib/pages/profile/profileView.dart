@@ -54,6 +54,15 @@ class ProfileView extends ConsumerWidget {
       return await Geolocator.getCurrentPosition();
     }
 
+    void _liveLocation() {
+      LocationSettings locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.high,
+        distanceFilter: 100,
+      );
+      Geolocator.getPositionStream(locationSettings: locationSettings)
+          .listen((Position position) {});
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text("My Shop/Service"),
@@ -149,6 +158,7 @@ class ProfileView extends ConsumerWidget {
                           if (_currentLocation != null) {
                             print('{$_currentLocation}');
                           }
+                          _liveLocation();
                         }),
                     const SizedBox(
                       width: 10,
