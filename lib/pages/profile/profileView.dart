@@ -5,8 +5,8 @@ import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 // final locationProvider = FutureProvider<LatLng?>((ref) async {
 //   try {
@@ -36,11 +36,13 @@ class ProfileView extends ConsumerWidget {
     final profilePhoto = ref.watch(profilePhotoProvider);
     final coverPhoto = ref.watch(coverPhotoProvider);
 
-    Position? _currentLocation;
+
     late bool servicePermission = false;
     late LocationPermission permission;
 
-    String currentAddress = '';
+
+      late String lat;
+      late String long;
 
     Future<Position> getCurrentLocation() async {
       servicePermission = await Geolocator.isLocationServiceEnabled();
@@ -54,7 +56,7 @@ class ProfileView extends ConsumerWidget {
       return await Geolocator.getCurrentPosition();
     }
 
-    void _liveLocation() {
+    void liveLocation() {
       LocationSettings locationSettings = const LocationSettings(
         accuracy: LocationAccuracy.high,
         distanceFilter: 100,
@@ -63,9 +65,16 @@ class ProfileView extends ConsumerWidget {
           .listen((Position position) {});
     }
 
+    Future<void> openMap(String lat, String long) async {
+      String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$lat,$long';
+      await canLaunchUrlString(googleUrl)
+      ? await launchUrlString(googleUrl)
+      : throw 'could not launch $googleUrl';
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text("My Shop/Service"),
+        title: const Text("My Shop/Service"),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -123,14 +132,14 @@ class ProfileView extends ConsumerWidget {
                   width: 300,
                   child: Text(
                     serviceName!,
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
                     textAlign: TextAlign.center,
                   ),
                 ),
                 const SizedBox(
                   height: 10,
                 ),
-                Text("No ratings yet") //! TEMPORARY
+                const Text("No ratings yet") //! TEMPORARY
                 ,
                 const SizedBox(
                   height: 10,
@@ -147,24 +156,38 @@ class ProfileView extends ConsumerWidget {
                         onClick: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(builder: (BuildContext context) {
-                              return MessageInbox();
+                              return const MessageInbox();
                             }),
                           );
                         }),
-                    StyledButton(
-                        btnText: 'Location',
-                        onClick: () async {
-                          _currentLocation = await getCurrentLocation();
-                          if (_currentLocation != null) {
-                            print('{$_currentLocation}');
-                          }
-                          _liveLocation();
-                        }),
-                    const SizedBox(
-                      width: 10,
-                    )
+              
+                 
                   ],
                 ),
+                   const SizedBox(height: 10, ),
+                     Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                       children: [
+                         StyledButton(btnText: 'map', onClick: (){
+                          openMap(lat,long);
+                         }
+    ),                    const SizedBox(width: 10,),
+                                StyledButton(
+                          btnText: 'Location',
+                          onClick: () async {
+                       getCurrentLocation().then((value) {
+                        lat = '${value.latitude}';
+                        long = '${value.longitude}';
+                       });
+                    
+                            liveLocation();
+                          }),
+                      const SizedBox(
+                        width: 10, 
+                      ),
+                       ],
+                     ),
+                   
                 const SizedBox(
                   height: 10,
                 ),
@@ -180,7 +203,7 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 5,
                 ),
-                Divider(
+                const Divider(
                   height: 0,
                 ),
                 const SizedBox(
@@ -190,7 +213,7 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 5,
                 ),
-                Divider(
+                const Divider(
                   height: 0,
                 ),
                 const SizedBox(
@@ -201,7 +224,7 @@ class ProfileView extends ConsumerWidget {
           ),
         ),
       ),
-      bottomNavigationBar: fromShopCard == true ? null : BottomNav(),
+      bottomNavigationBar: fromShopCard == true ? null : const BottomNav(),
       // bottomNavigationBar: null,
     );
   }
