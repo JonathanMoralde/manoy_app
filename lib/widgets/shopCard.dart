@@ -97,6 +97,7 @@ class ShopCard extends ConsumerWidget {
             //   ref.read(isBookmarkProvider.notifier).state = true;
             // }
             return ShopView(
+          
               userId: userId,
               name: name,
               address: address,

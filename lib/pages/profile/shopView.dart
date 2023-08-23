@@ -24,6 +24,7 @@ class ShopView extends ConsumerWidget {
   final String profilePhoto;
   final String coverPhoto;
   final String? userId;
+  
 
   // bool? isBookmarked;
   const ShopView({
@@ -37,6 +38,7 @@ class ShopView extends ConsumerWidget {
     required this.description,
     required this.profilePhoto,
     required this.coverPhoto,
+   
     // this.isBookmarked
   });
 
@@ -46,27 +48,27 @@ class ShopView extends ConsumerWidget {
   //   final ratedShops = prefs.getStringList('ratedShops') ?? [];
   //   return ratedShops;
   // }
-  Future<List<Map<String, dynamic>>> fetchServiceLocationsWithId() async {
-    final QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('service_locations').get();
+  // Future<List<Map<String, dynamic>>> fetchServiceLocationsWithId() async {
+  //   final QuerySnapshot snapshot =
+  //       await FirebaseFirestore.instance.collection('service_locations').get();
 
-    final List<Map<String, dynamic>> locationsWithId = [];
+  //   final List<Map<String, dynamic>> locationsWithId = [];
 
-    for (final DocumentSnapshot document in snapshot.docs) {
-      final data = document.data() as Map<String, dynamic>;
-      final double lat = data['latitude'];
-      final double long = data['longitude'];
-      final String id = document.id; // Retrieve the document ID
+  //   for (final DocumentSnapshot document in snapshot.docs) {
+  //     final data = document.data() as Map<String, dynamic>;
+  //     final double lat = data['latitude'];
+  //     final double long = data['longitude'];
+  //     final String id = document.id; // Retrieve the document ID
 
-      locationsWithId.add({
-        'id': id, // Include the ID in the data
-        'latitude': lat,
-        'longitude': long,
-      });
-    }
+  //     locationsWithId.add({
+  //       'id': id, // Include the ID in the data
+  //       'latitude': lat,
+  //       'longitude': long,
+  //     });
+  //   }
 
-    return locationsWithId;
-  }
+  //   return locationsWithId;
+  // }
 
   Future<void> openMap(String lat, String long) async {
     String googleUrl =
@@ -485,12 +487,16 @@ class ShopView extends ConsumerWidget {
                               StyledButton(
                                   btnText: "MESSAGE",
                                   onClick: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) {
-                                        return MessagePage(name: name);
-                                      }),
-                                    );
+                                    if (uid != null) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) {
+                                          return MessagePage( name: name, shopId: uid!);
+                                        }),
+                                      );
+                                    }else {
+                                      print('null');
+                                    }
                                   }),
                             ],
                           ),
@@ -519,11 +525,10 @@ class ShopView extends ConsumerWidget {
                                       shopLocationData['latitude'];
                                   final double long =
                                       shopLocationData['longitude'];
-                                                print('$lat, $long');
+                                  print('$lat, $long');
                                   await openMap(
                                       lat.toString(), long.toString());
                                 } else {
-                              
                                   print('Location data not found');
                                 }
                               }),
