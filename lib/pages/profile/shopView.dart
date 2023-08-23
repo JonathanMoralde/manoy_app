@@ -24,7 +24,6 @@ class ShopView extends ConsumerWidget {
   final String profilePhoto;
   final String coverPhoto;
   final String? userId;
-  
 
   // bool? isBookmarked;
   const ShopView({
@@ -38,7 +37,7 @@ class ShopView extends ConsumerWidget {
     required this.description,
     required this.profilePhoto,
     required this.coverPhoto,
-   
+
     // this.isBookmarked
   });
 
@@ -262,6 +261,17 @@ class ShopView extends ConsumerWidget {
               .doc(userId)
               .set({'shops': bookmarks});
         }
+      }
+    }
+
+    Future<String?> getUserEmail() async {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      User? user = auth.currentUser;
+
+      if (user != null) {
+        return user.email;
+      } else {
+        return null; // User is not authenticated or user data not available
       }
     }
 
@@ -491,10 +501,13 @@ class ShopView extends ConsumerWidget {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                             builder: (BuildContext context) {
-                                          return MessagePage( name: name, shopId: uid!);
+                                          return MessagePage(
+                                            name: name,
+                                            shopId: uid!,
+                                          );
                                         }),
                                       );
-                                    }else {
+                                    } else {
                                       print('null');
                                     }
                                   }),

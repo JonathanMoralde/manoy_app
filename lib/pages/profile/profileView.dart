@@ -37,7 +37,6 @@ class ProfileView extends ConsumerWidget {
     final category = ref.watch(categoryProvider);
     final profilePhoto = ref.watch(profilePhotoProvider);
     final coverPhoto = ref.watch(coverPhotoProvider);
- 
 
     late bool servicePermission = false;
     late LocationPermission permission;
