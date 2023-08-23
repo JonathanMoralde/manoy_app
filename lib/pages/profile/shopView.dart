@@ -11,8 +11,8 @@ import 'package:manoy_app/provider/bookmark/isBookmark_provider.dart';
 import 'package:manoy_app/provider/ratedShops/ratedShops_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
-
 import '../../provider/rating/averageRating_provider.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class ShopView extends ConsumerWidget {
   final String? uid;
@@ -24,8 +24,10 @@ class ShopView extends ConsumerWidget {
   final String profilePhoto;
   final String coverPhoto;
   final String? userId;
+  
+
   // bool? isBookmarked;
-  ShopView({
+  const ShopView({
     super.key,
     this.userId,
     this.uid,
@@ -36,6 +38,7 @@ class ShopView extends ConsumerWidget {
     required this.description,
     required this.profilePhoto,
     required this.coverPhoto,
+   
     // this.isBookmarked
   });
 
@@ -45,6 +48,35 @@ class ShopView extends ConsumerWidget {
   //   final ratedShops = prefs.getStringList('ratedShops') ?? [];
   //   return ratedShops;
   // }
+  // Future<List<Map<String, dynamic>>> fetchServiceLocationsWithId() async {
+  //   final QuerySnapshot snapshot =
+  //       await FirebaseFirestore.instance.collection('service_locations').get();
+
+  //   final List<Map<String, dynamic>> locationsWithId = [];
+
+  //   for (final DocumentSnapshot document in snapshot.docs) {
+  //     final data = document.data() as Map<String, dynamic>;
+  //     final double lat = data['latitude'];
+  //     final double long = data['longitude'];
+  //     final String id = document.id; // Retrieve the document ID
+
+  //     locationsWithId.add({
+  //       'id': id, // Include the ID in the data
+  //       'latitude': lat,
+  //       'longitude': long,
+  //     });
+  //   }
+
+  //   return locationsWithId;
+  // }
+
+  Future<void> openMap(String lat, String long) async {
+    String googleUrl =
+        'https://www.google.com/maps/search/?api=1&query=$lat,$long';
+    await canLaunchUrlString(googleUrl)
+        ? await launchUrlString(googleUrl)
+        : throw 'could not launch $googleUrl';
+  }
 
   // Check if a shop has been rated by the user
   Future<bool> hasRatedShop(String shopId) async {
@@ -71,7 +103,7 @@ class ShopView extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0),
                   child: Text("Rate & Review"),
                 ),
                 const Divider(
@@ -159,8 +191,21 @@ class ShopView extends ConsumerWidget {
         });
   }
 
+  Future<Map<String, dynamic>?> fetchUserLocation(String userId) async {
+    final userLocationRef =
+        FirebaseFirestore.instance.collection('service_locations');
+    final userLocationSnapshot = await userLocationRef.doc(userId).get();
+
+    if (userLocationSnapshot.exists) {
+      return userLocationSnapshot.data() as Map<String, dynamic>;
+    } else {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // final serviceLocationsStream = ref.watch(serviceLocationsProvider);
     final bookmarkData = ref.watch(bookmarkDataProvider);
     final List bookmarks = bookmarkData.when(
       data: (data) {
@@ -240,7 +285,7 @@ class ShopView extends ConsumerWidget {
         future: hasRatedShop(uid ?? FirebaseAuth.instance.currentUser!.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return CircularProgressIndicator(); // Display a loading indicator
+            return const CircularProgressIndicator(); // Display a loading indicator
           } else if (snapshot.hasError) {
             return Text('Error: ${snapshot.error}'); // Display an error message
           } else {
@@ -252,9 +297,9 @@ class ShopView extends ConsumerWidget {
               },
               child: Scaffold(
                 appBar: AppBar(
-                  title: Text("Worker Profile"),
+                  title: const Text("Worker Profile"),
                   leading: IconButton(
-                    icon: Icon(Icons.arrow_back),
+                    icon: const Icon(Icons.arrow_back),
                     onPressed: () {
                       // Handle back button action here
                       ref.read(isBookmarkProvider.notifier).state = false;
@@ -328,11 +373,11 @@ class ShopView extends ConsumerWidget {
                                 }
                               },
                               icon: isBookmark == true
-                                  ? Icon(
+                                  ? const Icon(
                                       Icons.bookmark,
                                       size: 35,
                                     )
-                                  : Icon(
+                                  : const Icon(
                                       Icons.bookmark_add_outlined,
                                       size: 35,
                                     ),
@@ -345,7 +390,7 @@ class ShopView extends ConsumerWidget {
                             width: 300,
                             child: Text(
                               name,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 16,
                                   letterSpacing: 1),
@@ -360,7 +405,7 @@ class ShopView extends ConsumerWidget {
                             children: [
                               Text(
                                 "${averageRating.toStringAsFixed(1)}/5",
-                                style: TextStyle(fontSize: 12),
+                                style: const TextStyle(fontSize: 12),
                               ),
                               Icon(
                                 Icons.star,
@@ -383,9 +428,9 @@ class ShopView extends ConsumerWidget {
                                     ),
                                   );
                                 },
-                                icon: Icon(Icons.remove_red_eye_outlined),
+                                icon: const Icon(Icons.remove_red_eye_outlined),
                                 padding: EdgeInsets.zero,
-                                constraints: BoxConstraints(),
+                                constraints: const BoxConstraints(),
                               )
                             ],
                           ),
@@ -396,15 +441,15 @@ class ShopView extends ConsumerWidget {
                           const SizedBox(
                             height: 5,
                           ),
-                          Text("Business Hours: ${businessHours}"),
+                          Text("Business Hours: $businessHours"),
                           const SizedBox(
                             height: 5,
                           ),
-                          Text("Category: ${category}"),
+                          Text("Category: $category"),
                           const SizedBox(
                             height: 5,
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           const SizedBox(
@@ -414,7 +459,7 @@ class ShopView extends ConsumerWidget {
                           const SizedBox(
                             height: 5,
                           ),
-                          Divider(
+                          const Divider(
                             height: 0,
                           ),
                           const SizedBox(
@@ -442,12 +487,16 @@ class ShopView extends ConsumerWidget {
                               StyledButton(
                                   btnText: "MESSAGE",
                                   onClick: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                          builder: (BuildContext context) {
-                                        return MessagePage(name: name);
-                                      }),
-                                    );
+                                    if (uid != null) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                            builder: (BuildContext context) {
+                                          return MessagePage( name: name, shopId: uid!);
+                                        }),
+                                      );
+                                    }else {
+                                      print('null');
+                                    }
                                   }),
                             ],
                           ),
@@ -456,6 +505,33 @@ class ShopView extends ConsumerWidget {
                           ),
                           StyledButton(
                               btnText: "MAKE APPOINTMENT", onClick: () {}),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          StyledButton(
+                              btnText: 'LOCATION',
+                              onClick: () async {
+                                final shopLocationDoc = await FirebaseFirestore
+                                    .instance
+                                    .collection('service_locations')
+                                    .doc(uid)
+                                    .get();
+
+                                if (shopLocationDoc.exists) {
+                                  final shopLocationData = shopLocationDoc
+                                      .data() as Map<String, dynamic>;
+
+                                  final double lat =
+                                      shopLocationData['latitude'];
+                                  final double long =
+                                      shopLocationData['longitude'];
+                                  print('$lat, $long');
+                                  await openMap(
+                                      lat.toString(), long.toString());
+                                } else {
+                                  print('Location data not found');
+                                }
+                              }),
                         ],
                       ),
                     ),

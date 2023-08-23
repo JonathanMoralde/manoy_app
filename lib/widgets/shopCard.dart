@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/profile/profileView.dart';
 import 'package:manoy_app/pages/profile/shopView.dart';
 import 'package:manoy_app/provider/bookmark/isBookmark_provider.dart';
-import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 
 import '../provider/bookmark/bookmarkData_provider.dart';
@@ -66,7 +65,7 @@ class ShopCard extends ConsumerWidget {
       if (userId == uid) {
         Navigator.of(context).push(
           MaterialPageRoute(builder: (BuildContext context) {
-            return ProfileView(
+            return const ProfileView(
               fromShopCard: true,
             );
           }),
@@ -98,6 +97,7 @@ class ShopCard extends ConsumerWidget {
             //   ref.read(isBookmarkProvider.notifier).state = true;
             // }
             return ShopView(
+          
               userId: userId,
               name: name,
               address: address,
@@ -136,7 +136,7 @@ class ShopCard extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Container(
           width: double.infinity,
-          height: height ?? 100,
+          height: height ?? 150,
           decoration: BoxDecoration(
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8)),
@@ -145,12 +145,12 @@ class ShopCard extends ConsumerWidget {
               Expanded(
                 flex: 1,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(8),
                     bottomLeft: Radius.circular(8),
                   ),
                   child: CachedNetworkImage(
-                    imageUrl: image!,
+                    imageUrl: image,
                     width: double.infinity,
                     fit: BoxFit.cover,
                   ),
@@ -168,14 +168,14 @@ class ShopCard extends ConsumerWidget {
                     children: [
                       Text(
                         name,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontWeight: FontWeight.w700, letterSpacing: 1),
                       ),
                       Row(
                         children: [
                           Text(
                             "${averageRating.toStringAsFixed(1)}/5",
-                            style: TextStyle(fontSize: 12),
+                            style: const TextStyle(fontSize: 15),
                           ),
                           Icon(
                             Icons.star,
@@ -190,12 +190,13 @@ class ShopCard extends ConsumerWidget {
                       ),
                       Text(
                         address,
-                        style: TextStyle(fontSize: 12),
+                        style: const TextStyle(fontSize: 15),
                       ),
-                      Text(
+                      const Text(
                         "Accessories & Repair Services",
-                        style: TextStyle(fontSize: 12),
-                      )
+                        style: TextStyle(fontSize: 15),
+                      ),
+                      // StyledButton(btnText: 'map', onClick: (){}),
                     ],
                   ),
                 ),

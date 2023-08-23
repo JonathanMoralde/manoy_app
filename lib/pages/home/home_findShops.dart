@@ -5,6 +5,7 @@ import 'package:manoy_app/provider/filterBtn/activeCategory_provider.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/allServiceProvider_provider.dart';
 import 'package:manoy_app/widgets/filterBtns.dart';
 import 'package:manoy_app/widgets/shopCard.dart';
+import 'package:manoy_app/widgets/styledButton.dart';
 
 class FindShops extends ConsumerWidget {
   const FindShops({super.key});
@@ -80,18 +81,21 @@ class FindShops extends ConsumerWidget {
                             coverPhoto: shopCoverPhoto,
                             businessHours: shopBusinessHours,
                             description: shopDescription,
-                            // isBookmarked: isBookmarked,
+                            // isBookmarked 
+                            //: isBookmarked,
+                              
                           ),
                           const SizedBox(
                             height: 10,
                           ),
+                        
                         ],
                       );
                     }).toList(),
                   );
                 },
                 error: (error, stackTrace) => Text("Error: $error"),
-                loading: () => CircularProgressIndicator());
+                loading: () => const CircularProgressIndicator());
           }),
         )
       ],
