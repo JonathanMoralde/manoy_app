@@ -187,7 +187,7 @@ class ProfileView extends ConsumerWidget {
                         onClick: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(builder: (BuildContext context) {
-                              return const MessageInbox();
+                              return MessageInbox();
                             }),
                           );
                         }),

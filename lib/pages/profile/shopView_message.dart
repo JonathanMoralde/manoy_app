@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
+import 'package:intl/intl.dart';
 
 class MessagePage extends StatefulWidget {
   final String name;
@@ -84,7 +85,16 @@ class _MessagePageState extends State<MessagePage> {
               final messageData = messages[messages.length - index - 1];
               final bool isCurrentUser =
                   messageData['senderId'] == _firebaseAuth.currentUser!.uid;
-              return _buildMessageItem(messageData['text'], isCurrentUser);
+              final timestamp =
+                  (messageData['timestamp'] as Timestamp?)?.toDate();
+
+              if (timestamp != null) {
+                return _buildMessageItem(
+                    messageData['text'], isCurrentUser, timestamp);
+              } else {
+                print("Invalid timestamp data");
+                return SizedBox.shrink(); // Skip rendering this message
+              }
             },
           ),
         );
@@ -92,24 +102,62 @@ class _MessagePageState extends State<MessagePage> {
     );
   }
 
-  Widget _buildMessageItem(String text, bool isCurrentUser) {
-    return Align(
-      alignment: isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        padding: EdgeInsets.all(8),
-        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        decoration: BoxDecoration(
-          color: isCurrentUser ? Colors.blue : Colors.grey,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Text(
-          text,
-          style: TextStyle(
-            color: isCurrentUser ? Colors.white : Colors.black,
-            fontSize: 18, // Adjust the font size as needed
+  Widget _buildMessageItem(
+      String text, bool isCurrentUser, DateTime timestamp) {
+    final currentUser = _firebaseAuth.currentUser;
+    final currentUserFirstName =
+        currentUser != null ? currentUser.displayName ?? '' : '';
+
+    return Column(
+      crossAxisAlignment:
+          isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      children: [
+        if (isCurrentUser)
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Text(
+              currentUserFirstName,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        Align(
+          alignment:
+              isCurrentUser ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            padding: EdgeInsets.all(8),
+            margin: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            decoration: BoxDecoration(
+              color: isCurrentUser ? Colors.blue : Colors.grey,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  text,
+                  style: TextStyle(
+                    color: isCurrentUser
+                        ? Color.fromARGB(255, 255, 255, 255)
+                        : const Color.fromARGB(255, 255, 255, 255),
+                    fontSize: 18,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  DateFormat('h:mm a')
+                      .format(timestamp), // Format timestamp in 12-hour format
+                  style: TextStyle(
+                    color: Colors.black54,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 
