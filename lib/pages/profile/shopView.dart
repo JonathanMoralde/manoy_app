@@ -503,7 +503,7 @@ class ShopView extends ConsumerWidget {
                                             builder: (BuildContext context) {
                                           return MessagePage(
                                             name: name,
-                                            shopId: uid!,
+                                            receiverId: uid!,
                                           );
                                         }),
                                       );

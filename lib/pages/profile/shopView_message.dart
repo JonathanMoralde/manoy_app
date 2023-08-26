@@ -6,13 +6,10 @@ import 'package:intl/intl.dart';
 
 class MessagePage extends StatefulWidget {
   final String name;
-  final String shopId;
+  final String receiverId;
 
-  const MessagePage({
-    Key? key,
-    required this.name,
-    required this.shopId,
-  }) : super(key: key);
+  const MessagePage({Key? key, required this.name, required this.receiverId})
+      : super(key: key);
 
   @override
   _MessagePageState createState() => _MessagePageState();
@@ -29,7 +26,7 @@ class _MessagePageState extends State<MessagePage> {
     final currentUserEmail = _firebaseAuth.currentUser!.email.toString();
 
     if (text.isNotEmpty) {
-      final chatRoomId = _generateChatRoomId(userId, widget.shopId);
+      final chatRoomId = _generateChatRoomId(userId, widget.receiverId);
 
       await _firestore
           .collection('chat_rooms')
@@ -38,7 +35,7 @@ class _MessagePageState extends State<MessagePage> {
           .add({
         'senderId': userId,
         'senderEmail': currentUserEmail,
-        'receiverId': widget.shopId,
+        'receiverId': widget.receiverId,
         'text': text,
         'timestamp': FieldValue.serverTimestamp(),
       });
@@ -58,7 +55,7 @@ class _MessagePageState extends State<MessagePage> {
       stream: _firestore
           .collection('chat_rooms')
           .doc(_generateChatRoomId(
-              _firebaseAuth.currentUser!.uid, widget.shopId))
+              _firebaseAuth.currentUser!.uid, widget.receiverId))
           .collection('messages')
           .orderBy('timestamp')
           .snapshots(),

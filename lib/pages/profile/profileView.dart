@@ -9,6 +9,7 @@ import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:manoy_app/pages/profile/createPost.dart';
 
 // final locationProvider = FutureProvider<LatLng?>((ref) async {
 //   try {
@@ -227,6 +228,16 @@ class ProfileView extends ConsumerWidget {
                     ),
                   ],
                 ),
+                const SizedBox(
+                  height: 15,
+                ),
+                StyledButton(
+                    btnText: 'CREATE POST',
+                    onClick: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => CreatePostPage(),
+                      ));
+                    }),
                 const SizedBox(
                   height: 10,
                 ),

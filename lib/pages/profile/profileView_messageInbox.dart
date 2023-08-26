@@ -1,71 +1,75 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:manoy_app/provider/userDetails/uid_provider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:manoy_app/provider/messages/userMessage_provider.dart';
 import 'package:manoy_app/pages/profile/shopView_message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class MessageInbox extends ConsumerWidget {
-  Future<Map<String, dynamic>> _getUserDetails(String userId) async {
-    final userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    if (userDoc.exists) {
-      return userDoc.data() as Map<String, dynamic>;
-    }
-    return {};
-  }
+class MessageInbox extends StatefulWidget {
+  @override
+  _MessageInboxState createState() => _MessageInboxState();
+}
+
+class _MessageInboxState extends State<MessageInbox> {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  final FirebaseAuth auth = FirebaseAuth.instance;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final contactsAsyncValue = ref.watch(messageContactsProvider);
-
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Messages/Inbox"),
         backgroundColor: Colors.blue,
       ),
-      body: contactsAsyncValue.when(
-        data: (contacts) {
-          return ListView.builder(
-            itemCount: contacts.length,
-            itemBuilder: (context, index) {
-              final contactData = contacts[index] as Map<String, dynamic>;
-              final userId = contactData['senderId'];
-
-              return FutureBuilder<Map<String, dynamic>>(
-                future: _getUserDetails(userId),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-
-                  final senderDetails = snapshot.data!;
-
-                  return ListTile(
-                    title: Text(
-                        '${senderDetails['First Name']} ${senderDetails['Last Name']}'),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MessagePage(
-                            name:
-                                '${senderDetails['First Name']} ${senderDetails['Last Name']}',
-                            shopId: userId,
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                },
-              );
-            },
-          );
-        },
-        loading: () => CircularProgressIndicator(),
-        error: (error, stackTrace) => Text('Error: $error'),
-      ),
+      body: _buildUserList(),
     );
+  }
+
+  Widget _buildUserList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('users').snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Text('error');
+        }
+
+        if (!snapshot.hasData) {
+          return CircularProgressIndicator(); // or any other loading indicator
+        }
+
+        final List<DocumentSnapshot> documents = snapshot.data!.docs;
+
+        return ListView(
+          children:
+              documents.map<Widget>((doc) => _buildUserListItem(doc)).toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildUserListItem(DocumentSnapshot document) {
+    Map<String, dynamic>? data = document.data() as Map<String, dynamic>?;
+
+    if (data == null || FirebaseAuth.instance.currentUser == null) {
+      return SizedBox.shrink();
+    }
+
+    final String uid = FirebaseAuth.instance.currentUser!.uid;
+
+    if (FirebaseAuth.instance.currentUser!.email != null &&
+        data['Email'] != null &&
+        data['First Name'] != null) {
+      return ListTile(
+        title: Text(data['First Name']),
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => MessagePage(
+              name: data['First Name'],
+              receiverId: uid,
+            ),
+          ));
+        },
+      );
+    }
+
+    return SizedBox.shrink();
   }
 }
