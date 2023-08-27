@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as path; // Import the path package
 import 'package:manoy_app/widgets/styledButton.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({Key? key}) : super(key: key);
@@ -10,11 +16,93 @@ class CreatePostPage extends StatefulWidget {
 
 class _CreatePostPageState extends State<CreatePostPage> {
   TextEditingController _postTextController = TextEditingController();
+  String? imageUrl;
 
   @override
   void dispose() {
     _postTextController.dispose();
     super.dispose();
+  }
+
+  File? pickedImage;
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      setState(() {
+        pickedImage = File(pickedFile.path);
+      });
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchCurrentUserProfileData() async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final firestore = FirebaseFirestore.instance;
+
+    if (currentUser != null) {
+      final userId = currentUser.uid;
+
+      try {
+        final docSnapshot =
+            await firestore.collection('service_provider').doc(userId).get();
+
+        if (docSnapshot.exists) {
+          final data = docSnapshot.data() as Map<String, dynamic>;
+          return data;
+        } else {
+          return {}; // Return an empty map if the user's document doesn't exist
+        }
+      } catch (error) {
+        print('Error fetching current user data: $error');
+      }
+    }
+
+    return {}; // Return an empty map if there's no current user
+  }
+
+  Future<void> _uploadImageAndSavePost() async {
+    if (pickedImage != null) {
+      final storageRef = firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child('posts_images/${DateTime.now()}.png');
+      await storageRef.putFile(pickedImage!);
+      imageUrl = await storageRef.getDownloadURL();
+
+      final postCaption = _postTextController.text;
+
+      if (postCaption.isNotEmpty) {
+        final currentUser = FirebaseAuth.instance.currentUser;
+        final firestore = FirebaseFirestore.instance;
+
+        if (currentUser != null) {
+          final userId = currentUser.uid;
+
+          try {
+            final currentUserData =
+                await fetchCurrentUserProfileData(); // Fetch current user's data
+
+            if (currentUserData.isNotEmpty) {
+              await firestore.collection('posts').doc(userId).set({
+                'caption': postCaption,
+                'imageUrl': imageUrl,
+                'timestamp': FieldValue.serverTimestamp(),
+                'service_name': currentUserData['Service Name'],
+                'service_photo': currentUserData['Profile Photo'],
+              });
+
+              _postTextController.clear();
+              setState(() {
+                pickedImage = null;
+              });
+            }
+          } catch (error) {
+            print('Error saving post: $error');
+          }
+        }
+      }
+    }
   }
 
   @override
@@ -39,7 +127,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         shape: BoxShape.circle,
                       ),
                       child: Image.asset(
-                        'lib/images/logo.png', // Replace with your logo asset path
+                        'lib/images/logo.png',
                         width: 250,
                         height: 250,
                       ),
@@ -93,9 +181,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                               borderRadius: BorderRadius.circular(8),
                             ),
                           ),
-                          onPressed: () {
-                            // Implement image upload logic here
-                          },
+                          onPressed: _pickImage,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -114,10 +200,23 @@ class _CreatePostPageState extends State<CreatePostPage> {
                         ),
                       ),
                       SizedBox(width: 30),
-                      StyledButton(btnText: 'POST', onClick: () {}),
+                      StyledButton(
+                          btnText: 'POST',
+                          onClick: () {
+                            // Only call the upload function from StyledButton's callback
+                            _uploadImageAndSavePost();
+                          })
                     ],
                   ),
                 ),
+                if (pickedImage != null)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Image Path: ${path.basename(pickedImage!.path)}', // Display only the image file name
+                      style: TextStyle(fontSize: 12),
+                    ),
+                  ),
               ],
             ),
           ),
