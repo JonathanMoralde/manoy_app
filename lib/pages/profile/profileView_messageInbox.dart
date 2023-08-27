@@ -11,6 +11,7 @@ class MessageInbox extends StatefulWidget {
 class _MessageInboxState extends State<MessageInbox> {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   final FirebaseAuth auth = FirebaseAuth.instance;
+  Map<String, bool> userMessageStatus = {};
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +33,7 @@ class _MessageInboxState extends State<MessageInbox> {
         }
 
         if (!snapshot.hasData) {
-          return CircularProgressIndicator(); // or any other loading indicator
+          return CircularProgressIndicator();
         }
 
         final List<DocumentSnapshot> documents = snapshot.data!.docs;
@@ -52,24 +53,49 @@ class _MessageInboxState extends State<MessageInbox> {
       return SizedBox.shrink();
     }
 
-    final String uid = FirebaseAuth.instance.currentUser!.uid;
+    final String uid = document.id;
 
-    if (FirebaseAuth.instance.currentUser!.email != null &&
-        data['Email'] != null &&
-        data['First Name'] != null) {
-      return ListTile(
-        title: Text(data['First Name']),
-        onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => MessagePage(
-              name: data['First Name'],
-              receiverId: uid,
-            ),
-          ));
-        },
-      );
+    if (uid == FirebaseAuth.instance.currentUser!.uid) {
+      return SizedBox.shrink();
     }
 
-    return SizedBox.shrink();
+    bool hasMessaged = userMessageStatus[uid] ?? false;
+    final String fullName = '${data['First Name']} ${data['Last Name']}';
+
+    return GestureDetector(
+      onTap: () async {
+        setState(() {
+          userMessageStatus[uid] = true;
+        });
+
+        await Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => MessagePage(
+            name: fullName,
+            receiverId: uid,
+          ),
+        ));
+
+        setState(() {
+          userMessageStatus[uid] = false;
+        });
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: hasMessaged
+              ? Color.fromARGB(255, 45, 160, 226)
+              : Colors.transparent, // Fill with color when messaged
+          border: Border.all(color: Colors.blue),
+        ),
+        child: ListTile(
+          title: Text(
+            fullName,
+            style: TextStyle(
+              fontSize: 18.0,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
