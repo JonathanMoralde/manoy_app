@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manoy_app/pages/profile/edit_profile.dart';
 import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/provider/userDetails/uid_provider.dart';
@@ -10,6 +11,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:manoy_app/pages/profile/createPost.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 // final locationProvider = FutureProvider<LatLng?>((ref) async {
 //   try {
@@ -30,7 +32,9 @@ class ProfileView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // final locationAsyncValue = ref.watch(locationProvider);
+    final FirebaseAuth auth = FirebaseAuth.instance;
 
+    final uid = auth.currentUser!.uid;
     final serviceName = ref.watch(serviceNameProvider);
     final serviceAddress = ref.watch(serviceAddressProvider);
     final description = ref.watch(descriptionProvider);
@@ -179,7 +183,21 @@ class ProfileView extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    StyledButton(btnText: "EDIT PROFILE", onClick: () {}),
+                    StyledButton(
+                        btnText: "EDIT PROFILE",
+                        onClick: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => editProfileForm(
+                                    uid: uid,
+                                    name: serviceName,
+                                    address: serviceAddress!,
+                                    des: description!,
+                                    businesshours: businessHours!,
+                                    category: category!,
+                                    profilePhoto: profilePhoto,
+                                    coverPhoto: coverPhoto,
+                                  )));
+                        }),
                     const SizedBox(
                       width: 10,
                     ),

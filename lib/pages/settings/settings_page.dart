@@ -73,13 +73,16 @@ class SettingsPage extends ConsumerWidget {
                       ),
                 ),
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 40),
-                    child: Text(
-                      fullName ?? "User",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 125),
+                      child: Text(
+                        fullName ?? "User",
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),

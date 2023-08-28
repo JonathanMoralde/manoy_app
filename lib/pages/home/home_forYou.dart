@@ -10,6 +10,9 @@ class ForYou extends StatefulWidget {
 
 class _ForYouState extends State<ForYou> {
   late Stream<int> timerStream;
+  int currentIndex =
+      0; // Index to keep track of which pre-built widget to display
+  final List<Widget> postCards = List.generate(5, (_) => PostCard());
 
   _ForYouState() {
     timerStream = Stream.periodic(Duration(minutes: 1), (i) => i);
@@ -19,11 +22,11 @@ class _ForYouState extends State<ForYou> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        StreamBuilder<int>(
-          stream: timerStream,
-          builder: (context, snapshot) {
-            return PostCard();
-          },
+        AnimatedSwitcher(
+          duration: Duration.zero, // Adjust duration as needed
+          child: postCards[currentIndex],
+          // Add a key to AnimatedSwitcher to ensure smooth transitions
+          key: ValueKey<int>(currentIndex),
         ),
         const SizedBox(
           height: 10,
