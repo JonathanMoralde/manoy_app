@@ -202,9 +202,14 @@ class _CreatePostPageState extends State<CreatePostPage> {
                       SizedBox(width: 30),
                       StyledButton(
                           btnText: 'POST',
-                          onClick: () {
+                          onClick: () async {
                             // Only call the upload function from StyledButton's callback
-                            _uploadImageAndSavePost();
+                            await _uploadImageAndSavePost();
+                            if (imageUrl != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('POSTED SUCCESSFULLY')));
+                            }
                           })
                     ],
                   ),

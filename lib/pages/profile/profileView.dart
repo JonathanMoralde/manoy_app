@@ -27,6 +27,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileView extends ConsumerWidget {
   final bool? fromShopCard;
+
   const ProfileView({super.key, this.fromShopCard});
 
   @override
@@ -187,15 +188,9 @@ class ProfileView extends ConsumerWidget {
                         btnText: "EDIT PROFILE",
                         onClick: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => editProfileForm(
+                              builder: (context) => EditProfileForm(
                                     uid: uid,
                                     name: serviceName,
-                                    address: serviceAddress!,
-                                    des: description!,
-                                    businesshours: businessHours!,
-                                    category: category!,
-                                    profilePhoto: profilePhoto,
-                                    coverPhoto: coverPhoto,
                                   )));
                         }),
                     const SizedBox(
