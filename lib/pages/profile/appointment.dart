@@ -1,0 +1,169 @@
+import 'package:flutter/material.dart';
+import 'package:manoy_app/widgets/styledButton.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class AppointmentPage extends StatefulWidget {
+  final String name;
+  final String shopId;
+
+  const AppointmentPage({Key? key, required this.name, required this.shopId})
+      : super(key: key);
+
+  @override
+  _AppointmentPageState createState() => _AppointmentPageState();
+}
+
+class _AppointmentPageState extends State<AppointmentPage> {
+  DateTime today = DateTime.now();
+  TimeOfDay? startTime;
+  TimeOfDay? endTime;
+
+  void onDaySelected(DateTime day, DateTime focusedDay) {
+    setState(() {
+      today = day;
+      startTime = null;
+      endTime = null;
+    });
+
+    _selectTime(context, true);
+  }
+
+  Future<void> _selectTime(BuildContext context, bool isStartTime) async {
+    final TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        if (isStartTime) {
+          startTime = pickedTime;
+          _selectTime(context, false); // Automatically show end time picker
+        } else {
+          // Check if end time is before start time, if so, adjust it
+          if (startTime != null && pickedTime.hour < startTime!.hour) {
+            endTime =
+                TimeOfDay(hour: startTime!.hour, minute: startTime!.minute);
+          } else if (startTime != null &&
+              pickedTime.hour == startTime!.hour &&
+              pickedTime.minute < startTime!.minute) {
+            endTime =
+                TimeOfDay(hour: startTime!.hour, minute: startTime!.minute);
+          } else {
+            endTime = pickedTime;
+          }
+        }
+      });
+    }
+  }
+
+  void _showInvalidEndTimeSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+            'Invalid end time. Please select a time after the start time.'),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  bool _isEndTimeValid(TimeOfDay startTime, TimeOfDay endTime) {
+    final DateTime startDateTime =
+        DateTime(0, 0, 0, startTime.hour, startTime.minute);
+    final DateTime endDateTime =
+        DateTime(0, 0, 0, endTime.hour, endTime.minute);
+    return endDateTime.isAfter(startDateTime);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.name),
+        backgroundColor: Colors.blue,
+      ),
+      body: SingleChildScrollView(
+        child: calendar(),
+      ),
+    );
+  }
+
+  Widget calendar() {
+    return Column(
+      children: [
+        const SizedBox(
+          height: 30,
+        ),
+        Image.asset(
+          'lib/images/logo.png',
+          height: 250,
+          width: 250,
+        ),
+        SizedBox(height: 16),
+        Container(
+          child: TableCalendar(
+            focusedDay: today,
+            firstDay: DateTime.utc(2020, 7, 1),
+            lastDay: DateTime.utc(2030, 7, 1),
+            headerStyle: const HeaderStyle(
+              formatButtonVisible: false,
+              titleCentered: true,
+            ),
+            availableGestures: AvailableGestures.all,
+            selectedDayPredicate: (day) => isSameDay(day, today),
+            onDaySelected: onDaySelected,
+          ),
+        ),
+        SizedBox(height: 16),
+        Text('Selected Day: ${today.toString().split(' ')[0]}'),
+        if (startTime != null)
+          Text("Selected Start Time: ${startTime!.format(context)}"),
+        if (endTime != null)
+          Text("Selected End Time: ${endTime!.format(context)}"),
+        const SizedBox(
+          height: 30,
+        ),
+        StyledButton(
+          btnText: 'CREATE APPOINTMENT',
+          onClick: () async {
+            final String userId = FirebaseAuth.instance.currentUser!.uid;
+            final email = FirebaseAuth.instance.currentUser!.email;
+
+            if (startTime != null &&
+                endTime != null &&
+                _isEndTimeValid(startTime!, endTime!)) {
+              final String appointmentTime =
+                  '${startTime!.format(context)} - ${endTime!.format(context)}';
+
+              final DocumentReference appointmentRef = FirebaseFirestore
+                  .instance
+                  .collection('appointments')
+                  .doc(widget.shopId);
+
+              await appointmentRef.set({
+                'date': today,
+                'time': appointmentTime,
+                'userId': userId,
+                'email': email,
+              });
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Appointment created successfully!'),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            } else {
+              _showInvalidEndTimeSnackBar();
+            }
+          },
+        ),
+        const SizedBox(
+          height: 100,
+        ),
+      ],
+    );
+  }
+}

@@ -23,9 +23,8 @@ class _ForYouState extends State<ForYou> {
     return Column(
       children: [
         AnimatedSwitcher(
-          duration: Duration.zero, // Adjust duration as needed
+          duration: Duration.zero,
           child: postCards[currentIndex],
-          // Add a key to AnimatedSwitcher to ensure smooth transitions
           key: ValueKey<int>(currentIndex),
         ),
         const SizedBox(
