@@ -104,7 +104,7 @@ class SettingsPage extends ConsumerWidget {
               onPressed: () {
                 Navigator.of(context)
                     .push(MaterialPageRoute(builder: (BuildContext context) {
-                  return ContactInfoPage();
+                  return ContactInfoPage(userId: uid!);
                 }));
               },
             ),

@@ -3,7 +3,8 @@ import 'package:manoy_app/widgets/styledTextfield.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ContactInfoPage extends StatefulWidget {
-  const ContactInfoPage({super.key});
+  final String userId;
+  const ContactInfoPage({super.key, required this.userId});
 
   @override
   State<ContactInfoPage> createState() => _ContactInfoPageState();
