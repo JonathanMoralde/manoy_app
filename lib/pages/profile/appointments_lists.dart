@@ -21,7 +21,7 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text('APPOINTMENTS'),
-          backgroundColor: Colors.blue,
+          backgroundColor: Colors.lightBlue,
         ),
         body: SingleChildScrollView(
           child: Center(
@@ -29,6 +29,7 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
               stream: FirebaseFirestore.instance
                   .collection('appointments')
                   .where('shopId', isEqualTo: userId)
+                  // .where('status', isNotEqualTo: 'Cancelled') // Add this filter
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.hasError) {
@@ -65,8 +66,10 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
 
                     return GestureDetector(
                       onTap: () {
-                        _showConfirmationDialog(
-                            context, appointment.id, status);
+                        if (status != 'Cancelled') {
+                          _showConfirmationDialog(
+                              context, appointment.id, status);
+                        }
                       },
                       child: Container(
                         width: containerWidth,
@@ -115,7 +118,8 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
       builder: (context) {
         return AlertDialog(
           title: Text('Confirm Appointment'),
-          content: Text('Do you want to confirm or reject the appointment?'),
+          content: Text(
+              'Do you want to confirm, reject, or delete the appointment?'),
           actions: [
             TextButton(
               onPressed: () {
@@ -129,8 +133,16 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(false);
+                _showRejectReasonDialog(context, docId, status);
               },
               child: Text('Reject'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false);
+                _showDoneConfirmation(context, docId, status);
+              },
+              child: Text('Done'),
             ),
           ],
         );
@@ -138,7 +150,64 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
     );
 
     if (isConfirmed != null && !isConfirmed) {
-      _showRejectReasonDialog(context, docId, status);
+      // Do nothing, as the reject reason dialog or delete confirmation dialog
+      // will handle the corresponding action.
+    }
+  }
+
+  Future<void> _showDoneConfirmation(
+      BuildContext context, String docId, String status) async {
+    bool showDoneButton = status != 'Rejected';
+
+    if (status == 'Confirmed') {
+      bool? isConfirmed = await showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text('Done Appointment'),
+            content:
+                Text('If the appointment was successful, please click on done'),
+            actions: [
+              if (showDoneButton)
+                TextButton(
+                  onPressed: () {
+                    _markAppointmentAsDone(docId);
+                    Navigator.of(context).pop(true);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Appointment Done')));
+                  },
+                  child: Text('Done'),
+                ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+                child: Text('Cancel'),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (isConfirmed != null && isConfirmed && showDoneButton) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Appointment status successfully updated')));
+      }
+    }
+  }
+
+  Future<void> _markAppointmentAsDone(String docId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(docId)
+          .update({
+        'status': 'Done',
+      });
+
+      print('Appointment marked as done successfully');
+    } catch (error) {
+      print('Error marking appointment as done: $error');
     }
   }
 
@@ -173,14 +242,7 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
                       'Fully Booked',
                     ],
                   ),
-                  SizedBox(height: 10),
-                  // if (_selectedReason != null)
-                  // Text(
-                  //   'Selected Reason: $_selectedReason',
-                  //   style: TextStyle(
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
+                  const SizedBox(height: 10),
                 ],
               );
             },

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:manoy_app/pages/profile/appointments_lists.dart';
+import 'package:manoy_app/pages/profile/userAppointments.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -105,10 +107,10 @@ class _AppointmentPageState extends State<AppointmentPage> {
         ),
         Image.asset(
           'lib/images/logo.png',
-          height: 250,
-          width: 250,
+          height: 200,
+          width: 200,
         ),
-        SizedBox(height: 16),
+        SizedBox(height: 5),
         Container(
           child: TableCalendar(
             focusedDay: today,
@@ -153,7 +155,8 @@ class _AppointmentPageState extends State<AppointmentPage> {
                 'userId': userId,
                 'email': email,
                 'shopId': widget.shopId,
-                'status': 'Pending'
+                'status': 'Pending',
+                'shopName': widget.name,
               });
 
               ScaffoldMessenger.of(context).showSnackBar(
@@ -168,8 +171,16 @@ class _AppointmentPageState extends State<AppointmentPage> {
           },
         ),
         const SizedBox(
-          height: 100,
+          height: 15,
         ),
+        StyledButton(
+            btnText: 'VIEW APPOINTMENTS',
+            onClick: () {
+              final String userId = FirebaseAuth.instance.currentUser!.uid;
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) =>
+                      UserAppointmentsPage(name: widget.name, userId: userId)));
+            }),
       ],
     );
   }
