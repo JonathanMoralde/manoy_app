@@ -13,6 +13,8 @@ class AppointmentsListsPage extends StatefulWidget {
 class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
   final String userId = FirebaseAuth.instance.currentUser!.uid;
 
+  String? _selectedReason;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -52,6 +54,7 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
                     final date = appointmentData['date'] as Timestamp;
                     final email = appointmentData['email'] as String;
                     final time = appointmentData['time'] as String;
+                    final status = appointmentData['status'] as String;
 
                     final DateTime dateTime = date.toDate();
                     final year = dateTime.year;
@@ -63,7 +66,7 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
                     return GestureDetector(
                       onTap: () {
                         _showConfirmationDialog(
-                            context, formattedDate, email, time);
+                            context, appointment.id, status);
                       },
                       child: Container(
                         width: containerWidth,
@@ -79,6 +82,18 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
                             Text('Date: $formattedDate'),
                             Text('Email: $email'),
                             Text('Time: $time'),
+                            Row(
+                              children: [
+                                Text('Status: '),
+                                Text(
+                                  '$status',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       ),
@@ -93,8 +108,8 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
     );
   }
 
-  Future<void> _showConfirmationDialog(BuildContext context,
-      String formattedDate, String email, String time) async {
+  Future<void> _showConfirmationDialog(
+      BuildContext context, String docId, String status) async {
     bool? isConfirmed = await showDialog(
       context: context,
       builder: (context) {
@@ -104,13 +119,16 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(true); // Confirm
+                _updateAppointmentStatus(docId, 'Confirmed', null);
+                Navigator.of(context).pop(true);
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Appointment Confirmed')));
               },
               child: Text('Confirm'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false); // Reject
+                Navigator.of(context).pop(false);
               },
               child: Text('Reject'),
             ),
@@ -120,60 +138,89 @@ class _AppointmentsListsPageState extends State<AppointmentsListsPage> {
     );
 
     if (isConfirmed != null && !isConfirmed) {
-      _showRejectReasonDialog(context, formattedDate, email, time);
+      _showRejectReasonDialog(context, docId, status);
     }
   }
 
-  Future<void> _showRejectReasonDialog(BuildContext context,
-      String formattedDate, String email, String time) async {
+  Future<void> _showRejectReasonDialog(
+      BuildContext context, String docId, String status) async {
     String? selectedReason = await showDialog(
       context: context,
       builder: (context) {
-        String? reason;
+        // String reason1 = 'Scheduling Conflict';
+        // String reason2 = 'Unavailable Services';
+        // String reason3 = 'Fully Booked';
 
         return AlertDialog(
           title: Text('Reject Appointment'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Select a reason for rejection:'),
-              StyledDropdown(
-                value: reason,
-                onChange: (newValue) {
-                  setState(() {
-                    reason = newValue;
-                  });
-                },
-                hintText: 'Select a reason', // Set your hint text here
-                items: [
-                  'Reason 1',
-                  'Reason 2',
-                  'Reason 3',
+          content: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text('Select a reason for rejection:'),
+                  StyledDropdown(
+                    value: _selectedReason,
+                    onChange: (newValue) {
+                      setState(() {
+                        _selectedReason = newValue;
+                      });
+                    },
+                    hintText: 'Select a reason',
+                    items: const [
+                      'Scheduling Conflict',
+                      'Unavailable Services',
+                      'Fully Booked',
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  // if (_selectedReason != null)
+                  // Text(
+                  //   'Selected Reason: $_selectedReason',
+                  //   style: TextStyle(
+                  //     fontWeight: FontWeight.bold,
+                  //   ),
+                  // ),
                 ],
-              ),
-            ],
+              );
+            },
           ),
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Pop the dialog
+                _updateAppointmentStatus(docId, 'Rejected', _selectedReason);
+                Navigator.of(context).pop(_selectedReason);
+                ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Appointment Rejected')));
               },
-              child: Text('Back'),
+              child: Text('Submit'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(reason);
+                Navigator.of(context).pop();
               },
-              child: Text('Submit'),
+              child: Text('Back'),
             ),
           ],
         );
       },
     );
+  }
 
-    if (selectedReason != null) {
-      // Handle the rejected appointment with the selected reason
-      print('Appointment rejected with reason: $selectedReason');
+  Future<void> _updateAppointmentStatus(
+      String docId, String newStatus, String? reason) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('appointments')
+          .doc(docId)
+          .update({
+        'status': newStatus,
+        'rejectionReason': reason, // Add the rejection reason if provided
+      });
+
+      print('Appointment status updated successfully');
+    } catch (error) {
+      print('Error updating appointment status: $error');
     }
   }
 }

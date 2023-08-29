@@ -153,6 +153,7 @@ class _AppointmentPageState extends State<AppointmentPage> {
                 'userId': userId,
                 'email': email,
                 'shopId': widget.shopId,
+                'status': 'Pending'
               });
 
               ScaffoldMessenger.of(context).showSnackBar(
