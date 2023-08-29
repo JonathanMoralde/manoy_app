@@ -14,6 +14,8 @@ import 'package:manoy_app/widgets/styledTextfield.dart';
 import '../../provider/rating/averageRating_provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:manoy_app/pages/profile/appointment_page.dart';
+import 'package:manoy_app/provider/rating/averageRating_provider.dart'
+    as avgRatingProvider;
 
 class ShopView extends ConsumerWidget {
   final String? uid;
@@ -166,7 +168,7 @@ class ShopView extends ConsumerWidget {
                       });
 
                       ref.read(isRatedProvider.notifier).state = true;
-
+                      // ref.read(averageRatingsProvider.notifier).refresh();
                       Navigator.of(context).pop();
                     } catch (e) {
                       print('Error submitting rating and review: $e');
@@ -272,18 +274,20 @@ class ShopView extends ConsumerWidget {
     final isBookmark = ref.watch(isBookmarkProvider);
     final isRated = ref.watch(isRatedProvider);
 
-    // Get average ratings and total ratings from the provider
     final averageRatingsInfo = ref.watch(averageRatingsProvider);
-    final ratingsInfo = averageRatingsInfo.when(
-      data: (ratings) {
-        return ratings[uid!] ?? {'averageRating': 0.0, 'totalRatings': 0};
-      },
-      loading: () => {'averageRating': 0.0, 'totalRatings': 0},
-      error: (error, stackTrace) => {'averageRating': 0.0, 'totalRatings': 0},
+
+    final Map<String, Map<String, dynamic>>? ratingsInfo =
+        averageRatingsInfo.when(
+      data: (data) => data,
+      loading: () => null,
+      error: (error, stackTrace) => null,
     );
 
-    final averageRating = ratingsInfo['averageRating'] as double;
-    final totalRatings = ratingsInfo['totalRatings'] as int;
+    if (ratingsInfo != null && ratingsInfo.containsKey(uid)) {
+      final averageRating = ratingsInfo[uid]!['averageRating'] as double;
+      final totalRatings = ratingsInfo[uid]!['totalRatings'] as int;
+      // Use averageRating and totalRatings in your UI
+    }
 
     return FutureBuilder<bool>(
         future: hasRatedShop(uid ?? FirebaseAuth.instance.currentUser!.uid),
@@ -407,35 +411,60 @@ class ShopView extends ConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                "${averageRating.toStringAsFixed(1)}/5",
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              Icon(
-                                Icons.star,
-                                color: Colors.yellow.shade700,
-                                size: 16,
-                              ),
-                              Text("($totalRatings)"),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          ViewReviewPage(
-                                        uid: uid,
-                                        name: name,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.remove_red_eye_outlined),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              )
+                              ref.watch(averageRatingsProvider).when(
+                                    data: (ratingsInfo) {
+                                      if (ratingsInfo.containsKey(uid)) {
+                                        final averageRating =
+                                            ratingsInfo[uid]!['averageRating']
+                                                as double;
+                                        final totalRatings =
+                                            ratingsInfo[uid]!['totalRatings']
+                                                as int;
+                                        return Row(
+                                          children: [
+                                            Text(
+                                              "${averageRating.toStringAsFixed(1)}/5",
+                                              style:
+                                                  const TextStyle(fontSize: 12),
+                                            ),
+                                            Icon(
+                                              Icons.star,
+                                              color: Colors.yellow.shade700,
+                                              size: 16,
+                                            ),
+                                            Text("($totalRatings)"),
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        ViewReviewPage(
+                                                      uid: uid,
+                                                      name: name,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              icon: const Icon(Icons
+                                                  .remove_red_eye_outlined),
+                                              padding: EdgeInsets.zero,
+                                              constraints:
+                                                  const BoxConstraints(),
+                                            )
+                                          ],
+                                        );
+                                      } else {
+                                        return Text("No ratings available");
+                                      }
+                                    },
+                                    loading: () => CircularProgressIndicator(),
+                                    error: (error, stackTrace) =>
+                                        Text("Error: $error"),
+                                  ),
                             ],
                           ),
                           const SizedBox(
