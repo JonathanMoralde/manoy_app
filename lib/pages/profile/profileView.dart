@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manoy_app/pages/profile/appointments_lists.dart';
 import 'package:manoy_app/pages/profile/edit_profile.dart';
 import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
@@ -293,6 +294,17 @@ class ProfileView extends ConsumerWidget {
                   onClick: () {
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => CreatePostPage(),
+                    ));
+                  },
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                StyledButton(
+                  btnText: 'APPOINTMENTS',
+                  onClick: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AppointmentsListsPage(),
                     ));
                   },
                 ),

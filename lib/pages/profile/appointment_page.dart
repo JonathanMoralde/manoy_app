@@ -96,6 +96,13 @@ class _AppointmentPageState extends State<AppointmentPage> {
         const SizedBox(
           height: 30,
         ),
+        const Text(
+          'BOOK AN APPOINTMENT!',
+          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(
+          height: 20,
+        ),
         Image.asset(
           'lib/images/logo.png',
           height: 250,
@@ -137,16 +144,15 @@ class _AppointmentPageState extends State<AppointmentPage> {
               final String appointmentTime =
                   '${startTime!.format(context)} - ${endTime!.format(context)}';
 
-              final DocumentReference appointmentRef = FirebaseFirestore
-                  .instance
-                  .collection('appointments')
-                  .doc(widget.shopId);
+              final DocumentReference appointmentRef =
+                  FirebaseFirestore.instance.collection('appointments').doc();
 
               await appointmentRef.set({
                 'date': today,
                 'time': appointmentTime,
                 'userId': userId,
                 'email': email,
+                'shopId': widget.shopId,
               });
 
               ScaffoldMessenger.of(context).showSnackBar(

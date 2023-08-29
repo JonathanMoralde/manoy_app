@@ -13,7 +13,7 @@ import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 import '../../provider/rating/averageRating_provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
-import 'package:manoy_app/pages/profile/appointment.dart';
+import 'package:manoy_app/pages/profile/appointment_page.dart';
 
 class ShopView extends ConsumerWidget {
   final String? uid;
