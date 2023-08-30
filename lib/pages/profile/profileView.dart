@@ -39,8 +39,8 @@ class ProfileView extends ConsumerWidget {
     late bool servicePermission = false;
     late LocationPermission permission;
 
-    late String lat;
-    late String long;
+    String? lat;
+    String? long;
 
     Future<Map<String, double>> getUserLocation(String userId) async {
       final userLocationRef =
@@ -116,6 +116,9 @@ class ProfileView extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Shop/Service"),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -256,7 +259,11 @@ class ProfileView extends ConsumerWidget {
                     StyledButton(
                       btnText: 'MAP',
                       onClick: () {
-                        openMap(lat, long);
+                        if (lat != null && long != null) {
+                          openMap(lat!, long!);
+                        } else {
+                          print('error');
+                        }
                       },
                     ),
                     const SizedBox(
@@ -273,8 +280,8 @@ class ProfileView extends ConsumerWidget {
                             print('$lat, $long');
                             await setUserLocationInFirestore(
                               uid,
-                              double.parse(lat),
-                              double.parse(long),
+                              double.parse(lat!),
+                              double.parse(long!),
                             );
                           });
                           liveLocation();

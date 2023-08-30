@@ -25,7 +25,9 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
       child: Scaffold(
         appBar: AppBar(
           title: Text('APPOINTMENTS'),
-          backgroundColor: Colors.lightBlue,
+          titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+          centerTitle: true,
+          backgroundColor: Colors.blue,
         ),
         body: SingleChildScrollView(
           child: Center(

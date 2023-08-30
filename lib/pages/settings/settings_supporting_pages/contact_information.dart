@@ -18,7 +18,9 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('CONTACT INFORMATION'),
-        backgroundColor: Colors.lightBlue,
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -63,7 +65,10 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
               //   controller: contactController,
               //   hintText: 'Enter your contact information...',
               // ),
-              SizedBox(height: 20),
+              Text('HOW TO CONTACT US? REFER TO THE LINKS BELOW',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+              SizedBox(height: 10),
+
               GestureDetector(
                 onTap: () async {
                   const facebookUrl =
@@ -75,7 +80,43 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                   }
                 },
                 child: Text(
-                  'Visit our Facebook page',
+                  'Visit Jonnel Angelo Red',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  const facebookUrl =
+                      'https://www.facebook.com/arvinjay.ong.98'; // Replace with your Facebook page URL
+                  if (await canLaunch(facebookUrl)) {
+                    await launch(facebookUrl);
+                  } else {
+                    throw 'Could not launch $facebookUrl';
+                  }
+                },
+                child: Text(
+                  'Visit Arvin Jay Ong',
+                  style: TextStyle(
+                    color: Colors.blue,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+              GestureDetector(
+                onTap: () async {
+                  const facebookUrl =
+                      'https://www.facebook.com/manuel.adol'; // Replace with your Facebook page URL
+                  if (await canLaunch(facebookUrl)) {
+                    await launch(facebookUrl);
+                  } else {
+                    throw 'Could not launch $facebookUrl';
+                  }
+                },
+                child: Text(
+                  'Visit Manuel Adol',
                   style: TextStyle(
                     color: Colors.blue,
                     decoration: TextDecoration.underline,

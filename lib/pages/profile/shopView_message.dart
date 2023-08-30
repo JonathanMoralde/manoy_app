@@ -186,6 +186,8 @@ class _MessagePageState extends State<MessagePage> {
       appBar: AppBar(
         backgroundColor: Colors.blue,
         title: Text('${widget.name} '),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
       ),
       body: Column(
         children: [

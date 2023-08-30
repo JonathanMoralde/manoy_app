@@ -39,14 +39,17 @@ class SettingsPage extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
         actions: [
           Padding(
             padding: const EdgeInsets.all(5),
-            child: Image.asset(
-              'lib/images/settings_logo.png',
-              width: 70,
-              height: 70,
-            ),
+            // child: Image.asset(
+            //   'lib/images/settings_logo.png',
+            //   width: 70,
+            //   height: 70,
+            // ),
           )
         ],
       ),
