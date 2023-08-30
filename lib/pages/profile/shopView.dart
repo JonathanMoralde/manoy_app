@@ -13,6 +13,9 @@ import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 import '../../provider/rating/averageRating_provider.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+import 'package:manoy_app/pages/profile/appointment_page.dart';
+import 'package:manoy_app/provider/rating/averageRating_provider.dart'
+    as avgRatingProvider;
 
 class ShopView extends ConsumerWidget {
   final String? uid;
@@ -24,7 +27,6 @@ class ShopView extends ConsumerWidget {
   final String profilePhoto;
   final String coverPhoto;
   final String? userId;
-  
 
   // bool? isBookmarked;
   const ShopView({
@@ -38,7 +40,7 @@ class ShopView extends ConsumerWidget {
     required this.description,
     required this.profilePhoto,
     required this.coverPhoto,
-   
+
     // this.isBookmarked
   });
 
@@ -95,100 +97,93 @@ class ShopView extends ConsumerWidget {
     final reviewController = TextEditingController();
 
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            contentPadding: EdgeInsets.zero,
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("Rate & Review"),
-                ),
-                const Divider(
-                  height: 0,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: RatingBar(
-                    // unratedColor: Colors.yellow,
-                    ratingWidget: RatingWidget(
-                        full: Icon(
-                          Icons.star,
-                          color: Colors.yellow.shade700,
-                        ),
-                        half: Icon(
-                          Icons.star_half,
-                          color: Colors.yellow.shade700,
-                        ),
-                        empty: Icon(
-                          Icons.star_border,
-                          color: Colors.yellow.shade700,
-                        )),
-                    onRatingUpdate: (double rating) {
-                      userRating = rating;
-                    },
-                    minRating: 1,
-                    maxRating: 5,
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Text("Rate & Review"),
+              ),
+              const Divider(
+                height: 0,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: RatingBar(
+                  // unratedColor: Colors.yellow,
+                  ratingWidget: RatingWidget(
+                    full: Icon(
+                      Icons.star,
+                      color: Colors.yellow.shade700,
+                    ),
+                    half: Icon(
+                      Icons.star_half,
+                      color: Colors.yellow.shade700,
+                    ),
+                    empty: Icon(
+                      Icons.star_border,
+                      color: Colors.yellow.shade700,
+                    ),
                   ),
+                  onRatingUpdate: (double rating) {
+                    userRating = rating;
+                  },
+                  minRating: 1,
+                  maxRating: 5,
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                StyledTextField(
-                  controller: reviewController,
-                  hintText: "Write a Review",
-                  obscureText: false,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                StyledButton(
-                    btnText: "SUBMIT",
-                    onClick: () async {
-                      final currentRating = userRating;
-                      final review = reviewController.text;
-                      if (userRating > 0 && review.isNotEmpty) {
-                        try {
-                          // final userId = ref.read(uidProvider);
-                          final shopId = uid; // Replace with the actual shop ID
-                          final id = userId;
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              StyledTextField(
+                controller: reviewController,
+                hintText: "Write a Review",
+                obscureText: false,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              StyledButton(
+                btnText: "SUBMIT",
+                onClick: () async {
+                  final currentRating = userRating;
+                  final review = reviewController.text;
+                  if (userRating > 0 && review.isNotEmpty) {
+                    try {
+                      final shopId = uid!;
+                      final id = userId;
 
-                          // print(shopId);
+                      await FirebaseFirestore.instance
+                          .collection('shop_ratings')
+                          .add({
+                        'user_id': id,
+                        'shop_id': shopId,
+                        'rating': currentRating,
+                        'review': review,
+                        'timestamp': FieldValue.serverTimestamp(),
+                      });
 
-                          // // Create a new document in the 'shop_ratings' collection
-                          await FirebaseFirestore.instance
-                              .collection('shop_ratings')
-                              .add({
-                            'user_id': id,
-                            'shop_id': shopId,
-                            'rating': currentRating,
-                            'review': review,
-                            'timestamp': FieldValue.serverTimestamp(),
-                          });
-
-                          // // Store the shop ID in local storage to indicate that the user has rated this shop
-                          // final prefs = await SharedPreferences.getInstance();
-                          // final ratedShops =
-                          //     await fetchRatedShops(); // Fetch rated shops again to get the updated list
-                          // ratedShops.add(shopId!);
-                          // await prefs.setStringList('ratedShops', ratedShops);
-                          ref.read(isRatedProvider.notifier).state = true;
-
-                          Navigator.of(context).pop(); // Close the dialog
-                        } catch (e) {
-                          print('Error submitting rating and review: $e');
-                        }
-                      }
-                    }),
-                const SizedBox(
-                  height: 15,
-                )
-              ],
-            ),
-          );
-        });
+                      ref.read(isRatedProvider.notifier).state = true;
+                      // ref.read(averageRatingsProvider.notifier).refresh();
+                      Navigator.of(context).pop();
+                    } catch (e) {
+                      print('Error submitting rating and review: $e');
+                    }
+                  }
+                },
+              ),
+              const SizedBox(
+                height: 15,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<Map<String, dynamic>?> fetchUserLocation(String userId) async {
@@ -265,21 +260,34 @@ class ShopView extends ConsumerWidget {
       }
     }
 
+    Future<String?> getUserEmail() async {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      User? user = auth.currentUser;
+
+      if (user != null) {
+        return user.email;
+      } else {
+        return null; // User is not authenticated or user data not available
+      }
+    }
+
     final isBookmark = ref.watch(isBookmarkProvider);
     final isRated = ref.watch(isRatedProvider);
 
-    // Get average ratings and total ratings from the provider
     final averageRatingsInfo = ref.watch(averageRatingsProvider);
-    final ratingsInfo = averageRatingsInfo.when(
-      data: (ratings) {
-        return ratings[uid!] ?? {'averageRating': 0.0, 'totalRatings': 0};
-      },
-      loading: () => {'averageRating': 0.0, 'totalRatings': 0},
-      error: (error, stackTrace) => {'averageRating': 0.0, 'totalRatings': 0},
+
+    final Map<String, Map<String, dynamic>>? ratingsInfo =
+        averageRatingsInfo.when(
+      data: (data) => data,
+      loading: () => null,
+      error: (error, stackTrace) => null,
     );
 
-    final averageRating = ratingsInfo['averageRating'] as double;
-    final totalRatings = ratingsInfo['totalRatings'] as int;
+    if (ratingsInfo != null && ratingsInfo.containsKey(uid)) {
+      final averageRating = ratingsInfo[uid]!['averageRating'] as double;
+      final totalRatings = ratingsInfo[uid]!['totalRatings'] as int;
+      // Use averageRating and totalRatings in your UI
+    }
 
     return FutureBuilder<bool>(
         future: hasRatedShop(uid ?? FirebaseAuth.instance.currentUser!.uid),
@@ -403,35 +411,60 @@ class ShopView extends ConsumerWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                "${averageRating.toStringAsFixed(1)}/5",
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              Icon(
-                                Icons.star,
-                                color: Colors.yellow.shade700,
-                                size: 16,
-                              ),
-                              Text("($totalRatings)"),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (BuildContext context) =>
-                                          ViewReviewPage(
-                                        uid: uid,
-                                        name: name,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                icon: const Icon(Icons.remove_red_eye_outlined),
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                              )
+                              ref.watch(averageRatingsProvider).when(
+                                    data: (ratingsInfo) {
+                                      if (ratingsInfo.containsKey(uid)) {
+                                        final averageRating =
+                                            ratingsInfo[uid]!['averageRating']
+                                                as double;
+                                        final totalRatings =
+                                            ratingsInfo[uid]!['totalRatings']
+                                                as int;
+                                        return Row(
+                                          children: [
+                                            Text(
+                                              "${averageRating.toStringAsFixed(1)}/5",
+                                              style:
+                                                  const TextStyle(fontSize: 12),
+                                            ),
+                                            Icon(
+                                              Icons.star,
+                                              color: Colors.yellow.shade700,
+                                              size: 16,
+                                            ),
+                                            Text("($totalRatings)"),
+                                            const SizedBox(
+                                              width: 5,
+                                            ),
+                                            IconButton(
+                                              onPressed: () {
+                                                Navigator.of(context).push(
+                                                  MaterialPageRoute(
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        ViewReviewPage(
+                                                      uid: uid,
+                                                      name: name,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              icon: const Icon(Icons
+                                                  .remove_red_eye_outlined),
+                                              padding: EdgeInsets.zero,
+                                              constraints:
+                                                  const BoxConstraints(),
+                                            )
+                                          ],
+                                        );
+                                      } else {
+                                        return Text("No ratings available");
+                                      }
+                                    },
+                                    loading: () => CircularProgressIndicator(),
+                                    error: (error, stackTrace) =>
+                                        Text("Error: $error"),
+                                  ),
                             ],
                           ),
                           const SizedBox(
@@ -491,10 +524,13 @@ class ShopView extends ConsumerWidget {
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                             builder: (BuildContext context) {
-                                          return MessagePage( name: name, shopId: uid!);
+                                          return MessagePage(
+                                            name: name,
+                                            receiverId: uid!,
+                                          );
                                         }),
                                       );
-                                    }else {
+                                    } else {
                                       print('null');
                                     }
                                   }),
@@ -504,7 +540,14 @@ class ShopView extends ConsumerWidget {
                             height: 10,
                           ),
                           StyledButton(
-                              btnText: "MAKE APPOINTMENT", onClick: () {}),
+                              btnText: "MAKE APPOINTMENT",
+                              onClick: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) => AppointmentPage(
+                                          name: name,
+                                          shopId: uid!,
+                                        )));
+                              }),
                           const SizedBox(
                             height: 10,
                           ),

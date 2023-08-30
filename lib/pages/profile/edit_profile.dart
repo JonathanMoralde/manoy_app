@@ -1,52 +1,43 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:manoy_app/pages/home/home.dart';
-import 'package:manoy_app/pages/main_page.dart';
+import 'package:manoy_app/widgets/styledTextfield.dart';
+import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
+import 'package:manoy_app/widgets/uploadImage_input.dart';
+import 'package:manoy_app/widgets/timePicker.dart';
+import 'package:uuid/uuid.dart';
 import 'package:manoy_app/provider/timepicker/selectedTime_provider.dart';
 import 'package:manoy_app/provider/uploadIage/selectedImage_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledDropdown.dart';
-import 'package:manoy_app/widgets/styledTextfield.dart';
-import 'package:manoy_app/widgets/timePicker.dart';
-import 'package:manoy_app/widgets/uploadImage_input.dart';
-import 'package:uuid/uuid.dart';
+import 'package:manoy_app/pages/main_page.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
-import '../../provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
-
-class ApplyProvider extends ConsumerWidget {
+class EditProfileForm extends ConsumerWidget {
   final String uid;
-  ApplyProvider({super.key, required this.uid});
+  final String name;
 
-//   @override
-//   State<ApplyProvider> createState() => _ApplyProviderState();
-// }
+  EditProfileForm({Key? key, required this.uid, required this.name})
+      : super(key: key);
 
-// class _ApplyProviderState extends State<ApplyProvider> {
   final providerNameController = TextEditingController();
-
   final providerAddressController = TextEditingController();
-
   final providerDescriptionController = TextEditingController();
-
   TimeOfDay? selectedTime1;
   TimeOfDay? selectedTime2;
-
-  String? category;
-
+  String? providerCategory;
   String? selectedImagePath1;
   String? selectedImagePath2;
+  String? category;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // String? time1 = selectedTime1?.format(context).toString();
     // String? time2 = selectedTime2?.format(context).toString();
 
-    Future addProvider() async {
+    Future updateProvider() async {
       try {
         String? time1 = selectedTime1?.format(context).toString();
         String? time2 = selectedTime2?.format(context).toString();
@@ -56,14 +47,6 @@ class ApplyProvider extends ConsumerWidget {
         final description = providerDescriptionController.text;
         final businessHours = '$time1 - $time2';
         final categoryName = category;
-
-        print(serviceName);
-        print(serviceAddress);
-        print(description);
-        print(businessHours);
-        print(categoryName);
-        print(selectedImagePath1);
-        print(selectedImagePath2);
 
         if (serviceName.isEmpty ||
             serviceAddress.isEmpty ||
@@ -78,44 +61,36 @@ class ApplyProvider extends ConsumerWidget {
               content: Text("Please fill up all the details above!"),
             ),
           );
-
           return;
         }
 
         final file1 = File(selectedImagePath1!);
         final file2 = File(selectedImagePath2!);
 
-        // Generate a unique image name using UUID
-        final imageName1 = Uuid().v4(); // Generates a random UUID
-        final imageName2 = Uuid().v4(); // Generates a random UUID
+        final imageName1 = Uuid().v4();
+        final imageName2 = Uuid().v4();
 
         final storageRef1 = FirebaseStorage.instance
             .ref()
             .child('provider_profile')
-            .child('$imageName1.jpg'); // Use the unique image name
+            .child('$imageName1.jpg');
         final storageRef2 = FirebaseStorage.instance
             .ref()
             .child('provider_profile')
-            .child('$imageName2.jpg'); // Use the unique image name
-
-        // final metadata = SettableMetadata(
-        //   contentType: 'image/jpeg', // Set the content type to image/jpeg
-        //   cacheControl: 'max-age=0', // Disable caching for the updated image
-        // );
+            .child('$imageName2.jpg');
 
         final uploadTask1 = storageRef1.putFile(file1);
         final uploadTask2 = storageRef2.putFile(file2);
 
-        // Wait for the upload to complete and get the download URL
         final TaskSnapshot snapshot1 = await uploadTask1;
         final imageUrl1 = await snapshot1.ref.getDownloadURL();
         final TaskSnapshot snapshot2 = await uploadTask2;
         final imageUrl2 = await snapshot2.ref.getDownloadURL();
 
-        await FirebaseFirestore.instance
-            .collection('service_provider')
-            .doc(uid)
-            .set({
+        final providerDocRef =
+            FirebaseFirestore.instance.collection('service_provider').doc(uid);
+
+        await providerDocRef.update({
           'Service Name': serviceName,
           'Service Address': serviceAddress,
           'Description': description,
@@ -124,13 +99,16 @@ class ApplyProvider extends ConsumerWidget {
           'Profile Photo': imageUrl1,
           'Cover Photo': imageUrl2,
         }).then((value) {
-          SnackBar(
-            content: Text("Created Successfully!"),
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Updated Successfully!"),
+            ),
           );
         }).catchError((error) {
           print(error);
         });
 
+        // Update the Riverpod state
         ref.read(serviceNameProvider.notifier).state = serviceName;
         ref.read(serviceAddressProvider.notifier).state = serviceAddress;
         ref.read(descriptionProvider.notifier).state = description;
@@ -138,6 +116,7 @@ class ApplyProvider extends ConsumerWidget {
         ref.read(categoryProvider.notifier).state = categoryName;
         ref.read(profilePhotoProvider.notifier).state = imageUrl1;
         ref.read(coverPhotoProvider.notifier).state = imageUrl2;
+
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (BuildContext context) => MainPage(),
@@ -176,11 +155,11 @@ class ApplyProvider extends ConsumerWidget {
             child: Column(
               children: [
                 const Text(
-                  "APPLY AS",
+                  "EDIT PROFILE FOR",
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),
                 ),
-                const Text(
-                  "SERVICE PROVIDER",
+                Text(
+                  name,
                   style: TextStyle(fontSize: 25, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(
@@ -370,7 +349,7 @@ class ApplyProvider extends ConsumerWidget {
                 StyledButton(
                     btnText: "CONFIRM",
                     onClick: () {
-                      addProvider();
+                      updateProvider();
                       // print("executed");
                     })
               ],

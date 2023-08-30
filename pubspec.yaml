@@ -54,12 +54,23 @@ dependencies:
   url_launcher: ^6.1.12
   firebase_messaging: ^14.6.6
   flutter_keyboard_visibility: ^5.4.1
+  intl: ^0.18.1
+  path: ^1.8.3 
+  timeago: ^3.5.0
+  table_calendar: ^3.0.9
+
 
 
   
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+
+flutter_icons:
+  android: "launcer_icon"
+  ios: true
+  image_path: "lib/images/logo.png"
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

@@ -1,6 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manoy_app/pages/profile/appointments_lists.dart';
+import 'package:manoy_app/pages/profile/edit_profile.dart';
 import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/provider/userDetails/uid_provider.dart';
@@ -9,26 +10,21 @@ import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-// final locationProvider = FutureProvider<LatLng?>((ref) async {
-//   try {
-//     final position = await Geolocator.getCurrentPosition(
-//       desiredAccuracy: LocationAccuracy.high,
-//     );
-//     return LatLng(position.latitude, position.longitude);
-//   } catch (e) {
-//     // Handle error
-//     return null;
-//   }
-// });
+import 'package:manoy_app/pages/profile/createPost.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:manoy_app/provider/rating/averageRating_provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:manoy_app/pages/profile/viewReview.dart';
 
 class ProfileView extends ConsumerWidget {
   final bool? fromShopCard;
+
   const ProfileView({super.key, this.fromShopCard});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final locationAsyncValue = ref.watch(locationProvider);
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final uid = auth.currentUser!.uid;
 
     final serviceName = ref.watch(serviceNameProvider);
     final serviceAddress = ref.watch(serviceAddressProvider);
@@ -37,8 +33,9 @@ class ProfileView extends ConsumerWidget {
     final category = ref.watch(categoryProvider);
     final profilePhoto = ref.watch(profilePhotoProvider);
     final coverPhoto = ref.watch(coverPhotoProvider);
- 
 
+    final name =
+        serviceName ?? ''; // Default to an empty string if serviceName is null
     late bool servicePermission = false;
     late LocationPermission permission;
 
@@ -102,6 +99,19 @@ class ProfileView extends ConsumerWidget {
         'longitude': long,
       });
     }
+
+    // Fetch average ratings from the provider
+    final averageRatingsInfo = ref.watch(averageRatingsProvider);
+    final averageRatings = averageRatingsInfo.when(
+      data: (ratings) {
+        return ratings[uid!] ?? {'averageRating': 0.0, 'totalRatings': 0};
+      },
+      loading: () => {'averageRating': 0.0, 'totalRatings': 0},
+      error: (error, stackTrace) => {'averageRating': 0.0, 'totalRatings': 0},
+    );
+
+    final averageRating = averageRatings['averageRating'] as double;
+    final totalRatings = averageRatings['totalRatings'] as int;
 
     return Scaffold(
       appBar: AppBar(
@@ -171,27 +181,70 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                const Text("No ratings yet") //! TEMPORARY
-                ,
+                // Display average rating and total ratings
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "${averageRating.toStringAsFixed(1)}/5",
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    Icon(
+                      Icons.star,
+                      color: Colors.yellow.shade700,
+                      size: 20,
+                    ),
+                    Text(" ($totalRatings)"),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => ViewReviewPage(
+                              uid: uid,
+                              name: name,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.remove_red_eye_outlined),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    )
+                  ],
+                ),
                 const SizedBox(
                   height: 10,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    StyledButton(btnText: "EDIT PROFILE", onClick: () {}),
+                    StyledButton(
+                      btnText: "EDIT PROFILE",
+                      onClick: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => EditProfileForm(
+                            uid: uid,
+                            name: serviceName,
+                          ),
+                        ));
+                      },
+                    ),
                     const SizedBox(
                       width: 10,
                     ),
                     StyledButton(
-                        btnText: "MESSAGES",
-                        onClick: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                              return const MessageInbox();
-                            }),
-                          );
-                        }),
+                      btnText: "MESSAGES",
+                      onClick: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                            return MessageInbox();
+                          }),
+                        );
+                      },
+                    ),
                   ],
                 ),
                 const SizedBox(
@@ -201,32 +254,59 @@ class ProfileView extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     StyledButton(
-                        btnText: 'map',
-                        onClick: () {
-                          openMap(lat, long);
-                        }),
+                      btnText: 'MAP',
+                      onClick: () {
+                        openMap(lat, long);
+                      },
+                    ),
                     const SizedBox(
                       width: 10,
                     ),
                     StyledButton(
-                        btnText: 'Location',
-                        onClick: () async {
-                          final uid = ref.read(uidProvider);
-                          if (uid != null) {
-                            getCurrentLocation().then((value) async {
-                              lat = '${value.latitude}';
-                              long = '${value.longitude}';
-                              print('$lat, $long');
-                              await setUserLocationInFirestore(
-                                  uid, double.parse(lat), double.parse(long));
-                            });
-                            liveLocation();
-                          }
-                        }),
+                      btnText: 'LOCATION',
+                      onClick: () async {
+                        final uid = ref.read(uidProvider);
+                        if (uid != null) {
+                          getCurrentLocation().then((value) async {
+                            lat = '${value.latitude}';
+                            long = '${value.longitude}';
+                            print('$lat, $long');
+                            await setUserLocationInFirestore(
+                              uid,
+                              double.parse(lat),
+                              double.parse(long),
+                            );
+                          });
+                          liveLocation();
+                        }
+                      },
+                    ),
                     const SizedBox(
                       width: 1,
                     ),
                   ],
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                StyledButton(
+                  btnText: 'CREATE POST',
+                  onClick: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => CreatePostPage(),
+                    ));
+                  },
+                ),
+                const SizedBox(
+                  height: 15,
+                ),
+                StyledButton(
+                  btnText: 'APPOINTMENTS',
+                  onClick: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => AppointmentsListsPage(),
+                    ));
+                  },
                 ),
                 const SizedBox(
                   height: 10,
@@ -265,7 +345,6 @@ class ProfileView extends ConsumerWidget {
         ),
       ),
       bottomNavigationBar: fromShopCard == true ? null : const BottomNav(),
-      // bottomNavigationBar: null,
     );
   }
 }

@@ -1,30 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:manoy_app/widgets/postCard.dart';
 
-class ForYou extends StatelessWidget {
-  const ForYou({super.key});
+class ForYou extends StatefulWidget {
+  const ForYou({Key? key}) : super(key: key);
+
+  @override
+  State<ForYou> createState() => _ForYouState();
+}
+
+class _ForYouState extends State<ForYou> {
+  late Stream<int> timerStream;
+  int currentIndex =
+      0; // Index to keep track of which pre-built widget to display
+  final List<Widget> postCards = List.generate(5, (_) => PostCard());
+
+  _ForYouState() {
+    timerStream = Stream.periodic(Duration(minutes: 1), (i) => i);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        PostCard(),
-        const SizedBox(
-          height: 10,
+        AnimatedSwitcher(
+          duration: Duration.zero,
+          child: postCards[currentIndex],
+          key: ValueKey<int>(currentIndex),
         ),
-        PostCard(),
-        const SizedBox(
-          height: 10,
-        ),
-        PostCard(),
-        const SizedBox(
-          height: 10,
-        ),
-        PostCard(),
-        const SizedBox(
-          height: 10,
-        ),
-        PostCard(),
         const SizedBox(
           height: 10,
         ),

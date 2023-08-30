@@ -40,36 +40,43 @@ class SignupPage extends ConsumerWidget {
         String gender,
         DateTime birthday) async {
       try {
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(authResult.user!.uid)
-            .set({
-          'First Name': firstName,
-          'Last Name': lastName,
-          'Phone Number': int.parse(phoneNum),
-          'Address': address,
-          'Gender': gender,
-          'Birthday': birthday,
-        }).then((value) async {
+        final userUid = authResult.user!.uid;
+        final email = authResult.user!.email; // Get the email from authResult
+        if (userUid != null && email != null) {
           await FirebaseFirestore.instance
-              .collection('bookmarks')
-              .doc(authResult.user!.uid)
-              .set({'shops': []}).then((value) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Signed Up successfully!")),
-            );
-            resetState();
-            Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-              return LoginScreen();
-            }));
+              .collection('users')
+              .doc(userUid)
+              .set({
+            'UID': userUid, // Store the UID
+            'Email': email, // Store the email
+            'First Name': firstName,
+            'Last Name': lastName,
+            'Phone Number': int.parse(phoneNum),
+            'Address': address,
+            'Gender': gender,
+            'Birthday': birthday,
+          }).then((value) async {
+            await FirebaseFirestore.instance
+                .collection('bookmarks')
+                .doc(userUid)
+                .set({'shops': []}).then((value) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("Signed Up successfully!")),
+              );
+              resetState();
+              Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                return LoginScreen();
+              }));
+            });
+          }).catchError((error) {
+            print("Error adding user to Firestore: $error");
           });
-        }).catchError((error) {
-          print(error);
-          print("test");
-        });
+        } else {
+          print("User UID or email is null");
+        }
       } catch (e) {
-        print(e);
+        print("Exception while adding user to Firestore: $e");
       }
     }
 
