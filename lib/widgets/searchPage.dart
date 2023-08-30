@@ -10,18 +10,18 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
-  final searchController = TextEditingController();
-  List<Map<String, dynamic>> searchResults = [];
-
-  // Method to perform search based on user input
+  // ... inside your _SearchPageState class
   void performSearch(String query) {
-    FirebaseFirestore.instance
-        .collection('service_provider')
-        .where('Service Name', isGreaterThanOrEqualTo: query)
-        .get()
-        .then((snapshot) {
+    final allShops = FirebaseFirestore.instance.collection('service_provider');
+
+    allShops.get().then((snapshot) {
+      final matchingShops = snapshot.docs
+          .where((doc) =>
+              doc['Service Name'].toLowerCase().contains(query.toLowerCase()))
+          .toList();
+
       setState(() {
-        searchResults = snapshot.docs
+        searchResults = matchingShops
             .map((doc) => doc.data() as Map<String, dynamic>)
             .toList();
       });
@@ -29,6 +29,11 @@ class _SearchPageState extends State<SearchPage> {
       print('Error searching: $error');
     });
   }
+
+  final searchController = TextEditingController();
+  List<Map<String, dynamic>> searchResults = [];
+
+  // Method to perform search based on user input
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +75,7 @@ class _SearchPageState extends State<SearchPage> {
               for (var shopData in searchResults)
                 ShopCard(
                   name: shopData['Service Name'] ?? '',
-                  address: shopData['Address'] ?? '',
+                  address: shopData['Service Address'] ?? '',
                   uid: shopData['uid'] ?? '',
                   image: shopData['Profile Photo'] ?? '',
                   category: shopData['Category'] ?? '',

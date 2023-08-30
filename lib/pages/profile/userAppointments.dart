@@ -136,6 +136,7 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
             ),
             TextButton(
               onPressed: () {
+                updateAppointmentStatus(docId, "Pending");
                 Navigator.of(context).pop(false);
               },
               child: Text('Keep Appointment'),
