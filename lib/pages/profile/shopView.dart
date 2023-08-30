@@ -168,6 +168,7 @@ class ShopView extends ConsumerWidget {
                       });
 
                       ref.read(isRatedProvider.notifier).state = true;
+                      ref.refresh(averageRatingsProvider);
                       // ref.read(averageRatingsProvider.notifier).refresh();
                       Navigator.of(context).pop();
                     } catch (e) {
@@ -379,6 +380,8 @@ class ShopView extends ConsumerWidget {
                                   ref.read(isBookmarkProvider.notifier).state =
                                       true;
                                 }
+
+                                ref.refresh(bookmarkDataProvider);
                               },
                               icon: isBookmark == true
                                   ? const Icon(

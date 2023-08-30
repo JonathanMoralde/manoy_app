@@ -97,7 +97,6 @@ class ShopCard extends ConsumerWidget {
             //   ref.read(isBookmarkProvider.notifier).state = true;
             // }
             return ShopView(
-          
               userId: userId,
               name: name,
               address: address,
@@ -136,7 +135,7 @@ class ShopCard extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Container(
           width: double.infinity,
-          height: height ?? 150,
+          height: height ?? 110,
           decoration: BoxDecoration(
               color: Colors.grey.shade200,
               borderRadius: BorderRadius.circular(8)),
@@ -169,13 +168,18 @@ class ShopCard extends ConsumerWidget {
                       Text(
                         name,
                         style: const TextStyle(
-                            fontWeight: FontWeight.w700, letterSpacing: 1),
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1,
+                            fontSize: 15),
+                      ),
+                      const SizedBox(
+                        height: 3,
                       ),
                       Row(
                         children: [
                           Text(
                             "${averageRating.toStringAsFixed(1)}/5",
-                            style: const TextStyle(fontSize: 15),
+                            style: const TextStyle(fontSize: 14),
                           ),
                           Icon(
                             Icons.star,
@@ -188,13 +192,22 @@ class ShopCard extends ConsumerWidget {
                           Text("($totalRatings)")
                         ],
                       ),
+                      const SizedBox(
+                        height: 3,
+                      ),
                       Text(
                         address,
-                        style: const TextStyle(fontSize: 15),
+                        style: const TextStyle(
+                          fontSize: 15,
+                        ),
                       ),
+
                       const Text(
                         "Accessories & Repair Services",
-                        style: TextStyle(fontSize: 15),
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                       // StyledButton(btnText: 'map', onClick: (){}),
                     ],

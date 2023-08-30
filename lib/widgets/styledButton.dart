@@ -14,6 +14,7 @@ class StyledButton extends StatelessWidget {
   final dynamic btnColor;
   final bool? noShadow;
   final String? secondText;
+  final double? fontSize;
 
   const StyledButton({
     super.key,
@@ -25,6 +26,7 @@ class StyledButton extends StatelessWidget {
     this.btnColor,
     this.noShadow,
     this.secondText,
+    this.fontSize,
   });
 
   @override
@@ -43,8 +45,10 @@ class StyledButton extends StatelessWidget {
                 RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
             backgroundColor: btnColor ?? const Color(0xFF00A2FF),
             foregroundColor: const Color.fromARGB(255, 37, 37, 37),
-            textStyle: const TextStyle(
-                letterSpacing: 1, fontWeight: FontWeight.w500, fontSize: 16),
+            textStyle: TextStyle(
+                letterSpacing: 1,
+                fontWeight: FontWeight.w500,
+                fontSize: fontSize ?? 16),
           ),
           icon: btnIcon,
           label: secondText != null
@@ -71,8 +75,10 @@ class StyledButton extends StatelessWidget {
             backgroundColor: btnColor ?? const Color(0xFF00A2FF),
             // foregroundColor: const Color.fromARGB(255, 37, 37, 37),
             foregroundColor: Colors.white,
-            textStyle: const TextStyle(
-                letterSpacing: 1, fontWeight: FontWeight.w500, fontSize: 16),
+            textStyle: TextStyle(
+                letterSpacing: 1,
+                fontWeight: FontWeight.w500,
+                fontSize: fontSize ?? 16),
           ),
           child: Text(
             btnText,

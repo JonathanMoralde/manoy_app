@@ -55,51 +55,66 @@ class PostCard extends StatelessWidget {
             } else {
               return Column(
                 children: snapshot.data!.map((postData) {
-                  return Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(color: Colors.grey.shade200),
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              Image.network(
-                                postData['service_photo'],
-                                width: 75,
-                                height: 75,
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                  return Column(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(color: Colors.grey.shade200),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
                                 children: [
-                                  Text(
-                                    postData['service_name'],
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20),
+                                  ClipRRect(
+                                    borderRadius: BorderRadius.circular(50),
+                                    child: Image.network(
+                                      postData['service_photo'],
+                                      width: 55,
+                                      height: 55,
+                                    ),
                                   ),
-                                  Text(
-                                    formatTimeAgo(postData['timestamp']),
-                                    style: TextStyle(fontSize: 12),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        postData['service_name'],
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            letterSpacing: 1,
+                                            fontSize: 14),
+                                      ),
+                                      Text(
+                                        formatTimeAgo(postData['timestamp']),
+                                        style: TextStyle(fontSize: 12),
+                                      )
+                                    ],
                                   )
                                 ],
-                              )
-                            ],
-                          ),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              child: SizedBox(
+                                  width: double.infinity,
+                                  child: Text(postData['caption'])),
+                            ),
+                            SizedBox(
+                              width: double.infinity,
+                              child: Image.network(postData['imageUrl']),
+                            ),
+                          ],
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          child: Text(postData['caption']),
-                        ),
-                        SizedBox(
-                          width: double.infinity,
-                          child: Image.network(postData['imageUrl']),
-                        ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ],
                   );
                 }).toList(),
               );

@@ -90,7 +90,7 @@ class FilterBtns extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 8),
       child: SizedBox(
-        height: 45,
+        height: 35,
         child: ListView.builder(
           itemCount: category.length,
           scrollDirection: Axis.horizontal,
@@ -101,6 +101,7 @@ class FilterBtns extends ConsumerWidget {
               padding: const EdgeInsets.only(right: 10),
               child: StyledButton(
                 btnText: category[index],
+                fontSize: 14,
                 onClick: () {
                   // setState(() {
                   //   _activeCategory = category[index];
