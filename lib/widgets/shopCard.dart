@@ -58,6 +58,16 @@ class ShopCard extends ConsumerWidget {
     return averageRating;
   }
 
+  Future<List<Map<String, dynamic>>> fetchCategory() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('service_provider').get();
+
+    List<Map<String, dynamic>> category =
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+    return category;
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final userId = ref.watch(uidProvider);
@@ -201,15 +211,13 @@ class ShopCard extends ConsumerWidget {
                           fontSize: 15,
                         ),
                       ),
-
-                      const Text(
-                        "Accessories & Repair Services",
+                      Text(
+                        "$category",
                         style: TextStyle(
                           fontSize: 14,
                           fontStyle: FontStyle.italic,
                         ),
                       ),
-                      // StyledButton(btnText: 'map', onClick: (){}),
                     ],
                   ),
                 ),

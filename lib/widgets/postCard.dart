@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class PostCard extends StatelessWidget {
   const PostCard({Key? key}) : super(key: key);
@@ -106,7 +107,8 @@ class PostCard extends StatelessWidget {
                             ),
                             SizedBox(
                               width: double.infinity,
-                              child: Image.network(postData['imageUrl']),
+                              child: CachedNetworkImage(
+                                  imageUrl: postData['imageUrl']),
                             ),
                           ],
                         ),
