@@ -307,6 +307,9 @@ class ShopView extends ConsumerWidget {
               child: Scaffold(
                 appBar: AppBar(
                   title: const Text("Worker Profile"),
+                  titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+                  centerTitle: true,
+                  backgroundColor: Colors.blue,
                   leading: IconButton(
                     icon: const Icon(Icons.arrow_back),
                     onPressed: () {

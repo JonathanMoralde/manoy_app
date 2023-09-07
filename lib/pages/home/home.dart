@@ -61,7 +61,10 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text("Manoy!"),
+        title: Text("MANOY!"),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
         actions: [
           IconButton(
             onPressed: () {

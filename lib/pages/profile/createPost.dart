@@ -110,6 +110,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('CREATE POST'),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
         backgroundColor: Colors.blue,
       ),
       body: Center(

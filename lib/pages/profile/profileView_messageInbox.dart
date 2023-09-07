@@ -18,6 +18,8 @@ class _MessageInboxState extends State<MessageInbox> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Messages/Inbox"),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
         backgroundColor: Colors.blue,
       ),
       body: _buildUserList(),
@@ -62,36 +64,53 @@ class _MessageInboxState extends State<MessageInbox> {
     bool hasMessaged = userMessageStatus[uid] ?? false;
     final String fullName = '${data['First Name']} ${data['Last Name']}';
 
-    return GestureDetector(
-      onTap: () async {
-        setState(() {
-          userMessageStatus[uid] = true;
-        });
+    return Padding(
+      padding:
+          const EdgeInsets.symmetric(vertical: 8.0), // Add vertical spacing
+      child: GestureDetector(
+        onTap: () async {
+          setState(() {
+            userMessageStatus[uid] = true;
+          });
 
-        await Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => MessagePage(
-            name: fullName,
-            receiverId: uid,
+          await Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => MessagePage(
+              name: fullName,
+              receiverId: uid,
+            ),
+          ));
+
+          setState(() {
+            userMessageStatus[uid] = false;
+          });
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: hasMessaged
+                ? Color.fromARGB(255, 45, 160, 226)
+                : Color.fromARGB(
+                    255, 241, 241, 241), // You can adjust the colors here
+            border: Border.all(color: Colors.blue),
+            borderRadius: BorderRadius.circular(12.0), // Round corners
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: Offset(0, 3),
+              ),
+            ], // Add a shadow
           ),
-        ));
-
-        setState(() {
-          userMessageStatus[uid] = false;
-        });
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: hasMessaged
-              ? Color.fromARGB(255, 45, 160, 226)
-              : Colors.transparent, // Fill with color when messaged
-          border: Border.all(color: Colors.blue),
-        ),
-        child: ListTile(
-          title: Text(
-            fullName,
-            style: TextStyle(
-              fontSize: 18.0,
-              fontWeight: FontWeight.bold,
+          child: ListTile(
+            contentPadding:
+                EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            title: Text(
+              fullName,
+              style: TextStyle(
+                fontSize: 18.0,
+                fontWeight: FontWeight.bold,
+                color: hasMessaged ? Colors.white : Colors.black,
+              ),
             ),
           ),
         ),

@@ -8,6 +8,9 @@ class TermsAndConditionsScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Terms and Conditions'),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),

@@ -61,6 +61,9 @@ class _ViewReviewPageState extends State<ViewReviewPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.name),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
       body: reviewsWithUserDetails.isEmpty
           ? Center(

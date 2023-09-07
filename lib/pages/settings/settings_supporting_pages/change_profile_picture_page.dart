@@ -58,6 +58,9 @@ class _ChangeProfilePicturePageState extends State<ChangeProfilePicturePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Change Profile Picture'),
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 20),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
       body: Center(
         child: Column(
