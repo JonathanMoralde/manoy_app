@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/forgotPasswordForm.dart';
+import 'package:manoy_app/pages/admin/admin_page.dart';
 import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/pages/signup.dart';
 import 'package:manoy_app/provider/userDetails/address_provider.dart';
@@ -101,18 +102,45 @@ class LoginScreen extends ConsumerWidget {
         // prefs.setBool('isLogged', true);
 
         // NAVIGATE TO HOMEPAGE
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return HomePage();
-            },
-          ),
-        );
-      }).catchError((error) {
-        print(error);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Incorrect Email or Password")),
-        );
+        await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+                email: emailController.text.trim(),
+                password: passwordController.text)
+            .then((value) async {
+          final uid = value.user!.uid;
+          final email = value.user!.email;
+
+          // Check if the user is an admin
+          if (email == "admin@manoy.com" &&
+              uid == "jyuds0USSQdUbu61aO6CKPONsBM2") {
+            // Navigate to the admin panel page
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return AdminPage();
+                },
+              ),
+            );
+          } else {
+            // User is not an admin, continue with regular user login
+
+            // ... (your existing code for fetching user details)
+
+            // Navigate to the user's home page
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return HomePage();
+                },
+              ),
+            );
+          }
+        }).catchError((error) {
+          print(error);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Incorrect Email or Password")),
+          );
+        });
       });
     }
 

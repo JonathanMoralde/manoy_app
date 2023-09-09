@@ -10,12 +10,33 @@ class ForYou extends StatefulWidget {
 
 class _ForYouState extends State<ForYou> {
   late Stream<int> timerStream;
-  int currentIndex =
-      0; // Index to keep track of which pre-built widget to display
-  final List<Widget> postCards = List.generate(5, (_) => PostCard());
+  int currentIndex = 0;
+  List<Widget> postCards = [];
 
   _ForYouState() {
     timerStream = Stream.periodic(Duration(minutes: 1), (i) => i);
+  }
+
+  Future<void> fetchApprovedPostCards() async {
+    List<Map<String, dynamic>> approvedPosts =
+        await PostCard().fetchFilteredPosts();
+
+    List<Widget> approvedPostCards = approvedPosts.map((postData) {
+      return PostCard(
+        showApprovalDialog: false,
+        showApprovedRejectedText: false,
+      ); // Create a PostCard widget for each approved post
+    }).toList();
+
+    setState(() {
+      postCards = approvedPostCards;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchApprovedPostCards(); // Fetch and display approved posts
   }
 
   @override
@@ -24,7 +45,11 @@ class _ForYouState extends State<ForYou> {
       children: [
         AnimatedSwitcher(
           duration: Duration.zero,
-          child: postCards[currentIndex],
+          child: postCards.isNotEmpty
+              ? postCards[currentIndex]
+              : Center(
+                  child: CircularProgressIndicator(),
+                ),
           key: ValueKey<int>(currentIndex),
         ),
         const SizedBox(
