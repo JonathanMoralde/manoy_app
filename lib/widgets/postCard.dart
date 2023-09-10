@@ -32,7 +32,7 @@ class PostCard extends StatelessWidget {
       Duration difference = currentTime.difference(postTime);
 
       // Filter out posts that are older than 24 hours or have 'Rejected' status
-      return difference.inHours <= 24 && postData['status'] != 'Rejected';
+      return difference.inHours <= 24 && postData['status'] == 'Approved';
     }).toList();
 
     return filteredPosts;

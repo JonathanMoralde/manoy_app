@@ -13,6 +13,7 @@ class _ForYouState extends State<ForYou> {
   late Stream<int> timerStream;
   int currentIndex = 0;
   List<Widget> postCards = [];
+  bool isLoading = true;
 
   _ForYouState() {
     timerStream = Stream.periodic(Duration(minutes: 1), (i) => i);
@@ -32,7 +33,7 @@ class _ForYouState extends State<ForYou> {
       Duration difference = currentTime.difference(postTime);
 
       // Filter out posts that are older than 24 hours or have 'Rejected' status
-      return difference.inHours <= 24 && postData['status'] != 'Rejected';
+      return difference.inHours <= 24 && postData['status'] == 'Approved';
     }).toList();
 
     return filteredPosts;
@@ -59,6 +60,7 @@ class _ForYouState extends State<ForYou> {
 
     setState(() {
       postCards = approvedPostCards;
+      isLoading = false;
     });
   }
 
@@ -72,13 +74,16 @@ class _ForYouState extends State<ForYou> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // const SizedBox(height: 350),
         AnimatedSwitcher(
           duration: Duration.zero,
-          child: postCards.isNotEmpty
-              ? postCards[currentIndex]
-              : Center(
+          child: isLoading
+              ? Center(
                   child: CircularProgressIndicator(),
-                ),
+                )
+              : postCards.isNotEmpty
+                  ? postCards[currentIndex]
+                  : Text("No posts yet"),
           key: ValueKey<int>(currentIndex),
         ),
         const SizedBox(
