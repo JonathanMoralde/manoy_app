@@ -5,11 +5,13 @@ import 'package:cached_network_image/cached_network_image.dart';
 class PostCard extends StatelessWidget {
   final bool showApprovalDialog;
   final bool showApprovedRejectedText;
+  final Future<List<Map<String, dynamic>>> Function() filteringFunction;
 
   const PostCard({
     Key? key,
     this.showApprovalDialog = true,
     this.showApprovedRejectedText = true,
+    required this.filteringFunction,
   }) : super(key: key);
 
   Stream<int> timerStream() {
@@ -28,22 +30,30 @@ class PostCard extends StatelessWidget {
       DateTime postTime = timestamp.toDate();
       DateTime currentTime = DateTime.now();
       Duration difference = currentTime.difference(postTime);
-      return difference.inHours <= 24;
-      //  &&
-      //     postData['status'] == 'Approved'; // Filter by status 'Approved'
+      return difference.inHours <= 24 && postData['status'] == 'Approved';
     }).toList();
 
     return filteredPosts;
   }
 
-  Future<List<Map<String, dynamic>>> fetchAllPosts() async {
+  Future<List<Map<String, dynamic>>> fetchAllPostCards() async {
     QuerySnapshot snapshot =
         await FirebaseFirestore.instance.collection('posts').get();
 
     List<Map<String, dynamic>> posts =
         snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
 
-    return posts;
+    final allPosts = posts.where((postData) {
+      Timestamp timestamp = postData['timestamp'];
+      DateTime postTime = timestamp.toDate();
+      DateTime currentTime = DateTime.now();
+      Duration difference = currentTime.difference(postTime);
+      return difference.inHours <= 24;
+      //  &&
+      //     postData['status'] == 'Approved'; // Filter by status 'Approved'
+    }).toList();
+
+    return allPosts;
   }
 
   @override
@@ -64,7 +74,7 @@ class PostCard extends StatelessWidget {
           },
         ),
         FutureBuilder<List<Map<String, dynamic>>>(
-          future: fetchFilteredPosts(),
+          future: filteringFunction(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
@@ -81,8 +91,7 @@ class PostCard extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          if (showApprovalDialog &&
-                              postData['status'] == 'Pending') {
+                          if (showApprovalDialog) {
                             // Show a confirmation dialog only if showApprovalDialog is true
                             showDialog(
                               context: context,

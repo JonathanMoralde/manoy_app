@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:manoy_app/widgets/postCard.dart';
 
@@ -17,16 +18,42 @@ class _ForYouState extends State<ForYou> {
     timerStream = Stream.periodic(Duration(minutes: 1), (i) => i);
   }
 
-  Future<void> fetchApprovedPostCards() async {
-    List<Map<String, dynamic>> approvedPosts =
-        await PostCard().fetchFilteredPosts();
+  Future<List<Map<String, dynamic>>> fetchFilteredPosts() async {
+    QuerySnapshot snapshot =
+        await FirebaseFirestore.instance.collection('posts').get();
 
-    List<Widget> approvedPostCards = approvedPosts.map((postData) {
-      return PostCard(
-        showApprovalDialog: false,
-        showApprovedRejectedText: false,
-      ); // Create a PostCard widget for each approved post
+    List<Map<String, dynamic>> posts =
+        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+    final filteredPosts = posts.where((postData) {
+      Timestamp timestamp = postData['timestamp'];
+      DateTime postTime = timestamp.toDate();
+      DateTime currentTime = DateTime.now();
+      Duration difference = currentTime.difference(postTime);
+      return difference.inHours <= 24 && postData['status'] == 'Approved';
     }).toList();
+
+    return filteredPosts;
+  }
+
+  Future<void> fetchApprovedPostCards() async {
+    List<Widget> approvedPostCards = [];
+
+    try {
+      List<Map<String, dynamic>> filteredPosts = await PostCard(
+        filteringFunction: () => fetchFilteredPosts(),
+      ).fetchFilteredPosts();
+
+      approvedPostCards = filteredPosts.map((postData) {
+        return PostCard(
+            showApprovalDialog: false,
+            showApprovedRejectedText: false,
+            filteringFunction: fetchFilteredPosts);
+      }).toList();
+    } catch (error) {
+      // Handle any potential errors here
+      print('Error fetching approved posts: $error');
+    }
 
     setState(() {
       postCards = approvedPostCards;
