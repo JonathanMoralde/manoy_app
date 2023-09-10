@@ -90,6 +90,8 @@ class _CreatePostPageState extends State<CreatePostPage> {
                 'timestamp': FieldValue.serverTimestamp(),
                 'service_name': currentUserData['Service Name'],
                 'service_photo': currentUserData['Profile Photo'],
+                'userId': userId,
+                'status': 'Pending',
               });
 
               _postTextController.clear();

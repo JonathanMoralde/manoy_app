@@ -175,12 +175,17 @@ class ShopCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1,
-                            fontSize: 15),
+                      Flexible(
+                        child: Text(
+                          name,
+                          maxLines: 2, // Set a maximum number of lines
+                          overflow: TextOverflow
+                              .ellipsis, // Handle long names with ellipsis
+                          style: const TextStyle(
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1,
+                              fontSize: 15),
+                        ),
                       ),
                       const SizedBox(
                         height: 3,

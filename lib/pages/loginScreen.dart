@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/forgotPasswordForm.dart';
+import 'package:manoy_app/pages/admin/admin_page.dart';
 import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/pages/signup.dart';
 import 'package:manoy_app/provider/userDetails/address_provider.dart';
@@ -101,120 +102,148 @@ class LoginScreen extends ConsumerWidget {
         // prefs.setBool('isLogged', true);
 
         // NAVIGATE TO HOMEPAGE
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return HomePage();
-            },
-          ),
-        );
-      }).catchError((error) {
-        print(error);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Incorrect Email or Password")),
-        );
+        await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+                email: emailController.text.trim(),
+                password: passwordController.text)
+            .then((value) async {
+          final uid = value.user!.uid;
+          final email = value.user!.email;
+
+          // Check if the user is an admin
+          if (email == "admin@manoy.com" &&
+              uid == "jyuds0USSQdUbu61aO6CKPONsBM2") {
+            // Navigate to the admin panel page
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return AdminPage();
+                },
+              ),
+            );
+          } else {
+            // User is not an admin, continue with regular user login
+
+            // ... (your existing code for fetching user details)
+
+            // Navigate to the user's home page
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (BuildContext context) {
+                  return HomePage();
+                },
+              ),
+            );
+          }
+        }).catchError((error) {
+          print(error);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Incorrect Email or Password")),
+          );
+        });
       });
     }
 
     return Scaffold(
-      body: SizedBox(
-        width: double.infinity,
-        child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(right: 30),
-                child: Image.asset(
-                  "lib/images/logo.png",
-                  scale: 2,
-                ),
-              ),
-              const SizedBox(
-                height: 15,
-              ),
-              Text(
-                "Welcome to Manoy!".toUpperCase(),
-                style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              StyledTextField(
-                  controller: emailController,
-                  hintText: "Enter your email",
-                  obscureText: false),
-              const SizedBox(
-                height: 10,
-              ),
-              StyledTextField(
-                  controller: passwordController,
-                  hintText: "Enter your Password",
-                  obscureText: true),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                width: 250,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (BuildContext context) {
-                        return ForgotPassPage();
-                      }),
-                    );
-                  },
-                  child: const Text(
-                    "Forgot Password?",
-                    style: TextStyle(letterSpacing: 1),
-                    textAlign: TextAlign.end,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 30),
+                  child: Image.asset(
+                    "lib/images/logo.png",
+                    scale: 2,
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              StyledButton(
-                btnText: "SIGN IN",
-                onClick: () {
-                  // TODO AUTH
-                  handleSignIn();
-                },
-                btnWidth: 250,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Don't have an account?",
-                    style: TextStyle(letterSpacing: 1),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  GestureDetector(
-                    child: const Text(
-                      "SIGN UP",
-                      style: TextStyle(
-                          letterSpacing: 1, fontWeight: FontWeight.w700),
-                    ),
+                const SizedBox(
+                  height: 15,
+                ),
+                Text(
+                  "Welcome to Manoy!".toUpperCase(),
+                  style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 1),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                StyledTextField(
+                    controller: emailController,
+                    hintText: "Enter your email",
+                    obscureText: false),
+                const SizedBox(
+                  height: 10,
+                ),
+                StyledTextField(
+                    controller: passwordController,
+                    hintText: "Enter your Password",
+                    obscureText: true),
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  width: 250,
+                  child: GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (BuildContext) {
-                          return SignupPage();
+                        MaterialPageRoute(builder: (BuildContext context) {
+                          return ForgotPassPage();
                         }),
                       );
                     },
+                    child: const Text(
+                      "Forgot Password?",
+                      style: TextStyle(letterSpacing: 1),
+                      textAlign: TextAlign.end,
+                    ),
                   ),
-                ],
-              )
-            ]),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                StyledButton(
+                  btnText: "SIGN IN",
+                  onClick: () {
+                    // TODO AUTH
+                    handleSignIn();
+                  },
+                  btnWidth: 250,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text(
+                      "Don't have an account?",
+                      style: TextStyle(letterSpacing: 1),
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    GestureDetector(
+                      child: const Text(
+                        "SIGN UP",
+                        style: TextStyle(
+                            letterSpacing: 1, fontWeight: FontWeight.w700),
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (BuildContext) {
+                            return SignupPage();
+                          }),
+                        );
+                      },
+                    ),
+                  ],
+                )
+              ]),
+        ),
       ),
     );
   }
