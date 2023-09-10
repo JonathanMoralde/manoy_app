@@ -26,43 +26,6 @@ class _MessageInboxState extends State<MessageInbox> {
     );
   }
 
-  Future<String?> _getOtherUserId(List<DocumentSnapshot> users) async {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    final currentUserId = currentUser?.uid;
-
-    if (currentUser == null || currentUserId == null) {
-      return null;
-    }
-
-    final chatRoomsCollection =
-        FirebaseFirestore.instance.collection('chat_rooms');
-
-    for (var userDocument in users) {
-      final uid = userDocument.id;
-
-      if (uid != currentUserId) {
-        final chatRoomQuery = await chatRoomsCollection
-            .where(FieldPath.documentId,
-                isEqualTo: _generateChatRoomId(currentUserId, uid))
-            .limit(1)
-            .get();
-
-        if (chatRoomQuery.docs.isNotEmpty) {
-          return uid; // Found a match, return the other user's ID
-        }
-      }
-    }
-
-    return null; // No match found
-  }
-
-  Future<DocumentSnapshot?> _getOtherUserDoc(String otherUserId) async {
-    final usersCollection = FirebaseFirestore.instance.collection('users');
-    final otherUserDoc = await usersCollection.doc(otherUserId).get();
-
-    return otherUserDoc;
-  }
-
   Widget _buildUserList() {
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance.collection('users').snapshots(),
@@ -77,64 +40,12 @@ class _MessageInboxState extends State<MessageInbox> {
 
         final List<DocumentSnapshot> documents = snapshot.data!.docs;
 
-        return FutureBuilder<String?>(
-          future: _getOtherUserId(documents),
-          builder: (context, otherUserIdSnapshot) {
-            if (otherUserIdSnapshot.connectionState ==
-                ConnectionState.waiting) {
-              return CircularProgressIndicator();
-            }
-
-            if (otherUserIdSnapshot.hasError) {
-              return Text('error');
-            }
-
-            final otherUserId = otherUserIdSnapshot.data;
-
-            if (otherUserId == null) {
-              return Text('No matching chat found.');
-            }
-
-            return FutureBuilder<DocumentSnapshot?>(
-              future: _getOtherUserDoc(otherUserId),
-              builder: (context, otherUserDocSnapshot) {
-                if (otherUserDocSnapshot.connectionState ==
-                    ConnectionState.waiting) {
-                  return CircularProgressIndicator();
-                }
-
-                if (otherUserDocSnapshot.hasError) {
-                  return Text('error');
-                }
-
-                final otherUserDoc = otherUserDocSnapshot.data;
-
-                if (otherUserDoc == null) {
-                  return Text('Other user not found.');
-                }
-
-                final fullName =
-                    '${otherUserDoc['First Name']} ${otherUserDoc['Last Name']}';
-
-                return ListTile(
-                  title: Text(fullName),
-                  // Handle onTap to navigate to the conversation or message page
-                  onTap: () {
-                    // Implement your navigation logic here
-                  },
-                );
-              },
-            );
-          },
+        return ListView(
+          children:
+              documents.map<Widget>((doc) => _buildUserListItem(doc)).toList(),
         );
       },
     );
-  }
-
-  String _generateChatRoomId(String userId1, String userId2) {
-    final List<String> ids = [userId1, userId2];
-    ids.sort();
-    return ids.join('_');
   }
 
   Widget _buildUserListItem(DocumentSnapshot document) {

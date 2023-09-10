@@ -30,7 +30,9 @@ class _ForYouState extends State<ForYou> {
       DateTime postTime = timestamp.toDate();
       DateTime currentTime = DateTime.now();
       Duration difference = currentTime.difference(postTime);
-      return difference.inHours <= 24 && postData['status'] == 'Approved';
+
+      // Filter out posts that are older than 24 hours or have 'Rejected' status
+      return difference.inHours <= 24 && postData['status'] != 'Rejected';
     }).toList();
 
     return filteredPosts;
