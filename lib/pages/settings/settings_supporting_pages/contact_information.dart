@@ -74,8 +74,8 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 onTap: () async {
                   const facebookUrl =
                       'https://www.facebook.com/jonnel.red.1'; // Replace with your Facebook page URL
-                  if (await canLaunchUrlString(facebookUrl)) {
-                    await launchUrlString(facebookUrl);
+                  if (await canLaunch(facebookUrl)) {
+                    await launch(facebookUrl);
                   } else {
                     throw 'Could not launch $facebookUrl';
                   }
@@ -92,8 +92,8 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 onTap: () async {
                   const facebookUrl =
                       'https://www.facebook.com/arvinjay.ong.98'; // Replace with your Facebook page URL
-                  if (await canLaunchUrlString(facebookUrl)) {
-                    await launchUrlString(facebookUrl);
+                  if (await canLaunch(facebookUrl)) {
+                    await launch(facebookUrl);
                   } else {
                     throw 'Could not launch $facebookUrl';
                   }
@@ -110,8 +110,8 @@ class _ContactInfoPageState extends State<ContactInfoPage> {
                 onTap: () async {
                   const facebookUrl =
                       'https://www.facebook.com/manuel.adol'; // Replace with your Facebook page URL
-                  if (await canLaunchUrlString(facebookUrl)) {
-                    await launchUrlString(facebookUrl);
+                  if (await canLaunch(facebookUrl)) {
+                    await launch(facebookUrl);
                   } else {
                     throw 'Could not launch $facebookUrl';
                   }

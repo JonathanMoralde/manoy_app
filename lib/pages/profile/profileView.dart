@@ -260,7 +260,7 @@ class ProfileView extends ConsumerWidget {
                             width: 100,
                             height: 100,
                             child: CachedNetworkImage(
-                              imageUrl: profilePhoto!,
+                              imageUrl: profilePhoto,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
@@ -276,9 +276,9 @@ class ProfileView extends ConsumerWidget {
                 SizedBox(
                   width: 300,
                   child: Text(
-                    serviceName!,
+                    serviceName,
                     style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 16),
+                        fontWeight: FontWeight.w700, fontSize: 20),
                     textAlign: TextAlign.center,
                   ),
                 ),
@@ -419,15 +419,16 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                Text(serviceAddress!),
+                Text(serviceAddress!, style: TextStyle(fontSize: 15)),
                 const SizedBox(
                   height: 10,
                 ),
-                Text('Business Hours: $businessHours'),
+                Text('Business Hours: $businessHours',
+                    style: TextStyle(fontSize: 15)),
                 const SizedBox(
                   height: 10,
                 ),
-                Text("Category: $category"),
+                Text("Category: $category", style: TextStyle(fontSize: 15)),
                 const SizedBox(
                   height: 5,
                 ),
@@ -437,7 +438,7 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 5,
                 ),
-                Text(description!),
+                Text(description!, style: TextStyle(fontSize: 15)),
                 const SizedBox(
                   height: 5,
                 ),
