@@ -12,7 +12,7 @@ class FindShops extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final shopItems = ref.watch(allServiceProvider);
+    final shopItems = ref.watch(serviceProviderStreamProvider);
     final bookmarkItems = ref.watch(bookmarkDataProvider);
     final bookmarkData = bookmarkItems.when(
       data: (data) {
@@ -81,14 +81,12 @@ class FindShops extends ConsumerWidget {
                             coverPhoto: shopCoverPhoto,
                             businessHours: shopBusinessHours,
                             description: shopDescription,
-                            // isBookmarked 
+                            // isBookmarked
                             //: isBookmarked,
-                              
                           ),
                           const SizedBox(
                             height: 10,
                           ),
-                        
                         ],
                       );
                     }).toList(),
