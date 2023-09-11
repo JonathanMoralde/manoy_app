@@ -8,6 +8,7 @@ import 'package:manoy_app/pages/admin/service_provider.dart';
 import 'package:manoy_app/pages/home/home_findShops.dart';
 import 'package:manoy_app/pages/home/home_forYou.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
+import 'package:manoy_app/pages/profile/shopView.dart';
 import 'package:manoy_app/provider/home/activeDisplay_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/searchPage.dart';
@@ -184,9 +185,7 @@ class AdminPage extends ConsumerWidget {
             // SliderBar(),
             Expanded(
               child: SingleChildScrollView(
-                child: activeDisplay == "For You"
-                    ? PostsPage()
-                    : ServiceProviderPage(),
+                child: activeDisplay == "For You" ? PostsPage() : FindShops(),
               ),
             ),
           ],

@@ -120,6 +120,107 @@ class ProfileView extends ConsumerWidget {
         centerTitle: true,
         backgroundColor: Colors.blue,
       ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blue,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundImage: CachedNetworkImageProvider(profilePhoto!),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    serviceName!,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.edit),
+              title: Text("Edit Profile"),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => EditProfileForm(
+                    uid: uid,
+                    name: serviceName,
+                  ),
+                ));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.message),
+              title: Text("Messages"),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return MessageInbox();
+                  }),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.map),
+              title: Text("Map"),
+              onTap: () {
+                if (lat != null && long != null) {
+                  openMap(lat!, long!);
+                } else {
+                  print('error');
+                }
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.location_on),
+              title: Text("Location"),
+              onTap: () async {
+                final uid = ref.read(uidProvider);
+                if (uid != null) {
+                  getCurrentLocation().then((value) async {
+                    lat = '${value.latitude}';
+                    long = '${value.longitude}';
+                    print('$lat, $long');
+                    await setUserLocationInFirestore(
+                      uid,
+                      double.parse(lat!),
+                      double.parse(long!),
+                    );
+                  });
+                  liveLocation();
+                }
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.post_add),
+              title: Text("Create Post"),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => CreatePostPage(),
+                ));
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.calendar_today),
+              title: Text("Appointments"),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => AppointmentsListsPage(),
+                ));
+              },
+            ),
+          ],
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -221,100 +322,100 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    StyledButton(
-                      btnText: "EDIT PROFILE",
-                      onClick: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => EditProfileForm(
-                            uid: uid,
-                            name: serviceName,
-                          ),
-                        ));
-                      },
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    StyledButton(
-                      btnText: "MESSAGES",
-                      onClick: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (BuildContext context) {
-                            return MessageInbox();
-                          }),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    StyledButton(
-                      btnText: 'MAP',
-                      onClick: () {
-                        if (lat != null && long != null) {
-                          openMap(lat!, long!);
-                        } else {
-                          print('error');
-                        }
-                      },
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    StyledButton(
-                      btnText: 'LOCATION',
-                      onClick: () async {
-                        final uid = ref.read(uidProvider);
-                        if (uid != null) {
-                          getCurrentLocation().then((value) async {
-                            lat = '${value.latitude}';
-                            long = '${value.longitude}';
-                            print('$lat, $long');
-                            await setUserLocationInFirestore(
-                              uid,
-                              double.parse(lat!),
-                              double.parse(long!),
-                            );
-                          });
-                          liveLocation();
-                        }
-                      },
-                    ),
-                    const SizedBox(
-                      width: 1,
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                StyledButton(
-                  btnText: 'CREATE POST',
-                  onClick: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => CreatePostPage(),
-                    ));
-                  },
-                ),
-                const SizedBox(
-                  height: 15,
-                ),
-                StyledButton(
-                  btnText: 'APPOINTMENTS',
-                  onClick: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => AppointmentsListsPage(),
-                    ));
-                  },
-                ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     StyledButton(
+                //       btnText: "EDIT PROFILE",
+                //       onClick: () {
+                //         Navigator.of(context).push(MaterialPageRoute(
+                //           builder: (context) => EditProfileForm(
+                //             uid: uid,
+                //             name: serviceName,
+                //           ),
+                //         ));
+                //       },
+                //     ),
+                //     const SizedBox(
+                //       width: 10,
+                //     ),
+                //     StyledButton(
+                //       btnText: "MESSAGES",
+                //       onClick: () {
+                //         Navigator.of(context).push(
+                //           MaterialPageRoute(builder: (BuildContext context) {
+                //             return MessageInbox();
+                //           }),
+                //         );
+                //       },
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(
+                //   height: 20,
+                // ),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.center,
+                //   children: [
+                //     StyledButton(
+                //       btnText: 'MAP',
+                //       onClick: () {
+                //         if (lat != null && long != null) {
+                //           openMap(lat!, long!);
+                //         } else {
+                //           print('error');
+                //         }
+                //       },
+                //     ),
+                //     const SizedBox(
+                //       width: 10,
+                //     ),
+                //     StyledButton(
+                //       btnText: 'LOCATION',
+                //       onClick: () async {
+                //         final uid = ref.read(uidProvider);
+                //         if (uid != null) {
+                //           getCurrentLocation().then((value) async {
+                //             lat = '${value.latitude}';
+                //             long = '${value.longitude}';
+                //             print('$lat, $long');
+                //             await setUserLocationInFirestore(
+                //               uid,
+                //               double.parse(lat!),
+                //               double.parse(long!),
+                //             );
+                //           });
+                //           liveLocation();
+                //         }
+                //       },
+                //     ),
+                //     const SizedBox(
+                //       width: 1,
+                //     ),
+                //   ],
+                // ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
+                // StyledButton(
+                //   btnText: 'CREATE POST',
+                //   onClick: () {
+                //     Navigator.of(context).push(MaterialPageRoute(
+                //       builder: (context) => CreatePostPage(),
+                //     ));
+                //   },
+                // ),
+                // const SizedBox(
+                //   height: 15,
+                // ),
+                // StyledButton(
+                //   btnText: 'APPOINTMENTS',
+                //   onClick: () {
+                //     Navigator.of(context).push(MaterialPageRoute(
+                //       builder: (context) => AppointmentsListsPage(),
+                //     ));
+                //   },
+                // ),
                 const SizedBox(
                   height: 10,
                 ),
