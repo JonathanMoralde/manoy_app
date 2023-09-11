@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class PostCard extends StatelessWidget {
+class PostCard extends StatefulWidget {
   final bool showApprovalDialog;
   final bool showApprovedRejectedText;
   final Future<List<Map<String, dynamic>>> Function() filteringFunction;
@@ -14,48 +14,53 @@ class PostCard extends StatelessWidget {
     required this.filteringFunction,
   }) : super(key: key);
 
+  @override
+  _PostCardState createState() => _PostCardState();
+}
+
+Future<List<Map<String, dynamic>>> fetchFilteredPosts() async {
+  QuerySnapshot snapshot =
+      await FirebaseFirestore.instance.collection('posts').get();
+
+  List<Map<String, dynamic>> posts =
+      snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+  final filteredPosts = posts.where((postData) {
+    Timestamp timestamp = postData['timestamp'];
+    DateTime postTime = timestamp.toDate();
+    DateTime currentTime = DateTime.now();
+    Duration difference = currentTime.difference(postTime);
+
+    // Filter out posts that are older than 24 hours or have 'Rejected' status
+    return difference.inHours <= 24 && postData['status'] == 'Approved';
+  }).toList();
+
+  return filteredPosts;
+}
+
+Future<List<Map<String, dynamic>>> fetchAllPostCards() async {
+  QuerySnapshot snapshot =
+      await FirebaseFirestore.instance.collection('posts').get();
+
+  List<Map<String, dynamic>> posts =
+      snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+
+  final allPosts = posts.where((postData) {
+    Timestamp timestamp = postData['timestamp'];
+    DateTime postTime = timestamp.toDate();
+    DateTime currentTime = DateTime.now();
+    Duration difference = currentTime.difference(postTime);
+    return difference.inHours <= 24;
+    //  &&
+    //     postData['status'] == 'Approved'; // Filter by status 'Approved'
+  }).toList();
+
+  return allPosts;
+}
+
+class _PostCardState extends State<PostCard> {
   Stream<int> timerStream() {
     return Stream.periodic(Duration(minutes: 1), (i) => i);
-  }
-
-  Future<List<Map<String, dynamic>>> fetchFilteredPosts() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('posts').get();
-
-    List<Map<String, dynamic>> posts =
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-
-    final filteredPosts = posts.where((postData) {
-      Timestamp timestamp = postData['timestamp'];
-      DateTime postTime = timestamp.toDate();
-      DateTime currentTime = DateTime.now();
-      Duration difference = currentTime.difference(postTime);
-
-      // Filter out posts that are older than 24 hours or have 'Rejected' status
-      return difference.inHours <= 24 && postData['status'] == 'Approved';
-    }).toList();
-
-    return filteredPosts;
-  }
-
-  Future<List<Map<String, dynamic>>> fetchAllPostCards() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('posts').get();
-
-    List<Map<String, dynamic>> posts =
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-
-    final allPosts = posts.where((postData) {
-      Timestamp timestamp = postData['timestamp'];
-      DateTime postTime = timestamp.toDate();
-      DateTime currentTime = DateTime.now();
-      Duration difference = currentTime.difference(postTime);
-      return difference.inHours <= 24;
-      //  &&
-      //     postData['status'] == 'Approved'; // Filter by status 'Approved'
-    }).toList();
-
-    return allPosts;
   }
 
   @override
@@ -76,7 +81,7 @@ class PostCard extends StatelessWidget {
           },
         ),
         FutureBuilder<List<Map<String, dynamic>>>(
-          future: filteringFunction(),
+          future: widget.filteringFunction(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
@@ -93,7 +98,7 @@ class PostCard extends StatelessWidget {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          if (showApprovalDialog) {
+                          if (widget.showApprovalDialog) {
                             // Show a confirmation dialog only if showApprovalDialog is true
                             showDialog(
                               context: context,
@@ -114,6 +119,10 @@ class PostCard extends StatelessWidget {
                                             .doc(
                                                 userId) // Use the user's ID as the document ID
                                             .update({'status': 'Approved'});
+                                        setState(() {
+                                          // Update the status variable to reflect the new status
+                                          status = 'Approved';
+                                        });
                                         Navigator.of(context)
                                             .pop(); // Close the dialog
                                       },
@@ -129,6 +138,10 @@ class PostCard extends StatelessWidget {
                                             .doc(
                                                 userId) // Use the user's ID as the document ID
                                             .update({'status': 'Rejected'});
+                                        setState(() {
+                                          // Update the status variable to reflect the new status
+                                          status = 'Rejected';
+                                        });
                                         Navigator.of(context)
                                             .pop(); // Close the dialog
                                       },
@@ -195,7 +208,7 @@ class PostCard extends StatelessWidget {
                               Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
-                                  showApprovedRejectedText ? status : '',
+                                  widget.showApprovedRejectedText ? status : '',
                                   style: TextStyle(
                                     color: status == 'Approved'
                                         ? Colors.green

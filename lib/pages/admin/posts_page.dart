@@ -17,31 +17,11 @@ class _PostsPageState extends State<PostsPage> {
   _PostsPageState() {
     timerStream = Stream.periodic(Duration(minutes: 1), (i) => i);
   }
-  Future<List<Map<String, dynamic>>> fetchAllPostCards() async {
-    QuerySnapshot snapshot =
-        await FirebaseFirestore.instance.collection('posts').get();
-
-    List<Map<String, dynamic>> posts =
-        snapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-
-    final allPosts = posts.where((postData) {
-      Timestamp timestamp = postData['timestamp'];
-      DateTime postTime = timestamp.toDate();
-      DateTime currentTime = DateTime.now();
-      Duration difference = currentTime.difference(postTime);
-      return difference.inHours <= 24;
-      //  &&
-      //     postData['status'] == 'Approved'; // Filter by status 'Approved'
-    }).toList();
-
-    return allPosts;
-  }
 
   Future<void> fetchAllPosts() async {
     // Fetch all posts directly from PostCard class
-    List<Map<String, dynamic>> allPosts = await PostCard(
-      filteringFunction: () => fetchAllPostCards(),
-    ).fetchAllPostCards();
+    List<Map<String, dynamic>> allPosts =
+        await fetchAllPostCards(); // Call the fetchAllPostCards method directly
 
     // Filter posts here based on your criteria
     List<Map<String, dynamic>> filteredPosts = allPosts.where((postData) {
@@ -59,7 +39,8 @@ class _PostsPageState extends State<PostsPage> {
         // Pass the filtered data to the PostCard
         showApprovalDialog: true,
         showApprovedRejectedText: true,
-        filteringFunction: fetchAllPostCards,
+        filteringFunction:
+            fetchAllPostCards, // Call the fetchAllPostCards method directly
       );
     }).toList();
 
@@ -67,12 +48,6 @@ class _PostsPageState extends State<PostsPage> {
       postCards = allPostCards;
     });
   }
-
-// @Override
-// void initState() {
-//   super.initState();
-//   fetchAllPosts(); // Fetch and display all posts
-// }
 
   @override
   void initState() {

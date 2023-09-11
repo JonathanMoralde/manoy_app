@@ -18,7 +18,7 @@ class SignupPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isNext = ref.watch(isNextProvider);
-
+    bool isTermsAccepted = false;
     void resetState() {
       ref.read(firstNameControllerProvider('first_name')).clear();
       ref.read(lastNameControllerProvider('last_name')).clear();
@@ -168,8 +168,24 @@ class SignupPage extends ConsumerWidget {
                           if (isNext == false) {
                             ref.read(isNextProvider.notifier).state = true;
                           } else {
-                            //TODO SIGN UP SUBMIT HERE
-                            signUp();
+                            // Show terms and conditions dialog before submitting
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return TermsAndConditionsDialog(
+                                  onAccept: () {
+                                    // Callback to enable the "SUBMIT" button and call signUp
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                    signUp(); // Call signUp after accepting terms
+                                    // ScaffoldMessenger.of(context).showSnackBar(
+                                    //     SnackBar(
+                                    //         content: Text(
+                                    //             'User Sign Up Successfully!')));
+                                  },
+                                );
+                              },
+                            );
                           }
                         },
                       ),
@@ -179,6 +195,74 @@ class SignupPage extends ConsumerWidget {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+final isTermsAcceptedProvider = StateProvider<bool>((ref) => false);
+
+class TermsAndConditionsDialog extends StatefulWidget {
+  final VoidCallback onAccept;
+
+  TermsAndConditionsDialog({required this.onAccept});
+
+  @override
+  _TermsAndConditionsDialogState createState() =>
+      _TermsAndConditionsDialogState();
+}
+
+class _TermsAndConditionsDialogState extends State<TermsAndConditionsDialog> {
+  bool isTermsAccepted = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Terms and Conditions"),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Please read and accept the terms and conditions.",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              "Welcome to Manoy App, your dedicated platform for automobile services. By using our app, you agree to adhere to these terms and conditions. As a user, you can explore a wide range of automotive service providers, book appointments, message shop owners, view their locations, and rate their shops based on your experience. Accurate registration is essential to access these specialized automobile services. Service listings must faithfully represent the services provided. It's essential to maintain respectful conduct on our platform to ensure a positive experience for all users. We act as a connecting bridge between you and automotive service providers, but we don't assume responsibility for their services. Please review our Privacy Policy for data practices. All content on our app is our intellectual property, so refrain from unauthorized use. We reserve the right to terminate accounts for violations. Keep an eye out for updates to these terms as your continued use implies acceptance.",
+            ),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Checkbox(
+                  value: isTermsAccepted,
+                  onChanged: (value) {
+                    setState(() {
+                      isTermsAccepted = value ?? false;
+                    });
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    if (isTermsAccepted) {
+                      widget.onAccept();
+                    } else {
+                      print('ERROR');
+                    }
+                  },
+                  child: Text("Accept"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text("Cancel"),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

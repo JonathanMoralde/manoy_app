@@ -43,15 +43,17 @@ class _ForYouState extends State<ForYou> {
     List<Widget> approvedPostCards = [];
 
     try {
-      List<Map<String, dynamic>> filteredPosts = await PostCard(
-        filteringFunction: () => fetchFilteredPosts(),
-      ).fetchFilteredPosts();
+      List<Map<String, dynamic>> filteredPosts = await fetchFilteredPosts();
 
       approvedPostCards = filteredPosts.map((postData) {
         return PostCard(
-            showApprovalDialog: false,
-            showApprovedRejectedText: false,
-            filteringFunction: fetchFilteredPosts);
+          showApprovalDialog: false,
+          showApprovedRejectedText: false,
+          // Pass the postData to the filtering function
+          filteringFunction: () async {
+            return filteredPosts;
+          },
+        );
       }).toList();
     } catch (error) {
       // Handle any potential errors here
@@ -74,7 +76,6 @@ class _ForYouState extends State<ForYou> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // const SizedBox(height: 350),
         AnimatedSwitcher(
           duration: Duration.zero,
           child: isLoading
