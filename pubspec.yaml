@@ -55,13 +55,11 @@ dependencies:
   firebase_messaging: ^14.6.6
   flutter_keyboard_visibility: ^5.4.1
   intl: ^0.18.1
-  path: ^1.8.3 
+  path: ^1.8.3
   timeago: ^3.5.0
   table_calendar: ^3.0.9
+  fluttertoast: ^8.2.2
 
-
-
-  
 dev_dependencies:
   flutter_test:
     sdk: flutter
