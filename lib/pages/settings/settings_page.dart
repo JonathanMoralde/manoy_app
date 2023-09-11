@@ -187,6 +187,8 @@ class SettingsPage extends ConsumerWidget {
             StyledSettingsButton(
               buttonText: 'Log out',
               onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.clear();
                 await FirebaseAuth.instance.signOut();
 
                 // RESET STATES

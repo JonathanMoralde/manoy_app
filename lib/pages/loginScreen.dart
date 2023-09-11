@@ -46,21 +46,18 @@ class LoginScreen extends ConsumerWidget {
       ref.read(genderProvider.notifier).state = gender;
       ref.read(birthdayProvider.notifier).state = birthday;
       ref.read(uidProvider.notifier).state = uid;
+    }
 
+    Future<void> storeServiceProviderInProvider(
+      String serviceName,
+      String serviceAddress,
+      String description,
+      String businessHours,
+      String category,
+      String profilePhoto,
+      String coverPhoto,
+    ) async {
       try {
-        DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
-            .collection('service_provider')
-            .doc(uid)
-            .get();
-
-        String serviceName = serviceSnapshot['Service Name'];
-        String serviceAddress = serviceSnapshot['Service Address'];
-        String description = serviceSnapshot['Description'];
-        String businessHours = serviceSnapshot['Business Hours'];
-        String category = serviceSnapshot['Category'];
-        String profilePhoto = serviceSnapshot['Profile Photo'];
-        String coverPhoto = serviceSnapshot['Cover Photo'];
-
         if (serviceName.isNotEmpty &&
             serviceAddress.isNotEmpty &&
             description.isNotEmpty &&
@@ -123,6 +120,7 @@ class LoginScreen extends ConsumerWidget {
             prefs.setString('fullname', fullname);
             prefs.setInt('phoneNum', phoneNum);
             prefs.setString('address', address);
+
             storeUserDetailsInProvider(
               fullname,
               phoneNum,
@@ -132,6 +130,35 @@ class LoginScreen extends ConsumerWidget {
               uid,
               ref,
             );
+          } catch (e) {
+            print(e);
+          }
+
+          try {
+            DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
+                .collection('service_provider')
+                .doc(uid)
+                .get();
+
+            String serviceName = serviceSnapshot['Service Name'];
+            String serviceAddress = serviceSnapshot['Service Address'];
+            String description = serviceSnapshot['Description'];
+            String businessHours = serviceSnapshot['Business Hours'];
+            String category = serviceSnapshot['Category'];
+            String profilePhoto = serviceSnapshot['Profile Photo'];
+            String coverPhoto = serviceSnapshot['Cover Photo'];
+
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            prefs.setString('serviceName', serviceName);
+            prefs.setString('serviceAddress', serviceAddress);
+            prefs.setString('description', description);
+            prefs.setString('businessHours', businessHours);
+            prefs.setString('category', category);
+            prefs.setString('profilePhoto', profilePhoto);
+            prefs.setString('coverPhoto', coverPhoto);
+
+            storeServiceProviderInProvider(serviceName, serviceAddress,
+                description, businessHours, category, profilePhoto, coverPhoto);
           } catch (e) {
             print(e);
           }
