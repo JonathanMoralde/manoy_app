@@ -3,11 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/profile/appointments_lists.dart';
 import 'package:manoy_app/pages/profile/edit_profile.dart';
 import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
+import 'package:manoy_app/pages/profile/success_page.dart';
+import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
+import 'package:manoy_app/provider/selectedCategory/selectedCategory_provider.dart';
+import 'package:manoy_app/provider/serviceProviderDetails/deletingSeriviceProvider_provider.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
+import 'package:manoy_app/provider/timepicker/selectedTime_provider.dart';
+import 'package:manoy_app/provider/uploadIage/selectedImage_provider.dart';
 import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:manoy_app/widgets/styledTextfield.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:manoy_app/pages/profile/createPost.dart';
@@ -112,6 +119,166 @@ class ProfileView extends ConsumerWidget {
 
     final averageRating = averageRatings['averageRating'] as double;
     final totalRatings = averageRatings['totalRatings'] as int;
+
+    Future<void> deleteServiceProvider(BuildContext context) async {
+      try {
+        // Get the current user
+        User? user = FirebaseAuth.instance.currentUser;
+
+        if (user != null) {
+          // Get the Firestore document reference using the user's UID as the document ID
+          DocumentReference serviceProviderDoc = FirebaseFirestore.instance
+              .collection('service_provider')
+              .doc(user.uid);
+
+          // Delete the document
+          await serviceProviderDoc.delete();
+          print('Document deleted successfully');
+
+          // Navigate to a "Success" page
+
+          // Note: You can also pass data to the SuccessPage if needed.
+        } else {
+          print('User not logged in');
+        }
+      } catch (e) {
+        print('Error deleting document: $e');
+      }
+      ref.read(isLoadingProvider.notifier).state = false;
+    }
+
+    Future<void> termsModal(BuildContext context) async {
+      bool isChecked = false;
+      final User? user = FirebaseAuth.instance.currentUser;
+      final TextEditingController passwordController = TextEditingController();
+
+      if (user == null) {
+        // User is not logged in
+        return;
+      }
+
+      await showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: StatefulBuilder(builder: (context, setState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Would you like to remove $serviceName? ",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 30),
+                    Text(
+                        "Deleting $serviceName means your shop won't be available to users anymore, and all your shop data will be gone for good. This decision can't be undone so think wisely. However, it's also a chance to start something new in your business journey. As you step into this fresh chapter, remember that every ending is a chance for a new beginning. Embrace the future with confidence, and your next adventure could be your best one yet."),
+                    const SizedBox(height: 20),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isChecked,
+                              onChanged: (value) {
+                                setState(() {
+                                  isChecked = value!;
+                                });
+                              },
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "I have read and understood",
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  " the Terms & Conditions",
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        if (isChecked)
+                          Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              Text(
+                                'Verify Identity',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              const SizedBox(height: 10),
+                              StyledTextField(
+                                  controller: passwordController,
+                                  hintText: 'Enter your password',
+                                  obscureText: true)
+                            ],
+                          ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            StyledButton(
+                              btnText: "CONFIRM",
+                              onClick: isChecked
+                                  ? () async {
+                                      if (isChecked) {
+                                        // Perform reauthentication before deletion
+                                        try {
+                                          final AuthCredential credential =
+                                              EmailAuthProvider.credential(
+                                            email: user.email!,
+                                            password: passwordController.text,
+                                          );
+                                          await user
+                                              .reauthenticateWithCredential(
+                                                  credential);
+
+                                          // User reauthenticated successfully,
+                                          // Perform the delete account function here
+                                          // Call your delete account function
+                                          await deleteServiceProvider(context);
+
+                                          // Close the dialog
+                                          Navigator.pop(context);
+                                        } catch (error) {
+                                          // ScaffoldMessenger.of(context)
+                                          //     .showSnackBar(SnackBar(
+                                          //         content: Text(
+                                          //             'Password incorrect, please try again')));
+                                          print(
+                                              'Reauthentication error: $error');
+                                          // Handle reauthentication error here
+                                        }
+                                      }
+                                    }
+                                  : null,
+                            ),
+                            StyledButton(
+                                btnText: "CANCEL",
+                                onClick: () {
+                                  Navigator.pop(context);
+                                })
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -218,6 +385,16 @@ class ProfileView extends ConsumerWidget {
                 ));
               },
             ),
+            ListTile(
+              leading: Icon(Icons.remove_circle_rounded),
+              title: Text("Remove Shop"),
+              onTap: () {
+                termsModal(context);
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => AppointmentsListsPage(),
+                // ));
+              },
+            ),
           ],
         ),
       ),
@@ -322,100 +499,6 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     StyledButton(
-                //       btnText: "EDIT PROFILE",
-                //       onClick: () {
-                //         Navigator.of(context).push(MaterialPageRoute(
-                //           builder: (context) => EditProfileForm(
-                //             uid: uid,
-                //             name: serviceName,
-                //           ),
-                //         ));
-                //       },
-                //     ),
-                //     const SizedBox(
-                //       width: 10,
-                //     ),
-                //     StyledButton(
-                //       btnText: "MESSAGES",
-                //       onClick: () {
-                //         Navigator.of(context).push(
-                //           MaterialPageRoute(builder: (BuildContext context) {
-                //             return MessageInbox();
-                //           }),
-                //         );
-                //       },
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(
-                //   height: 20,
-                // ),
-                // Row(
-                //   mainAxisAlignment: MainAxisAlignment.center,
-                //   children: [
-                //     StyledButton(
-                //       btnText: 'MAP',
-                //       onClick: () {
-                //         if (lat != null && long != null) {
-                //           openMap(lat!, long!);
-                //         } else {
-                //           print('error');
-                //         }
-                //       },
-                //     ),
-                //     const SizedBox(
-                //       width: 10,
-                //     ),
-                //     StyledButton(
-                //       btnText: 'LOCATION',
-                //       onClick: () async {
-                //         final uid = ref.read(uidProvider);
-                //         if (uid != null) {
-                //           getCurrentLocation().then((value) async {
-                //             lat = '${value.latitude}';
-                //             long = '${value.longitude}';
-                //             print('$lat, $long');
-                //             await setUserLocationInFirestore(
-                //               uid,
-                //               double.parse(lat!),
-                //               double.parse(long!),
-                //             );
-                //           });
-                //           liveLocation();
-                //         }
-                //       },
-                //     ),
-                //     const SizedBox(
-                //       width: 1,
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(
-                //   height: 15,
-                // ),
-                // StyledButton(
-                //   btnText: 'CREATE POST',
-                //   onClick: () {
-                //     Navigator.of(context).push(MaterialPageRoute(
-                //       builder: (context) => CreatePostPage(),
-                //     ));
-                //   },
-                // ),
-                // const SizedBox(
-                //   height: 15,
-                // ),
-                // StyledButton(
-                //   btnText: 'APPOINTMENTS',
-                //   onClick: () {
-                //     Navigator.of(context).push(MaterialPageRoute(
-                //       builder: (context) => AppointmentsListsPage(),
-                //     ));
-                //   },
-                // ),
                 const SizedBox(
                   height: 10,
                 ),
