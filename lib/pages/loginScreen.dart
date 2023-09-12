@@ -10,6 +10,7 @@ import 'package:manoy_app/pages/signup.dart';
 import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
 import 'package:manoy_app/provider/userDetails/address_provider.dart';
 import 'package:manoy_app/provider/userDetails/birthday_provider.dart';
+import 'package:manoy_app/provider/userDetails/email_provider.dart';
 import 'package:manoy_app/provider/userDetails/fullname_provider.dart';
 import 'package:manoy_app/provider/userDetails/gender_provider.dart';
 import 'package:manoy_app/provider/userDetails/phoneNum_provider.dart';
@@ -38,6 +39,7 @@ class LoginScreen extends ConsumerWidget {
       Timestamp birthday,
       String uid,
       WidgetRef ref,
+      String email,
     ) async {
       // Store user details in providers
       ref.read(fullnameProvider.notifier).state = fullname;
@@ -46,6 +48,7 @@ class LoginScreen extends ConsumerWidget {
       ref.read(genderProvider.notifier).state = gender;
       ref.read(birthdayProvider.notifier).state = birthday;
       ref.read(uidProvider.notifier).state = uid;
+      ref.read(emailProvider.notifier).state = email;
     }
 
     Future<void> storeServiceProviderInProvider(
@@ -78,7 +81,7 @@ class LoginScreen extends ConsumerWidget {
       }
     }
 
-    void handleSignIn() {
+    void handleSignIn(BuildContext context) {
       if (emailController.text.isEmpty || passwordController.text.isEmpty) {
         Fluttertoast.showToast(
             msg: "Please enter both email and password",
@@ -129,6 +132,7 @@ class LoginScreen extends ConsumerWidget {
               birthday,
               uid,
               ref,
+              email!,
             );
           } catch (e) {
             print(e);
@@ -162,6 +166,7 @@ class LoginScreen extends ConsumerWidget {
           } catch (e) {
             print(e);
           }
+
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (BuildContext context) {
@@ -252,7 +257,9 @@ class LoginScreen extends ConsumerWidget {
                     ),
                     StyledButton(
                       btnText: "SIGN IN",
-                      onClick: handleSignIn,
+                      onClick: () {
+                        handleSignIn(context);
+                      },
                       btnWidth: 250,
                     ),
                     const SizedBox(

@@ -10,7 +10,10 @@ import 'package:manoy_app/pages/settings/settings_supporting_pages/change_profil
 import 'package:manoy_app/pages/settings/settings_supporting_pages/help_page.dart';
 import 'package:manoy_app/pages/settings/settings_supporting_pages/terms_condition.dart';
 import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
+import 'package:manoy_app/provider/selectedCategory/selectedCategory_provider.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
+import 'package:manoy_app/provider/timepicker/selectedTime_provider.dart';
+import 'package:manoy_app/provider/uploadIage/selectedImage_provider.dart';
 import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/bottomNav.dart';
 import 'package:manoy_app/widgets/styled_settings_button.dart';
@@ -213,6 +216,11 @@ class SettingsPage extends ConsumerWidget {
                 ref.read(categoryProvider.notifier).state = null;
                 ref.read(profilePhotoProvider.notifier).state = null;
                 ref.read(coverPhotoProvider.notifier).state = null;
+                ref.read(selectedCategoryProvider.notifier).state = null;
+                ref.read(selectedTime2Provider.notifier).state = null;
+                ref.read(selectedTime1Provider.notifier).state = null;
+                ref.read(selectedImagePath1Provider.notifier).state = null;
+                ref.read(selectedImagePath2Provider.notifier).state = null;
 
                 // store role in sharedPreferences
                 // SharedPreferences prefs = await SharedPreferences.getInstance();

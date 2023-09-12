@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
+import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
 import 'package:manoy_app/provider/signup/isNext_provider.dart';
 import 'package:manoy_app/widgets/signup_details.dart';
 import 'package:manoy_app/widgets/signup_next.dart';
@@ -81,6 +82,7 @@ class SignupPage extends ConsumerWidget {
     }
 
     Future signUp() async {
+      ref.read(isLoadingProvider.notifier).state = true;
       // CREATE ACC
       final emailValue = ref.watch(emailControllerProvider('email')).text;
       final passwordValue =
@@ -110,6 +112,7 @@ class SignupPage extends ConsumerWidget {
       } catch (e) {
         print(e);
       }
+      ref.read(isLoadingProvider.notifier).state = false;
     }
 
     return WillPopScope(
@@ -119,82 +122,91 @@ class SignupPage extends ConsumerWidget {
       },
       child: Scaffold(
         appBar: AppBar(),
-        body: SafeArea(
-          child: SizedBox(
-            width: double.infinity,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  isNext
-                      ? SizedBox(
-                          height: 200,
-                        )
-                      : SizedBox(
-                          height: 50,
-                        ),
-                  Text(
-                    "CREATE NEW ACCOUNT",
-                    style: TextStyle(fontSize: 24, letterSpacing: 1),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: isNext ? SignupNext() : SignupDetails(),
-                  ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  Row(
+        body: Stack(
+          children: [
+            SafeArea(
+              child: SizedBox(
+                width: double.infinity,
+                child: SingleChildScrollView(
+                  child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       isNext
-                          ? StyledButton(
-                              btnText: "BACK",
-                              onClick: () {
-                                ref.read(isNextProvider.notifier).state = false;
-                              })
-                          : SizedBox(),
-                      isNext
                           ? SizedBox(
-                              width: 10,
+                              height: 200,
                             )
-                          : SizedBox(),
-                      StyledButton(
-                        btnText: isNext ? "SUBMIT" : "NEXT",
-                        onClick: () {
-                          if (isNext == false) {
-                            ref.read(isNextProvider.notifier).state = true;
-                          } else {
-                            // Show terms and conditions dialog before submitting
-                            showDialog(
-                              context: context,
-                              builder: (BuildContext context) {
-                                return TermsAndConditionsDialog(
-                                  onAccept: () {
-                                    // Callback to enable the "SUBMIT" button and call signUp
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                    signUp(); // Call signUp after accepting terms
-                                    // ScaffoldMessenger.of(context).showSnackBar(
-                                    //     SnackBar(
-                                    //         content: Text(
-                                    //             'User Sign Up Successfully!')));
+                          : SizedBox(
+                              height: 50,
+                            ),
+                      Text(
+                        "CREATE NEW ACCOUNT",
+                        style: TextStyle(fontSize: 24, letterSpacing: 1),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: isNext ? SignupNext() : SignupDetails(),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          isNext
+                              ? StyledButton(
+                                  btnText: "BACK",
+                                  onClick: () {
+                                    ref.read(isNextProvider.notifier).state =
+                                        false;
+                                  })
+                              : SizedBox(),
+                          isNext
+                              ? SizedBox(
+                                  width: 10,
+                                )
+                              : SizedBox(),
+                          StyledButton(
+                            btnText: isNext ? "SUBMIT" : "NEXT",
+                            onClick: () {
+                              if (isNext == false) {
+                                ref.read(isNextProvider.notifier).state = true;
+                              } else {
+                                // Show terms and conditions dialog before submitting
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return TermsAndConditionsDialog(
+                                      onAccept: () {
+                                        // Callback to enable the "SUBMIT" button and call signUp
+                                        Navigator.of(context)
+                                            .pop(); // Close the dialog
+                                        signUp(); // Call signUp after accepting terms
+                                        // ScaffoldMessenger.of(context).showSnackBar(
+                                        //     SnackBar(
+                                        //         content: Text(
+                                        //             'User Sign Up Successfully!')));
+                                      },
+                                    );
                                   },
                                 );
-                              },
-                            );
-                          }
-                        },
-                      ),
+                              }
+                            },
+                          ),
+                        ],
+                      )
                     ],
-                  )
-                ],
+                  ),
+                ),
               ),
             ),
-          ),
+            if (ref.watch(isLoadingProvider))
+              Center(
+                child: CircularProgressIndicator(),
+              )
+          ],
         ),
       ),
     );
@@ -234,7 +246,6 @@ class _TermsAndConditionsDialogState extends State<TermsAndConditionsDialog> {
             ),
             const SizedBox(height: 20),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Checkbox(
                   value: isTermsAccepted,
@@ -244,22 +255,38 @@ class _TermsAndConditionsDialogState extends State<TermsAndConditionsDialog> {
                     });
                   },
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    if (isTermsAccepted) {
-                      widget.onAccept();
-                    } else {
-                      print('ERROR');
-                    }
-                  },
-                  child: Text("Accept"),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "I have read and understood",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                    Text(
+                      " the Terms & Conditions",
+                      style: TextStyle(fontSize: 14),
+                    )
+                  ],
                 ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text("Cancel"),
-                ),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                StyledButton(
+                    btnText: "ACCEPT",
+                    onClick: () {
+                      if (isTermsAccepted) {
+                        widget.onAccept();
+                      } else {
+                        print('ERROR');
+                      }
+                    }),
+                StyledButton(
+                    btnText: "CANCEL",
+                    onClick: () {
+                      Navigator.of(context).pop();
+                    })
               ],
             ),
           ],
