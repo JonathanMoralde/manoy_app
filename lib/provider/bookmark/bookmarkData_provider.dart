@@ -9,15 +9,15 @@ final bookmarkDataProvider = FutureProvider<Map<String, dynamic>>(
       final docRef =
           FirebaseFirestore.instance.collection('bookmarks').doc(userId);
 
-      final data = await docRef.get().then(
-        (DocumentSnapshot doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          return data;
-        },
-        onError: (e) => print("Error getting document: $e"),
-      );
+      final docSnapshot = await docRef.get();
 
-      return data;
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data() as Map<String, dynamic>;
+        return data;
+      } else {
+        print("Document does not exist.");
+        return <String, dynamic>{};
+      }
     } catch (error) {
       print("An error occurred: $error");
       return <String, dynamic>{'error': error.toString()};

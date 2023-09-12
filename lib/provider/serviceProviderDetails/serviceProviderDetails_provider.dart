@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 
 // final serviceProviderDetailsProvider =
 //     FutureProvider<DocumentSnapshot>((ref) async {
@@ -20,3 +22,15 @@ final businessHoursProvider = StateProvider<String?>((ref) => null);
 final categoryProvider = StateProvider<String?>((ref) => null);
 final profilePhotoProvider = StateProvider<String?>((ref) => null);
 final coverPhotoProvider = StateProvider<String?>((ref) => null);
+
+final serviceProviderDetailsStreamProvider =
+    StreamProvider<DocumentSnapshot<Map<String, dynamic>>?>((ref) {
+  final uid = ref.watch(uidProvider); // Assuming you have a uidProvider
+
+  final stream = FirebaseFirestore.instance
+      .collection('service_provider')
+      .doc(uid)
+      .snapshots();
+
+  return stream;
+});
