@@ -1,3 +1,3 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final selectedCategoryProvider = StateProvider<List<String?>>((ref) => []);
+final selectedCategoryProvider = StateProvider<List<String>>((ref) => []);
