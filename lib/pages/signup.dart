@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
 import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
+import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/provider/signup/isNext_provider.dart';
 import 'package:manoy_app/widgets/signup_details.dart';
 import 'package:manoy_app/widgets/signup_next.dart';
@@ -115,6 +116,86 @@ class SignupPage extends ConsumerWidget {
       ref.read(isLoadingProvider.notifier).state = false;
     }
 
+    Future termsModal() {
+      bool isChecked = false;
+      return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: StatefulBuilder(builder: (context, setState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Please read and accept the terms and conditions.",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Welcome to Manoy App, your dedicated platform for automobile services. By using our app, you agree to adhere to these terms and conditions. As a user, you can explore a wide range of automotive service providers, book appointments, message shop owners, view their locations, and rate their shops based on your experience. Accurate registration is essential to access these specialized automobile services. Service listings must faithfully represent the services provided. It's essential to maintain respectful conduct on our platform to ensure a positive experience for all users. We act as a connecting bridge between you and automotive service providers, but we don't assume responsibility for their services. Please review our Privacy Policy for data practices. All content on our app is our intellectual property, so refrain from unauthorized use. We reserve the right to terminate accounts for violations. Keep an eye out for updates to these terms as your continued use implies acceptance.",
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isChecked,
+                              onChanged: (value) {
+                                setState(() {
+                                  isChecked = value!;
+                                });
+                              },
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "I have read and understood",
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  " the Terms & Conditions",
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            StyledButton(
+                                btnText: "CONFIRM",
+                                onClick: isChecked
+                                    ? () {
+                                        Navigator.pop(context);
+                                        signUp();
+                                      }
+                                    : null),
+                            StyledButton(
+                                btnText: "CANCEL",
+                                onClick: () {
+                                  Navigator.pop(context);
+                                })
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      );
+    }
+
     return WillPopScope(
       onWillPop: () async {
         resetState();
@@ -175,23 +256,7 @@ class SignupPage extends ConsumerWidget {
                                 ref.read(isNextProvider.notifier).state = true;
                               } else {
                                 // Show terms and conditions dialog before submitting
-                                showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return TermsAndConditionsDialog(
-                                      onAccept: () {
-                                        // Callback to enable the "SUBMIT" button and call signUp
-                                        Navigator.of(context)
-                                            .pop(); // Close the dialog
-                                        signUp(); // Call signUp after accepting terms
-                                        // ScaffoldMessenger.of(context).showSnackBar(
-                                        //     SnackBar(
-                                        //         content: Text(
-                                        //             'User Sign Up Successfully!')));
-                                      },
-                                    );
-                                  },
-                                );
+                                termsModal();
                               }
                             },
                           ),
@@ -206,89 +271,6 @@ class SignupPage extends ConsumerWidget {
               Center(
                 child: CircularProgressIndicator(),
               )
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-final isTermsAcceptedProvider = StateProvider<bool>((ref) => false);
-
-class TermsAndConditionsDialog extends StatefulWidget {
-  final VoidCallback onAccept;
-
-  TermsAndConditionsDialog({required this.onAccept});
-
-  @override
-  _TermsAndConditionsDialogState createState() =>
-      _TermsAndConditionsDialogState();
-}
-
-class _TermsAndConditionsDialogState extends State<TermsAndConditionsDialog> {
-  bool isTermsAccepted = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text("Terms and Conditions"),
-      content: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "Please read and accept the terms and conditions.",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "Welcome to Manoy App, your dedicated platform for automobile services. By using our app, you agree to adhere to these terms and conditions. As a user, you can explore a wide range of automotive service providers, book appointments, message shop owners, view their locations, and rate their shops based on your experience. Accurate registration is essential to access these specialized automobile services. Service listings must faithfully represent the services provided. It's essential to maintain respectful conduct on our platform to ensure a positive experience for all users. We act as a connecting bridge between you and automotive service providers, but we don't assume responsibility for their services. Please review our Privacy Policy for data practices. All content on our app is our intellectual property, so refrain from unauthorized use. We reserve the right to terminate accounts for violations. Keep an eye out for updates to these terms as your continued use implies acceptance.",
-            ),
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                Checkbox(
-                  value: isTermsAccepted,
-                  onChanged: (value) {
-                    setState(() {
-                      isTermsAccepted = value ?? false;
-                    });
-                  },
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "I have read and understood",
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    Text(
-                      " the Terms & Conditions",
-                      style: TextStyle(fontSize: 14),
-                    )
-                  ],
-                ),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                StyledButton(
-                    btnText: "ACCEPT",
-                    onClick: () {
-                      if (isTermsAccepted) {
-                        widget.onAccept();
-                      } else {
-                        print('ERROR');
-                      }
-                    }),
-                StyledButton(
-                    btnText: "CANCEL",
-                    onClick: () {
-                      Navigator.of(context).pop();
-                    })
-              ],
-            ),
           ],
         ),
       ),
