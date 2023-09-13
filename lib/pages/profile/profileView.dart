@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/pages/profile/appointments_lists.dart';
 import 'package:manoy_app/pages/profile/edit_profile.dart';
 import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
@@ -133,6 +134,7 @@ class ProfileView extends ConsumerWidget {
 
           // Delete the document
           await serviceProviderDoc.delete();
+
           print('Document deleted successfully');
 
           // Navigate to a "Success" page
@@ -247,8 +249,41 @@ class ProfileView extends ConsumerWidget {
                                           // Call your delete account function
                                           await deleteServiceProvider(context);
 
+                                          ref
+                                              .read(
+                                                  serviceNameProvider.notifier)
+                                              .state = null;
+                                          ref
+                                              .read(serviceAddressProvider
+                                                  .notifier)
+                                              .state = null;
+                                          ref
+                                              .read(
+                                                  descriptionProvider.notifier)
+                                              .state = null;
+                                          ref
+                                              .read(businessHoursProvider
+                                                  .notifier)
+                                              .state = null;
+                                          ref
+                                              .read(categoryProvider.notifier)
+                                              .state = null;
+                                          ref
+                                              .read(
+                                                  profilePhotoProvider.notifier)
+                                              .state = null;
+                                          ref
+                                              .read(coverPhotoProvider.notifier)
+                                              .state = null;
+
                                           // Close the dialog
-                                          Navigator.pop(context);
+                                          Navigator.of(context)
+                                              .pushAndRemoveUntil(
+                                            MaterialPageRoute(
+                                              builder: (context) => HomePage(),
+                                            ),
+                                            (Route<dynamic> route) => false,
+                                          );
                                         } catch (error) {
                                           // ScaffoldMessenger.of(context)
                                           //     .showSnackBar(SnackBar(

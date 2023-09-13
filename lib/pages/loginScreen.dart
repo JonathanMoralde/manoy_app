@@ -18,6 +18,7 @@ import 'package:manoy_app/provider/userDetails/uid_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/scheduler.dart';
 
 import '../provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 
@@ -31,6 +32,8 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(isLoadingProvider);
+
     Future<void> storeUserDetailsInProvider(
       String fullname,
       int phoneNum,
@@ -81,69 +84,78 @@ class LoginScreen extends ConsumerWidget {
       }
     }
 
-    void handleSignIn(BuildContext context) {
-      if (emailController.text.isEmpty || passwordController.text.isEmpty) {
+    Future<bool> checkAdminAccess(String email, String uid) async {
+      // Simulate an asynchronous check (you can replace this with actual logic)
+      await Future.delayed(Duration(seconds: 2));
+
+      // Check if the email and UID match the criteria for admin access
+      return email == "admin@manoy.com" &&
+          uid == "jyuds0USSQdUbu61aO6CKPONsBM2";
+    }
+
+    Future<void> handleSignIn(BuildContext context, WidgetRef ref) async {
+      final String email = emailController.text.trim();
+      final String password = passwordController.text.trim();
+      if (email.isEmpty || password.isEmpty) {
         Fluttertoast.showToast(
             msg: "Please enter both email and password",
             gravity: ToastGravity.CENTER);
         return;
       }
-      ref.read(isLoadingProvider.notifier).state = true;
 
-      FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-              email: emailController.text.trim(),
-              password: passwordController.text)
-          .then((value) async {
-        final user = value.user;
+      try {
+        final UserCredential userCredential =
+            await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        final User? user = userCredential.user;
         if (user == null) {
           Fluttertoast.showToast(msg: "Incorrect email or password");
         } else {
           final uid = user.uid;
           final email = user.email;
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          prefs.setString('uid', uid);
+          prefs.setString('email', email!);
 
-          try {
-            DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-                .collection('users')
-                .doc(uid)
-                .get();
+          DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(uid)
+              .get();
 
-            print(userSnapshot);
+          print(userSnapshot);
 
-            String fullname =
-                userSnapshot['First Name'] + " " + userSnapshot['Last Name'];
-            int phoneNum = userSnapshot['Phone Number'];
-            String address = userSnapshot['Address'];
-            String gender = userSnapshot['Gender'];
-            Timestamp birthday = userSnapshot['Birthday'];
+          String fullname =
+              userSnapshot['First Name'] + " " + userSnapshot['Last Name'];
+          int phoneNum = userSnapshot['Phone Number'];
+          String address = userSnapshot['Address'];
+          String gender = userSnapshot['Gender'];
+          Timestamp birthday = userSnapshot['Birthday'];
 
-            print(fullname);
+          print(fullname);
 
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            prefs.setString('fullname', fullname);
-            prefs.setInt('phoneNum', phoneNum);
-            prefs.setString('address', address);
+          prefs.setString('fullname', fullname);
+          prefs.setInt('phoneNum', phoneNum);
+          prefs.setString('address', address);
 
-            storeUserDetailsInProvider(
-              fullname,
-              phoneNum,
-              address,
-              gender,
-              birthday,
-              uid,
-              ref,
-              email!,
-            );
-          } catch (e) {
-            print(e);
-          }
+          storeUserDetailsInProvider(
+            fullname,
+            phoneNum,
+            address,
+            gender,
+            birthday,
+            uid,
+            ref,
+            email!,
+          );
 
-          try {
-            DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
-                .collection('service_provider')
-                .doc(uid)
-                .get();
+          DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance
+              .collection('service_provider')
+              .doc(uid)
+              .get();
 
+          if (serviceSnapshot.exists) {
             String serviceName = serviceSnapshot['Service Name'];
             String serviceAddress = serviceSnapshot['Service Address'];
             String description = serviceSnapshot['Description'];
@@ -152,7 +164,6 @@ class LoginScreen extends ConsumerWidget {
             String profilePhoto = serviceSnapshot['Profile Photo'];
             String coverPhoto = serviceSnapshot['Cover Photo'];
 
-            SharedPreferences prefs = await SharedPreferences.getInstance();
             prefs.setString('serviceName', serviceName);
             prefs.setString('serviceAddress', serviceAddress);
             prefs.setString('description', description);
@@ -163,33 +174,37 @@ class LoginScreen extends ConsumerWidget {
 
             storeServiceProviderInProvider(serviceName, serviceAddress,
                 description, businessHours, category, profilePhoto, coverPhoto);
+          }
+
+          try {
+            await Future.delayed(
+                Duration(milliseconds: 100)); // Add a slight delay
+            if (context.mounted) {
+              // Perform navigation here
+              // SchedulerBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    if (email == "admin@manoy.com" &&
+                        uid == "jyuds0USSQdUbu61aO6CKPONsBM2") {
+                      // Navigate to the admin panel page
+                      return AdminPage();
+                    } else {
+                      return HomePage();
+                    }
+                  },
+                ),
+              );
+              // });
+            }
           } catch (e) {
             print(e);
           }
-
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute(
-              builder: (BuildContext context) {
-                if (email == "admin@manoy.com" &&
-                    uid == "jyuds0USSQdUbu61aO6CKPONsBM2") {
-                  // Navigate to the admin panel page
-                  return AdminPage();
-                } else {
-                  return HomePage();
-                }
-              },
-            ),
-          );
         }
-      }).whenComplete(() {
-        ref.read(isLoadingProvider.notifier).state = false;
-      }).catchError((e) {
-        ref.read(isLoadingProvider.notifier).state = false;
+      } catch (e) {
         print(e);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Incorrect Email or Password")),
-        );
-      });
+        Fluttertoast.showToast(msg: "Incorrect email or password");
+      }
     }
 
     return Scaffold(
@@ -257,8 +272,13 @@ class LoginScreen extends ConsumerWidget {
                     ),
                     StyledButton(
                       btnText: "SIGN IN",
-                      onClick: () {
-                        handleSignIn(context);
+                      onClick: () async {
+                        try {
+                          ref.read(isLoadingProvider.notifier).state = true;
+                          await handleSignIn(context, ref);
+                        } finally {
+                          ref.read(isLoadingProvider.notifier).state = false;
+                        }
                       },
                       btnWidth: 250,
                     ),
@@ -294,7 +314,7 @@ class LoginScreen extends ConsumerWidget {
                   ]),
             ),
           ),
-          if (ref.watch(isLoadingProvider))
+          if (isLoading)
             Center(
               child: CircularProgressIndicator(
                 color: Color(0xFF00A2FF),

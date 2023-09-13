@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manoy_app/pages/admin/admin_page.dart';
 import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/pages/loginScreen.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
@@ -19,31 +20,59 @@ class MainPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Mark the function body as async
-    return FutureBuilder<void>(
-      future: _initializeData(ref),
+    return FutureBuilder<Map<String, String?>>(
+      future: _initializeData(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return Scaffold(
-            body: StreamBuilder<User?>(
-              stream: FirebaseAuth.instance.authStateChanges(),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return HomePage();
-                } else {
-                  return LoginScreen();
-                }
-              },
-            ),
-          );
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return CircularProgressIndicator();
+        }
+
+        final Map<String, String?>? userPrefs = snapshot.data;
+        final String? uid = userPrefs?['uid'];
+        final String? email = userPrefs?['email'];
+        final String? fullname = userPrefs?['fullname'];
+        final String? phoneNum = userPrefs?['phoneNum'];
+        final String? address = userPrefs?['address'];
+        final String? serviceName = userPrefs?['serviceName'];
+        final String? serviceAddress = userPrefs?['serviceAddress'];
+        final String? description = userPrefs?['description'];
+        final String? businessHours = userPrefs?['businessHours'];
+        final String? category = userPrefs?['category'];
+        final String? profilePhoto = userPrefs?['profilePhoto'];
+        final String? coverPhoto = userPrefs?['coverPhoto'];
+
+        if (uid != null && email != null) {
+          print(uid);
+          print(email);
+
+          // Delay the provider state update after the build process
+          Future.delayed(Duration.zero, () {
+            ref.read(fullnameProvider.notifier).state = fullname;
+            ref.read(phoneNumProvider.notifier).state = int.parse(phoneNum!);
+            ref.read(addressProvider.notifier).state = address;
+
+            // service provider
+            ref.read(serviceNameProvider.notifier).state = serviceName;
+            ref.read(serviceAddressProvider.notifier).state = serviceAddress;
+            ref.read(descriptionProvider.notifier).state = description;
+            ref.read(businessHoursProvider.notifier).state = businessHours;
+            ref.read(categoryProvider.notifier).state = category;
+            ref.read(profilePhotoProvider.notifier).state = profilePhoto;
+            ref.read(coverPhotoProvider.notifier).state = coverPhoto;
+          });
+
+          return _buildLoggedInUI(email, uid);
         } else {
-          return CircularProgressIndicator(); // Handle loading state
+          return LoginScreen();
         }
       },
     );
   }
 
-  Future<void> _initializeData(WidgetRef ref) async {
+  Future<Map<String, String?>> _initializeData() async {
     final sharedPreferences = await SharedPreferences.getInstance();
+    final uid = sharedPreferences.getString('uid') ?? null;
+    final email = sharedPreferences.getString('email') ?? null;
     final fullname = sharedPreferences.getString('fullname') ?? null;
     final phoneNum = sharedPreferences.getInt('phoneNum') ?? null;
     final address = sharedPreferences.getString('address') ?? null;
@@ -59,17 +88,40 @@ class MainPage extends ConsumerWidget {
     print(fullname);
     print(serviceName);
     // user details
-    ref.read(fullnameProvider.notifier).state = fullname;
-    ref.read(phoneNumProvider.notifier).state = phoneNum;
-    ref.read(addressProvider.notifier).state = address;
+    // ref.read(fullnameProvider.notifier).state = fullname;
+    // ref.read(phoneNumProvider.notifier).state = phoneNum;
+    // ref.read(addressProvider.notifier).state = address;
 
-    // service provider
-    ref.read(serviceNameProvider.notifier).state = serviceName;
-    ref.read(serviceAddressProvider.notifier).state = serviceAddress;
-    ref.read(descriptionProvider.notifier).state = description;
-    ref.read(businessHoursProvider.notifier).state = businessHours;
-    ref.read(categoryProvider.notifier).state = category;
-    ref.read(profilePhotoProvider.notifier).state = profilePhoto;
-    ref.read(coverPhotoProvider.notifier).state = coverPhoto;
+    // // service provider
+    // ref.read(serviceNameProvider.notifier).state = serviceName;
+    // ref.read(serviceAddressProvider.notifier).state = serviceAddress;
+    // ref.read(descriptionProvider.notifier).state = description;
+    // ref.read(businessHoursProvider.notifier).state = businessHours;
+    // ref.read(categoryProvider.notifier).state = category;
+    // ref.read(profilePhotoProvider.notifier).state = profilePhoto;
+    // ref.read(coverPhotoProvider.notifier).state = coverPhoto;
+    return {
+      'uid': uid,
+      'email': email,
+      'fullname': fullname,
+      'phoneNum': phoneNum.toString(),
+      'address': address,
+      "serviceName": serviceName,
+      'serviceAddress': serviceAddress,
+      'description': description,
+      'businessHours': businessHours,
+      'category': category,
+      'profilePhoto': profilePhoto,
+      'coverPhoto': coverPhoto,
+    };
+  }
+
+  Widget _buildLoggedInUI(String email, uid) {
+    if (email == "admin@manoy.com" && uid == "jyuds0USSQdUbu61aO6CKPONsBM2") {
+      // Navigate to the admin panel page
+      return AdminPage();
+    } else {
+      return HomePage();
+    }
   }
 }
