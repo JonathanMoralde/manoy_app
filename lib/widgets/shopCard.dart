@@ -15,7 +15,7 @@ class ShopCard extends ConsumerWidget {
   final String address;
   final String? uid;
   final String image;
-  final String category;
+  final List<String> category;
   final String businessHours;
   final String description;
   final String coverPhoto;
@@ -216,13 +216,21 @@ class ShopCard extends ConsumerWidget {
                           fontSize: 15,
                         ),
                       ),
-                      Text(
-                        "$category",
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontStyle: FontStyle.italic,
+                      // Text(
+                      //   "$category",
+                      //   style: TextStyle(
+                      //     fontSize: 14,
+                      //     fontStyle: FontStyle.italic,
+                      //   ),
+                      // ),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            for (final cat in category) Text('$cat, ')
+                          ],
                         ),
-                      ),
+                      )
                     ],
                   ),
                 ),

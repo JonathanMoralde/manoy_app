@@ -10,6 +10,7 @@ import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
 import 'package:manoy_app/provider/selectedCategory/selectedCategory_provider.dart';
 import 'package:manoy_app/provider/timepicker/selectedTime_provider.dart';
 import 'package:manoy_app/provider/uploadIage/selectedImage_provider.dart';
+import 'package:manoy_app/widgets/selectCatBtn.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledDropdown.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
@@ -41,6 +42,16 @@ class ApplyProvider extends ConsumerWidget {
   String? selectedImagePath1;
   String? selectedImagePath2;
 
+  List<String> categories = [
+    "Maintenance and Repairs",
+    "Parts and accessories",
+    "Car Wash and Detailing",
+    "Fuel and charging station",
+    "Inspection and emissions",
+  ];
+
+  List<String> selectedCategories = [];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // String? time1 = selectedTime1?.format(context).toString();
@@ -55,14 +66,14 @@ class ApplyProvider extends ConsumerWidget {
         final serviceAddress = providerAddressController.text;
         final description = providerDescriptionController.text;
         final businessHours = '$time1 - $time2';
-        final categoryName = category;
+        final categoryName = selectedCategories;
 
         if (serviceName.isEmpty ||
             serviceAddress.isEmpty ||
             description.isEmpty ||
             time1 == null ||
             time2 == null ||
-            categoryName == null ||
+            categoryName.isEmpty ||
             selectedImagePath1 == null ||
             selectedImagePath2 == null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -237,6 +248,80 @@ class ApplyProvider extends ConsumerWidget {
       );
     }
 
+    void handleCategoryCheckboxChange(String category, bool isChecked) {
+      if (isChecked) {
+        selectedCategories.add(category);
+      } else {
+        selectedCategories.remove(category);
+      }
+      print(selectedCategories);
+    }
+
+    Future<void> categoryModal() {
+      return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: StatefulBuilder(builder: (context, setState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("Select your category"),
+                    Divider(height: 0),
+                    for (int i = 0; i < categories.length; i++)
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: selectedCategories.contains(categories[i]),
+                            onChanged: (isChecked) {
+                              handleCategoryCheckboxChange(
+                                  categories[i], isChecked!);
+                              setState(() {});
+                            },
+                          ),
+                          Text(categories[i]),
+                        ],
+                      ),
+                    const SizedBox(height: 20),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            StyledButton(
+                              btnText: "CONFIRM",
+                              onClick: () {
+                                Navigator.pop(context);
+                                // Use selectedCategories for further processing
+                                // ref
+                                //     .read(selectedCategoryProvider.notifier)
+                                //     .state = selectedCategories;
+                                print(selectedCategories);
+                              },
+                            ),
+                            StyledButton(
+                                btnText: "CANCEL",
+                                onClick: () {
+                                  Navigator.pop(context);
+                                })
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      );
+    }
+
     if (ref.watch(serviceNameProvider) != null) {
       return WillPopScope(
         onWillPop: () async {
@@ -245,7 +330,7 @@ class ApplyProvider extends ConsumerWidget {
           ref.read(selectedImagePath2Provider.notifier).state = null;
           ref.read(selectedTime1Provider.notifier).state = null;
           ref.read(selectedTime2Provider.notifier).state = null;
-          ref.read(selectedCategoryProvider.notifier).state = null;
+          ref.read(selectedCategoryProvider.notifier).state = [];
           return true;
         },
         child: Scaffold(
@@ -253,7 +338,7 @@ class ApplyProvider extends ConsumerWidget {
               leading: IconButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    ref.read(selectedCategoryProvider.notifier).state = null;
+                    ref.read(selectedCategoryProvider.notifier).state = [];
                     ref.read(selectedImagePath1Provider.notifier).state = null;
                     ref.read(selectedImagePath2Provider.notifier).state = null;
                     ref.read(selectedTime1Provider.notifier).state = null;
@@ -286,7 +371,7 @@ class ApplyProvider extends ConsumerWidget {
         ref.read(selectedImagePath2Provider.notifier).state = null;
         ref.read(selectedTime1Provider.notifier).state = null;
         ref.read(selectedTime2Provider.notifier).state = null;
-        ref.read(selectedCategoryProvider.notifier).state = null;
+        ref.read(selectedCategoryProvider.notifier).state = [];
         return true;
       },
       child: Scaffold(
@@ -294,7 +379,7 @@ class ApplyProvider extends ConsumerWidget {
           leading: IconButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                ref.read(selectedCategoryProvider.notifier).state = null;
+                ref.read(selectedCategoryProvider.notifier).state = [];
                 ref.read(selectedImagePath1Provider.notifier).state = null;
                 ref.read(selectedImagePath2Provider.notifier).state = null;
                 ref.read(selectedTime1Provider.notifier).state = null;
@@ -424,22 +509,23 @@ class ApplyProvider extends ConsumerWidget {
                           alignment: Alignment.centerLeft,
                           child: Text("Category:")),
                     ),
-                    StyledDropdown(
-                        value: ref.watch(selectedCategoryProvider),
-                        onChange: (newValue) {
-                          category = newValue;
-                          ref.read(selectedCategoryProvider.notifier).state =
-                              newValue;
-                          print(category);
-                        },
-                        hintText: "Select Category",
-                        items: const [
-                          "Maintenance and Repairs",
-                          "Parts and accessories",
-                          "Car Wash and Detailing",
-                          "Fuel and charging station",
-                          "Inspection and emissions",
-                        ]),
+                    // StyledDropdown(
+                    //     value: ref.watch(selectedCategoryProvider),
+                    //     onChange: (newValue) {
+                    //       category = newValue;
+                    //       ref.read(selectedCategoryProvider.notifier).state =
+                    //           newValue;
+                    //       print(category);
+                    //     },
+                    //     hintText: "Select Category",
+                    //     items: const [
+                    //       "Maintenance and Repairs",
+                    //       "Parts and accessories",
+                    //       "Car Wash and Detailing",
+                    //       "Fuel and charging station",
+                    //       "Inspection and emissions",
+                    //     ]),
+                    SelectCatBtn(onPressed: categoryModal),
                     const SizedBox(
                       height: 10,
                     ),

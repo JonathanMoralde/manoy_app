@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:manoy_app/widgets/selectCatBtn.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/widgets/uploadImage_input.dart';
@@ -30,7 +31,15 @@ class EditProfileForm extends ConsumerWidget {
   String? providerCategory;
   String? selectedImagePath1;
   String? selectedImagePath2;
-  String? category;
+  List<String> categories = [
+    "Maintenance and Repairs",
+    "Parts and accessories",
+    "Car Wash and Detailing",
+    "Fuel and charging station",
+    "Inspection and emissions",
+  ];
+
+  List<String> selectedCategories = [];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -46,14 +55,14 @@ class EditProfileForm extends ConsumerWidget {
         final serviceAddress = providerAddressController.text;
         final description = providerDescriptionController.text;
         final businessHours = '$time1 - $time2';
-        final categoryName = category;
+        final categoryName = selectedCategories;
 
         if (serviceName.isEmpty ||
             serviceAddress.isEmpty ||
             description.isEmpty ||
             time1 == null ||
             time2 == null ||
-            categoryName == null ||
+            categoryName.isEmpty ||
             selectedImagePath1 == null ||
             selectedImagePath2 == null) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -126,6 +135,80 @@ class EditProfileForm extends ConsumerWidget {
       } catch (e) {
         print(e);
       }
+    }
+
+    void handleCategoryCheckboxChange(String category, bool isChecked) {
+      if (isChecked) {
+        selectedCategories.add(category);
+      } else {
+        selectedCategories.remove(category);
+      }
+      print(selectedCategories);
+    }
+
+    Future<void> categoryModal() {
+      return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: StatefulBuilder(builder: (context, setState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text("Select your category"),
+                    Divider(height: 0),
+                    for (int i = 0; i < categories.length; i++)
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: selectedCategories.contains(categories[i]),
+                            onChanged: (isChecked) {
+                              handleCategoryCheckboxChange(
+                                  categories[i], isChecked!);
+                              setState(() {});
+                            },
+                          ),
+                          Text(categories[i]),
+                        ],
+                      ),
+                    const SizedBox(height: 20),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            StyledButton(
+                              btnText: "CONFIRM",
+                              onClick: () {
+                                Navigator.pop(context);
+                                // Use selectedCategories for further processing
+                                // ref
+                                //     .read(selectedCategoryProvider.notifier)
+                                //     .state = selectedCategories;
+                                print(selectedCategories);
+                              },
+                            ),
+                            StyledButton(
+                                btnText: "CANCEL",
+                                onClick: () {
+                                  Navigator.pop(context);
+                                })
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      );
     }
 
     return WillPopScope(
@@ -268,21 +351,22 @@ class EditProfileForm extends ConsumerWidget {
                       alignment: Alignment.centerLeft,
                       child: Text("Category:")),
                 ),
-                StyledDropdown(
-                    value: category,
-                    onChange: (newValue) {
-                      // setState(() {
-                      category = newValue;
-                      // });
-                    },
-                    hintText: "Select Category",
-                    items: const [
-                      "Maintenance and Repairs",
-                      "Parts and accessories",
-                      "Car Wash and Detailing",
-                      "Fuel and charging station",
-                      "Inspection and emissions",
-                    ]),
+                // StyledDropdown(
+                //     value: category,
+                //     onChange: (newValue) {
+                //       // setState(() {
+                //       category = newValue;
+                //       // });
+                //     },
+                //     hintText: "Select Category",
+                //     items: const [
+                //       "Maintenance and Repairs",
+                //       "Parts and accessories",
+                //       "Car Wash and Detailing",
+                //       "Fuel and charging station",
+                //       "Inspection and emissions",
+                //     ]),
+                SelectCatBtn(onPressed: categoryModal),
                 const SizedBox(
                   height: 10,
                 ),

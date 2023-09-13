@@ -205,7 +205,7 @@ class SettingsPage extends ConsumerWidget {
                 ref.read(serviceAddressProvider.notifier).state = null;
                 ref.read(descriptionProvider.notifier).state = null;
                 ref.read(businessHoursProvider.notifier).state = null;
-                ref.read(categoryProvider.notifier).state = null;
+                ref.read(categoryProvider.notifier).state = [];
                 ref.read(profilePhotoProvider.notifier).state = null;
                 ref.read(coverPhotoProvider.notifier).state = null;
                 ref.read(isBookmarkProvider.notifier).state = false;
@@ -213,10 +213,10 @@ class SettingsPage extends ConsumerWidget {
                 ref.read(serviceAddressProvider.notifier).state = null;
                 ref.read(descriptionProvider.notifier).state = null;
                 ref.read(businessHoursProvider.notifier).state = null;
-                ref.read(categoryProvider.notifier).state = null;
+                ref.read(categoryProvider.notifier).state = [];
                 ref.read(profilePhotoProvider.notifier).state = null;
                 ref.read(coverPhotoProvider.notifier).state = null;
-                ref.read(selectedCategoryProvider.notifier).state = null;
+                ref.read(selectedCategoryProvider.notifier).state = [];
                 ref.read(selectedTime2Provider.notifier).state = null;
                 ref.read(selectedTime1Provider.notifier).state = null;
                 ref.read(selectedImagePath1Provider.notifier).state = null;

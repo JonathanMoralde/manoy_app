@@ -251,6 +251,14 @@ class ProfileView extends ConsumerWidget {
                                           // Call your delete account function
                                           await deleteServiceProvider(context);
 
+                                          Navigator.of(context)
+                                              .pushAndRemoveUntil(
+                                            MaterialPageRoute(
+                                              builder: (context) => HomePage(),
+                                            ),
+                                            (Route<dynamic> route) => false,
+                                          );
+
                                           // Clear the form values
                                           ref
                                               .read(
@@ -270,7 +278,7 @@ class ProfileView extends ConsumerWidget {
                                               .state = null;
                                           ref
                                               .read(categoryProvider.notifier)
-                                              .state = null;
+                                              .state = [];
                                           ref
                                               .read(
                                                   profilePhotoProvider.notifier)
@@ -280,13 +288,6 @@ class ProfileView extends ConsumerWidget {
                                               .state = null;
 
                                           // Close the dialog
-                                          Navigator.of(context)
-                                              .pushAndRemoveUntil(
-                                            MaterialPageRoute(
-                                              builder: (context) => HomePage(),
-                                            ),
-                                            (Route<dynamic> route) => false,
-                                          );
                                         } catch (error) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(SnackBar(
@@ -444,152 +445,141 @@ class ProfileView extends ConsumerWidget {
         ),
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  alignment: Alignment.bottomCenter,
                   children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(24),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: SizedBox(
+                        height: 250,
+                        width: double.infinity,
+                        child: CachedNetworkImage(
+                          imageUrl: coverPhoto!,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ), // PROFILE PHOTO
+                    Positioned(
+                      bottom: -50,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(
+                            color: Colors.white, // Border color
+                            width: 4, // Border width
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(50),
                           child: SizedBox(
-                            height: 250,
-                            width: double.infinity,
+                            width: 100,
+                            height: 100,
                             child: CachedNetworkImage(
-                              imageUrl: coverPhoto!,
+                              imageUrl: profilePhoto,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
-                        ), // PROFILE PHOTO
-                        Positioned(
-                          bottom: -50,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(50),
-                              border: Border.all(
-                                color: Colors.white, // Border color
-                                width: 4, // Border width
-                              ),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(50),
-                              child: SizedBox(
-                                width: 100,
-                                height: 100,
-                                child: CachedNetworkImage(
-                                  imageUrl: profilePhoto,
-                                  width: double.infinity,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 60,
-                    ),
-                    SizedBox(
-                      width: 300,
-                      child: Text(
-                        serviceName,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w700, fontSize: 20),
-                        textAlign: TextAlign.center,
+                        ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    // Display average rating and total ratings
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          "${averageRating.toStringAsFixed(1)}/5",
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                        Icon(
-                          Icons.star,
-                          color: Colors.yellow.shade700,
-                          size: 20,
-                        ),
-                        Text(" ($totalRatings)"),
-                        const SizedBox(
-                          width: 5,
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    ViewReviewPage(
-                                  uid: uid,
-                                  name: name,
-                                ),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.remove_red_eye_outlined),
-                          padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(),
-                        )
-                      ],
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text(serviceAddress!, style: TextStyle(fontSize: 15)),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text('Business Hours: $businessHours',
-                        style: TextStyle(fontSize: 15)),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Text("Category: $category", style: TextStyle(fontSize: 15)),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    const Divider(
-                      height: 0,
-                    ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    Text(description!, style: TextStyle(fontSize: 15)),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    const Divider(
-                      height: 0,
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    )
                   ],
                 ),
-              ),
-            ),
-            if (isLoading)
-              Center(
-                child: CircularProgressIndicator(
-                  color: Color(0xFF00A2FF),
+                const SizedBox(
+                  height: 60,
                 ),
-              )
-          ],
+                SizedBox(
+                  width: 300,
+                  child: Text(
+                    serviceName,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.w700, fontSize: 20),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                // Display average rating and total ratings
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "${averageRating.toStringAsFixed(1)}/5",
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    Icon(
+                      Icons.star,
+                      color: Colors.yellow.shade700,
+                      size: 20,
+                    ),
+                    Text(" ($totalRatings)"),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => ViewReviewPage(
+                              uid: uid,
+                              name: name,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.remove_red_eye_outlined),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(serviceAddress!, style: TextStyle(fontSize: 15)),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text('Business Hours: $businessHours',
+                    style: TextStyle(fontSize: 15)),
+                const SizedBox(
+                  height: 10,
+                ),
+                Text("Category: $category", style: TextStyle(fontSize: 15)),
+                const SizedBox(
+                  height: 5,
+                ),
+                const Divider(
+                  height: 0,
+                ),
+                const SizedBox(
+                  height: 5,
+                ),
+                Text(description!, style: TextStyle(fontSize: 15)),
+                const SizedBox(
+                  height: 5,
+                ),
+                const Divider(
+                  height: 0,
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       bottomNavigationBar: fromShopCard == true ? null : const BottomNav(),

@@ -20,14 +20,14 @@ class MainPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Mark the function body as async
-    return FutureBuilder<Map<String, String?>>(
+    return FutureBuilder<Map<String, dynamic>>(
       future: _initializeData(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return CircularProgressIndicator();
         }
 
-        final Map<String, String?>? userPrefs = snapshot.data;
+        final Map<String, dynamic>? userPrefs = snapshot.data;
         final String? uid = userPrefs?['uid'];
         final String? email = userPrefs?['email'];
         final String? fullname = userPrefs?['fullname'];
@@ -37,13 +37,13 @@ class MainPage extends ConsumerWidget {
         final String? serviceAddress = userPrefs?['serviceAddress'];
         final String? description = userPrefs?['description'];
         final String? businessHours = userPrefs?['businessHours'];
-        final String? category = userPrefs?['category'];
+        final List<String>? category = userPrefs?['category'];
         final String? profilePhoto = userPrefs?['profilePhoto'];
         final String? coverPhoto = userPrefs?['coverPhoto'];
 
         if (uid != null && email != null) {
-          print(uid);
-          print(email);
+          print("$uid line 45");
+          print("$email line 46");
 
           // Delay the provider state update after the build process
           Future.delayed(Duration.zero, () {
@@ -56,7 +56,7 @@ class MainPage extends ConsumerWidget {
             ref.read(serviceAddressProvider.notifier).state = serviceAddress;
             ref.read(descriptionProvider.notifier).state = description;
             ref.read(businessHoursProvider.notifier).state = businessHours;
-            ref.read(categoryProvider.notifier).state = category;
+            ref.read(categoryProvider.notifier).state = category ?? [];
             ref.read(profilePhotoProvider.notifier).state = profilePhoto;
             ref.read(coverPhotoProvider.notifier).state = coverPhoto;
           });
@@ -69,7 +69,7 @@ class MainPage extends ConsumerWidget {
     );
   }
 
-  Future<Map<String, String?>> _initializeData() async {
+  Future<Map<String, dynamic>> _initializeData() async {
     final sharedPreferences = await SharedPreferences.getInstance();
     final uid = sharedPreferences.getString('uid') ?? null;
     final email = sharedPreferences.getString('email') ?? null;
@@ -81,12 +81,12 @@ class MainPage extends ConsumerWidget {
         sharedPreferences.getString('serviceAddress') ?? null;
     final description = sharedPreferences.getString('description') ?? null;
     final businessHours = sharedPreferences.getString('businessHours') ?? null;
-    final category = sharedPreferences.getString('category') ?? null;
+    final category = sharedPreferences.getStringList('category') ?? null;
     final profilePhoto = sharedPreferences.getString('profilePhoto') ?? null;
     final coverPhoto = sharedPreferences.getString('coverPhoto') ?? null;
 
-    print(fullname);
-    print(serviceName);
+    print('$fullname line 88');
+    print('$serviceName line 89');
     // user details
     // ref.read(fullnameProvider.notifier).state = fullname;
     // ref.read(phoneNumProvider.notifier).state = phoneNum;

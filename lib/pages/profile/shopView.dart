@@ -22,7 +22,7 @@ class ShopView extends ConsumerWidget {
   final String name;
   final String address;
   final String businessHours;
-  final String category;
+  final List<String> category;
   final String description;
   final String profilePhoto;
   final String coverPhoto;
@@ -484,7 +484,20 @@ class ShopView extends ConsumerWidget {
                           const SizedBox(
                             height: 5,
                           ),
-                          Text("Category: $category"),
+                          Row(
+                            children: [
+                              Text("Category: "),
+                              for (final cat in category)
+                                Row(
+                                  children: [
+                                    Text(cat),
+                                    const SizedBox(
+                                      width: 3,
+                                    )
+                                  ],
+                                )
+                            ],
+                          ),
                           const SizedBox(
                             height: 5,
                           ),
