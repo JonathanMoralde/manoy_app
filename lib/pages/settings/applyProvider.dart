@@ -302,6 +302,10 @@ class ApplyProvider extends ConsumerWidget {
                                 //     .read(selectedCategoryProvider.notifier)
                                 //     .state = selectedCategories;
                                 print(selectedCategories);
+                                ref.refresh(selectedCategoryProvider);
+                                ref
+                                    .read(selectedCategoryProvider.notifier)
+                                    .state = selectedCategories;
                               },
                             ),
                             StyledButton(
@@ -525,7 +529,9 @@ class ApplyProvider extends ConsumerWidget {
                     //       "Fuel and charging station",
                     //       "Inspection and emissions",
                     //     ]),
-                    SelectCatBtn(onPressed: categoryModal),
+                    SelectCatBtn(
+                      onPressed: categoryModal,
+                    ),
                     const SizedBox(
                       height: 10,
                     ),
