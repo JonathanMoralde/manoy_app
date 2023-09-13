@@ -249,6 +249,14 @@ class ProfileView extends ConsumerWidget {
                                           // Call your delete account function
                                           await deleteServiceProvider(context);
 
+                                          Navigator.of(context)
+                                              .pushAndRemoveUntil(
+                                            MaterialPageRoute(
+                                              builder: (context) => HomePage(),
+                                            ),
+                                            (Route<dynamic> route) => false,
+                                          );
+
                                           ref
                                               .read(
                                                   serviceNameProvider.notifier)
@@ -267,7 +275,7 @@ class ProfileView extends ConsumerWidget {
                                               .state = null;
                                           ref
                                               .read(categoryProvider.notifier)
-                                              .state = null;
+                                              .state = [];
                                           ref
                                               .read(
                                                   profilePhotoProvider.notifier)
@@ -277,13 +285,6 @@ class ProfileView extends ConsumerWidget {
                                               .state = null;
 
                                           // Close the dialog
-                                          Navigator.of(context)
-                                              .pushAndRemoveUntil(
-                                            MaterialPageRoute(
-                                              builder: (context) => HomePage(),
-                                            ),
-                                            (Route<dynamic> route) => false,
-                                          );
                                         } catch (error) {
                                           // ScaffoldMessenger.of(context)
                                           //     .showSnackBar(SnackBar(
@@ -546,7 +547,15 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                Text("Category: $category", style: TextStyle(fontSize: 15)),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      Text("Category: ", style: TextStyle(fontSize: 15)),
+                      for (final cat in category) Text('$cat, '),
+                    ],
+                  ),
+                ),
                 const SizedBox(
                   height: 5,
                 ),

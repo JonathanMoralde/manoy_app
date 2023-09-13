@@ -19,7 +19,7 @@ final serviceNameProvider = StateProvider<String?>((ref) => null);
 final serviceAddressProvider = StateProvider<String?>((ref) => null);
 final descriptionProvider = StateProvider<String?>((ref) => null);
 final businessHoursProvider = StateProvider<String?>((ref) => null);
-final categoryProvider = StateProvider<String?>((ref) => null);
+final categoryProvider = StateProvider<List<String>>((ref) => []);
 final profilePhotoProvider = StateProvider<String?>((ref) => null);
 final coverPhotoProvider = StateProvider<String?>((ref) => null);
 

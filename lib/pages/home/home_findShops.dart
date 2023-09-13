@@ -30,7 +30,7 @@ class FindShops extends ConsumerWidget {
     );
 
     // print(bookmarkItems);
-    print(bookmarkData);
+    // print(bookmarkData);
     return Column(
       children: [
         Padding(
@@ -44,9 +44,13 @@ class FindShops extends ConsumerWidget {
                 data: (itemDocs) {
                   // FILTER BASED ON ACTIVE CATEGORY
                   final filteredItems = itemDocs.where((itemDoc) {
-                    final shopCategory = itemDoc['Category'] as String;
+                    final shopCategory = itemDoc['Category'] as List<dynamic>;
+                    List<String> stringList =
+                        shopCategory.map((item) => item.toString()).toList();
+
+                    print(shopCategory);
                     return activeCategory == "All" ||
-                        shopCategory == activeCategory;
+                        stringList.contains(activeCategory);
                   }).toList();
 
                   return Column(
@@ -56,10 +60,13 @@ class FindShops extends ConsumerWidget {
                       final shopAddress = itemDoc['Service Address'];
                       final shopImage = itemDoc['Profile Photo'];
                       final shopCoverPhoto = itemDoc['Cover Photo'];
-                      final shopCategory = itemDoc['Category'];
+                      final shopCategory = itemDoc['Category'] as List<dynamic>;
+                      List<String> stringList =
+                          shopCategory.map((item) => item.toString()).toList();
                       final shopBusinessHours = itemDoc['Business Hours'];
                       final shopDescription = itemDoc['Description'];
 
+                      print(shopCategory);
                       // bool isBookmarked = false;
 
                       // for (var shops in bookmarkData) {
@@ -77,7 +84,7 @@ class FindShops extends ConsumerWidget {
                             address: shopAddress,
                             uid: shopId,
                             image: shopImage,
-                            category: shopCategory,
+                            category: stringList,
                             coverPhoto: shopCoverPhoto,
                             businessHours: shopBusinessHours,
                             description: shopDescription,

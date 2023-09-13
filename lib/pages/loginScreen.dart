@@ -59,7 +59,7 @@ class LoginScreen extends ConsumerWidget {
       String serviceAddress,
       String description,
       String businessHours,
-      String category,
+      List<String> category,
       String profilePhoto,
       String coverPhoto,
     ) async {
@@ -81,6 +81,7 @@ class LoginScreen extends ConsumerWidget {
         }
       } catch (e) {
         print(e);
+        print("Line 84");
       }
     }
 
@@ -125,6 +126,7 @@ class LoginScreen extends ConsumerWidget {
               .get();
 
           print(userSnapshot);
+          print("line 128");
 
           String fullname =
               userSnapshot['First Name'] + " " + userSnapshot['Last Name'];
@@ -134,6 +136,7 @@ class LoginScreen extends ConsumerWidget {
           Timestamp birthday = userSnapshot['Birthday'];
 
           print(fullname);
+          print("line 138");
 
           prefs.setString('fullname', fullname);
           prefs.setInt('phoneNum', phoneNum);
@@ -160,7 +163,9 @@ class LoginScreen extends ConsumerWidget {
             String serviceAddress = serviceSnapshot['Service Address'];
             String description = serviceSnapshot['Description'];
             String businessHours = serviceSnapshot['Business Hours'];
-            String category = serviceSnapshot['Category'];
+            List<dynamic> category = serviceSnapshot['Category'];
+            List<String> stringList =
+                category.map((item) => item.toString()).toList();
             String profilePhoto = serviceSnapshot['Profile Photo'];
             String coverPhoto = serviceSnapshot['Cover Photo'];
 
@@ -168,12 +173,18 @@ class LoginScreen extends ConsumerWidget {
             prefs.setString('serviceAddress', serviceAddress);
             prefs.setString('description', description);
             prefs.setString('businessHours', businessHours);
-            prefs.setString('category', category);
+            prefs.setStringList('category', stringList);
             prefs.setString('profilePhoto', profilePhoto);
             prefs.setString('coverPhoto', coverPhoto);
 
-            storeServiceProviderInProvider(serviceName, serviceAddress,
-                description, businessHours, category, profilePhoto, coverPhoto);
+            storeServiceProviderInProvider(
+                serviceName,
+                serviceAddress,
+                description,
+                businessHours,
+                stringList,
+                profilePhoto,
+                coverPhoto);
           }
 
           try {
@@ -199,10 +210,12 @@ class LoginScreen extends ConsumerWidget {
             }
           } catch (e) {
             print(e);
+            print("line 204");
           }
         }
       } catch (e) {
         print(e);
+        print("Line 209");
         Fluttertoast.showToast(msg: "Incorrect email or password");
       }
     }

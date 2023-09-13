@@ -54,7 +54,9 @@ class BookmarkPage extends ConsumerWidget {
                           name: shopData['Service Name'],
                           address: shopData['Service Address'],
                           image: shopData['Profile Photo'],
-                          category: shopData['Category'],
+                          category: (shopData['Category'] as List<dynamic>)
+                              .map((item) => item.toString())
+                              .toList(),
                           businessHours: shopData['Business Hours'],
                           description: shopData['Description'],
                           coverPhoto: shopData['Cover Photo'],
