@@ -33,7 +33,7 @@ class ProfileView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final uid = auth.currentUser!.uid;
-
+    final isLoading = ref.watch(isLoadingProvider);
     final serviceName = ref.watch(serviceNameProvider);
     final serviceAddress = ref.watch(serviceAddressProvider);
     final description = ref.watch(descriptionProvider);
@@ -233,8 +233,10 @@ class ProfileView extends ConsumerWidget {
                               onClick: isChecked
                                   ? () async {
                                       if (isChecked) {
-                                        // Perform reauthentication before deletion
                                         try {
+                                          // Show loading indicator
+
+                                          // Perform reauthentication before deletion
                                           final AuthCredential credential =
                                               EmailAuthProvider.credential(
                                             email: user.email!,
@@ -257,6 +259,7 @@ class ProfileView extends ConsumerWidget {
                                             (Route<dynamic> route) => false,
                                           );
 
+                                          // Clear the form values
                                           ref
                                               .read(
                                                   serviceNameProvider.notifier)
@@ -286,10 +289,13 @@ class ProfileView extends ConsumerWidget {
 
                                           // Close the dialog
                                         } catch (error) {
-                                          // ScaffoldMessenger.of(context)
-                                          //     .showSnackBar(SnackBar(
-                                          //         content: Text(
-                                          //             'Password incorrect, please try again')));
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                'Password incorrect, please try again'),
+                                            backgroundColor: Colors.red,
+                                            behavior: SnackBarBehavior.floating,
+                                          ));
                                           print(
                                               'Reauthentication error: $error');
                                           // Handle reauthentication error here
@@ -298,6 +304,10 @@ class ProfileView extends ConsumerWidget {
                                     }
                                   : null,
                             ),
+                            if (isLoading)
+                              Center(
+                                child: CircularProgressIndicator(),
+                              ),
                             StyledButton(
                                 btnText: "CANCEL",
                                 onClick: () {
@@ -547,15 +557,7 @@ class ProfileView extends ConsumerWidget {
                 const SizedBox(
                   height: 10,
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      Text("Category: ", style: TextStyle(fontSize: 15)),
-                      for (final cat in category) Text('$cat, '),
-                    ],
-                  ),
-                ),
+                Text("Category: $category", style: TextStyle(fontSize: 15)),
                 const SizedBox(
                   height: 5,
                 ),

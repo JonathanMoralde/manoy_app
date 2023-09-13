@@ -56,9 +56,8 @@ class ApplyProvider extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // String? time1 = selectedTime1?.format(context).toString();
     // String? time2 = selectedTime2?.format(context).toString();
-
+    final isLoading = ref.watch(isLoadingProvider);
     Future addProvider() async {
-      ref.read(isLoadingProvider.notifier).state = true;
       try {
         String? time1 = selectedTime1?.format(context).toString();
         String? time2 = selectedTime2?.format(context).toString();
@@ -214,18 +213,28 @@ class ApplyProvider extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             StyledButton(
-                                btnText: "CONFIRM",
-                                onClick: isChecked
-                                    ? () {
+                              btnText: "CONFIRM",
+                              onClick: isChecked
+                                  ? () async {
+                                      ref
+                                          .read(isLoadingProvider.notifier)
+                                          .state = true;
+                                      try {
                                         Navigator.pop(context);
-                                        addProvider();
+                                        await addProvider();
+                                      } finally {
+                                        ref
+                                            .read(isLoadingProvider.notifier)
+                                            .state = false;
                                       }
-                                    : null),
+                                    }
+                                  : null,
+                            ),
                             StyledButton(
                                 btnText: "CANCEL",
                                 onClick: () {
                                   Navigator.pop(context);
-                                })
+                                }),
                           ],
                         ),
                       ],
@@ -597,7 +606,7 @@ class ApplyProvider extends ConsumerWidget {
                 ),
               ),
             )),
-            if (ref.watch(isLoadingProvider))
+            if (isLoading)
               Center(
                 child: CircularProgressIndicator(),
               )

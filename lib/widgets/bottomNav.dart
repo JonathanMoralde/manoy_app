@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/bookmark/bookmark.dart';
@@ -15,7 +14,9 @@ class BottomNav extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentIndex = ref.watch(currentIndexProvider);
+    var currentIndex =
+        ref.watch(currentIndexProvider); // Remove 'final' keyword
+
     final serviceName = ref.watch(serviceNameProvider);
 
     final bottomNavigationBarItems = <BottomNavigationBarItem>[
@@ -31,6 +32,9 @@ class BottomNav extends ConsumerWidget {
       );
     }
 
+    // Ensure currentIndex is within bounds
+    currentIndex = currentIndex.clamp(0, bottomNavigationBarItems.length - 1);
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ClipRRect(
@@ -40,30 +44,37 @@ class BottomNav extends ConsumerWidget {
           onTap: (index) {
             ref.read(currentIndexProvider.notifier).state = index;
 
-            if (index == 0) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return HomePage();
-                }),
-              );
-            } else if (index == 1) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return BookmarkPage();
-                }),
-              );
-            } else if (index == 2) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return SettingsPage();
-                }),
-              );
-            } else if (index == 3 && serviceName != null) {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (BuildContext context) {
-                  return ProfileView();
-                }),
-              );
+            switch (index) {
+              case 0:
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return HomePage();
+                  }),
+                );
+                break;
+              case 1:
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return BookmarkPage();
+                  }),
+                );
+                break;
+              case 2:
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(builder: (BuildContext context) {
+                    return SettingsPage();
+                  }),
+                );
+                break;
+              case 3:
+                if (serviceName != null) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (BuildContext context) {
+                      return ProfileView();
+                    }),
+                  );
+                }
+                break;
             }
           },
           type: BottomNavigationBarType.fixed,
