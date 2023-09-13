@@ -33,7 +33,7 @@ class ProfileView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final FirebaseAuth auth = FirebaseAuth.instance;
     final uid = auth.currentUser!.uid;
-
+    final isLoading = ref.watch(isLoadingProvider);
     final serviceName = ref.watch(serviceNameProvider);
     final serviceAddress = ref.watch(serviceAddressProvider);
     final description = ref.watch(descriptionProvider);
@@ -233,8 +233,10 @@ class ProfileView extends ConsumerWidget {
                               onClick: isChecked
                                   ? () async {
                                       if (isChecked) {
-                                        // Perform reauthentication before deletion
                                         try {
+                                          // Show loading indicator
+
+                                          // Perform reauthentication before deletion
                                           final AuthCredential credential =
                                               EmailAuthProvider.credential(
                                             email: user.email!,
@@ -249,6 +251,7 @@ class ProfileView extends ConsumerWidget {
                                           // Call your delete account function
                                           await deleteServiceProvider(context);
 
+                                          // Clear the form values
                                           ref
                                               .read(
                                                   serviceNameProvider.notifier)
@@ -285,10 +288,13 @@ class ProfileView extends ConsumerWidget {
                                             (Route<dynamic> route) => false,
                                           );
                                         } catch (error) {
-                                          // ScaffoldMessenger.of(context)
-                                          //     .showSnackBar(SnackBar(
-                                          //         content: Text(
-                                          //             'Password incorrect, please try again')));
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text(
+                                                'Password incorrect, please try again'),
+                                            backgroundColor: Colors.red,
+                                            behavior: SnackBarBehavior.floating,
+                                          ));
                                           print(
                                               'Reauthentication error: $error');
                                           // Handle reauthentication error here
@@ -297,6 +303,10 @@ class ProfileView extends ConsumerWidget {
                                     }
                                   : null,
                             ),
+                            if (isLoading)
+                              Center(
+                                child: CircularProgressIndicator(),
+                              ),
                             StyledButton(
                                 btnText: "CANCEL",
                                 onClick: () {
@@ -434,141 +444,152 @@ class ProfileView extends ConsumerWidget {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  alignment: Alignment.bottomCenter,
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
                   children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(24),
-                      child: SizedBox(
-                        height: 250,
-                        width: double.infinity,
-                        child: CachedNetworkImage(
-                          imageUrl: coverPhoto!,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ), // PROFILE PHOTO
-                    Positioned(
-                      bottom: -50,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(50),
-                          border: Border.all(
-                            color: Colors.white, // Border color
-                            width: 4, // Border width
-                          ),
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(50),
+                    Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(24),
                           child: SizedBox(
-                            width: 100,
-                            height: 100,
+                            height: 250,
+                            width: double.infinity,
                             child: CachedNetworkImage(
-                              imageUrl: profilePhoto,
+                              imageUrl: coverPhoto!,
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
                           ),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(
-                  height: 60,
-                ),
-                SizedBox(
-                  width: 300,
-                  child: Text(
-                    serviceName,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.w700, fontSize: 20),
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                // Display average rating and total ratings
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      "${averageRating.toStringAsFixed(1)}/5",
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    Icon(
-                      Icons.star,
-                      color: Colors.yellow.shade700,
-                      size: 20,
-                    ),
-                    Text(" ($totalRatings)"),
-                    const SizedBox(
-                      width: 5,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (BuildContext context) => ViewReviewPage(
-                              uid: uid,
-                              name: name,
+                        ), // PROFILE PHOTO
+                        Positioned(
+                          bottom: -50,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(50),
+                              border: Border.all(
+                                color: Colors.white, // Border color
+                                width: 4, // Border width
+                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(50),
+                              child: SizedBox(
+                                width: 100,
+                                height: 100,
+                                child: CachedNetworkImage(
+                                  imageUrl: profilePhoto,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.remove_red_eye_outlined),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    )
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 60,
+                    ),
+                    SizedBox(
+                      width: 300,
+                      child: Text(
+                        serviceName,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w700, fontSize: 20),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    // Display average rating and total ratings
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "${averageRating.toStringAsFixed(1)}/5",
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        Icon(
+                          Icons.star,
+                          color: Colors.yellow.shade700,
+                          size: 20,
+                        ),
+                        Text(" ($totalRatings)"),
+                        const SizedBox(
+                          width: 5,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    ViewReviewPage(
+                                  uid: uid,
+                                  name: name,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.remove_red_eye_outlined),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(serviceAddress!, style: TextStyle(fontSize: 15)),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text('Business Hours: $businessHours',
+                        style: TextStyle(fontSize: 15)),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text("Category: $category", style: TextStyle(fontSize: 15)),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    const Divider(
+                      height: 0,
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text(description!, style: TextStyle(fontSize: 15)),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    const Divider(
+                      height: 0,
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
                   ],
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text(serviceAddress!, style: TextStyle(fontSize: 15)),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text('Business Hours: $businessHours',
-                    style: TextStyle(fontSize: 15)),
-                const SizedBox(
-                  height: 10,
-                ),
-                Text("Category: $category", style: TextStyle(fontSize: 15)),
-                const SizedBox(
-                  height: 5,
-                ),
-                const Divider(
-                  height: 0,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text(description!, style: TextStyle(fontSize: 15)),
-                const SizedBox(
-                  height: 5,
-                ),
-                const Divider(
-                  height: 0,
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-              ],
+              ),
             ),
-          ),
+            if (isLoading)
+              Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF00A2FF),
+                ),
+              )
+          ],
         ),
       ),
       bottomNavigationBar: fromShopCard == true ? null : const BottomNav(),
