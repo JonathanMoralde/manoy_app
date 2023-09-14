@@ -42,15 +42,18 @@ class FindShops extends ConsumerWidget {
             final activeCategory = ref.watch(activeCategoryProvider);
             return shopItems.when(
                 data: (itemDocs) {
+                  // ! ADDED STATUS IN THE LOGIC
                   // FILTER BASED ON ACTIVE CATEGORY
                   final filteredItems = itemDocs.where((itemDoc) {
                     final shopCategory = itemDoc['Category'] as List<dynamic>;
+                    final shopStatus = itemDoc['Status'] as String;
                     List<String> stringList =
                         shopCategory.map((item) => item.toString()).toList();
 
                     print(shopCategory);
-                    return activeCategory == "All" ||
-                        stringList.contains(activeCategory);
+                    return (activeCategory == "All" ||
+                            stringList.contains(activeCategory)) &&
+                        shopStatus == 'Approved';
                   }).toList();
 
                   return Column(

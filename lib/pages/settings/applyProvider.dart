@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
 import 'package:manoy_app/provider/selectedCategory/selectedCategory_provider.dart';
@@ -24,11 +25,6 @@ class ApplyProvider extends ConsumerWidget {
   final String uid;
   ApplyProvider({super.key, required this.uid});
 
-//   @override
-//   State<ApplyProvider> createState() => _ApplyProviderState();
-// }
-
-// class _ApplyProviderState extends State<ApplyProvider> {
   final providerNameController = TextEditingController();
 
   final providerAddressController = TextEditingController();
@@ -115,13 +111,14 @@ class ApplyProvider extends ConsumerWidget {
         final TaskSnapshot snapshot2 = await uploadTask2;
         final imageUrl2 = await snapshot2.ref.getDownloadURL();
 
-        ref.read(serviceNameProvider.notifier).state = serviceName;
-        ref.read(serviceAddressProvider.notifier).state = serviceAddress;
-        ref.read(descriptionProvider.notifier).state = description;
-        ref.read(businessHoursProvider.notifier).state = businessHours;
-        ref.read(categoryProvider.notifier).state = categoryName;
-        ref.read(profilePhotoProvider.notifier).state = imageUrl1;
-        ref.read(coverPhotoProvider.notifier).state = imageUrl2;
+        // ! eto yung code na nag seset ng state
+        // ref.read(serviceNameProvider.notifier).state = serviceName;
+        // ref.read(serviceAddressProvider.notifier).state = serviceAddress;
+        // ref.read(descriptionProvider.notifier).state = description;
+        // ref.read(businessHoursProvider.notifier).state = businessHours;
+        // ref.read(categoryProvider.notifier).state = categoryName;
+        // ref.read(profilePhotoProvider.notifier).state = imageUrl1;
+        // ref.read(coverPhotoProvider.notifier).state = imageUrl2;
 
         await FirebaseFirestore.instance
             .collection('service_provider')
@@ -134,6 +131,7 @@ class ApplyProvider extends ConsumerWidget {
           'Category': categoryName,
           'Profile Photo': imageUrl1,
           'Cover Photo': imageUrl2,
+          'Status': "Pending", //! ADDED PENDING STATUS
         }).then((value) {
           SnackBar(
             content: Text("Created Successfully!"),
@@ -145,12 +143,13 @@ class ApplyProvider extends ConsumerWidget {
 
         ref.read(currentIndexProvider.notifier).state = 0;
 
-        // Navigator.of(context).pushAndRemoveUntil(
-        //   MaterialPageRoute(
-        //     builder: (BuildContext context) => MainPage(),
-        //   ),
-        //   (Route<dynamic> route) => false,
-        // );
+        // ! NAVIGATE BACK TO HOME PAGE
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (BuildContext context) => HomePage(),
+          ),
+          (Route<dynamic> route) => false,
+        );
         print(ref.watch(serviceNameProvider));
       } catch (e) {
         print(e);
@@ -326,47 +325,47 @@ class ApplyProvider extends ConsumerWidget {
       );
     }
 
-    if (ref.watch(serviceNameProvider) != null) {
-      return WillPopScope(
-        onWillPop: () async {
-          Navigator.of(context).pop();
-          ref.read(selectedImagePath1Provider.notifier).state = null;
-          ref.read(selectedImagePath2Provider.notifier).state = null;
-          ref.read(selectedTime1Provider.notifier).state = null;
-          ref.read(selectedTime2Provider.notifier).state = null;
-          ref.read(selectedCategoryProvider.notifier).state = [];
-          return true;
-        },
-        child: Scaffold(
-            appBar: AppBar(
-              leading: IconButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    ref.read(selectedCategoryProvider.notifier).state = [];
-                    ref.read(selectedImagePath1Provider.notifier).state = null;
-                    ref.read(selectedImagePath2Provider.notifier).state = null;
-                    ref.read(selectedTime1Provider.notifier).state = null;
-                    ref.read(selectedTime2Provider.notifier).state = null;
-                  },
-                  icon: Icon(Icons.arrow_back)),
-            ),
-            body: Center(
-              child: Column(
-                children: [
-                  Text("Service Provider Account Created Successfully!"),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  StyledButton(
-                      btnText: "EXIT",
-                      onClick: () {
-                        Navigator.pop(context);
-                      }),
-                ],
-              ),
-            )),
-      );
-    }
+    // if (ref.watch(serviceNameProvider) != null) {
+    //   return WillPopScope(
+    //     onWillPop: () async {
+    //       Navigator.of(context).pop();
+    //       ref.read(selectedImagePath1Provider.notifier).state = null;
+    //       ref.read(selectedImagePath2Provider.notifier).state = null;
+    //       ref.read(selectedTime1Provider.notifier).state = null;
+    //       ref.read(selectedTime2Provider.notifier).state = null;
+    //       ref.read(selectedCategoryProvider.notifier).state = [];
+    //       return true;
+    //     },
+    //     child: Scaffold(
+    //         appBar: AppBar(
+    //           leading: IconButton(
+    //               onPressed: () {
+    //                 Navigator.of(context).pop();
+    //                 ref.read(selectedCategoryProvider.notifier).state = [];
+    //                 ref.read(selectedImagePath1Provider.notifier).state = null;
+    //                 ref.read(selectedImagePath2Provider.notifier).state = null;
+    //                 ref.read(selectedTime1Provider.notifier).state = null;
+    //                 ref.read(selectedTime2Provider.notifier).state = null;
+    //               },
+    //               icon: Icon(Icons.arrow_back)),
+    //         ),
+    //         body: Center(
+    //           child: Column(
+    //             children: [
+    //               Text("Service Provider Account Created Successfully!"),
+    //               const SizedBox(
+    //                 height: 20,
+    //               ),
+    //               StyledButton(
+    //                   btnText: "EXIT",
+    //                   onClick: () {
+    //                     Navigator.pop(context);
+    //                   }),
+    //             ],
+    //           ),
+    //         )),
+    //   );
+    // }
 
     return WillPopScope(
       onWillPop: () async {
