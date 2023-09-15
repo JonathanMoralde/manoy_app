@@ -159,32 +159,37 @@ class LoginScreen extends ConsumerWidget {
               .get();
 
           if (serviceSnapshot.exists) {
-            String serviceName = serviceSnapshot['Service Name'];
-            String serviceAddress = serviceSnapshot['Service Address'];
-            String description = serviceSnapshot['Description'];
-            String businessHours = serviceSnapshot['Business Hours'];
-            List<dynamic> category = serviceSnapshot['Category'];
-            List<String> stringList =
-                category.map((item) => item.toString()).toList();
-            String profilePhoto = serviceSnapshot['Profile Photo'];
-            String coverPhoto = serviceSnapshot['Cover Photo'];
+            // ! CHECK FIRST IF SERVICE PROVIDER IS APPROVED
+            String serviceStatus = serviceSnapshot['Status'];
 
-            prefs.setString('serviceName', serviceName);
-            prefs.setString('serviceAddress', serviceAddress);
-            prefs.setString('description', description);
-            prefs.setString('businessHours', businessHours);
-            prefs.setStringList('category', stringList);
-            prefs.setString('profilePhoto', profilePhoto);
-            prefs.setString('coverPhoto', coverPhoto);
+            if (serviceStatus == 'Approved') {
+              String serviceName = serviceSnapshot['Service Name'];
+              String serviceAddress = serviceSnapshot['Service Address'];
+              String description = serviceSnapshot['Description'];
+              String businessHours = serviceSnapshot['Business Hours'];
+              List<dynamic> category = serviceSnapshot['Category'];
+              List<String> stringList =
+                  category.map((item) => item.toString()).toList();
+              String profilePhoto = serviceSnapshot['Profile Photo'];
+              String coverPhoto = serviceSnapshot['Cover Photo'];
 
-            storeServiceProviderInProvider(
-                serviceName,
-                serviceAddress,
-                description,
-                businessHours,
-                stringList,
-                profilePhoto,
-                coverPhoto);
+              prefs.setString('serviceName', serviceName);
+              prefs.setString('serviceAddress', serviceAddress);
+              prefs.setString('description', description);
+              prefs.setString('businessHours', businessHours);
+              prefs.setStringList('category', stringList);
+              prefs.setString('profilePhoto', profilePhoto);
+              prefs.setString('coverPhoto', coverPhoto);
+
+              storeServiceProviderInProvider(
+                  serviceName,
+                  serviceAddress,
+                  description,
+                  businessHours,
+                  stringList,
+                  profilePhoto,
+                  coverPhoto);
+            }
           }
 
           try {
