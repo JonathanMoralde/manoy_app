@@ -150,7 +150,7 @@ class LoginScreen extends ConsumerWidget {
             birthday,
             uid,
             ref,
-            email!,
+            email,
           );
 
           DocumentSnapshot serviceSnapshot = await FirebaseFirestore.instance

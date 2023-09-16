@@ -60,6 +60,7 @@ class BookmarkPage extends ConsumerWidget {
                           businessHours: shopData['Business Hours'],
                           description: shopData['Description'],
                           coverPhoto: shopData['Cover Photo'],
+                          showStatus: false,
                           // isBookmarked: true,
                         ),
                         const SizedBox(

@@ -64,7 +64,7 @@ class _PostsPageState extends State<PostsPage> {
           child: postCards.isNotEmpty
               ? postCards[currentIndex]
               : Center(
-                  child: CircularProgressIndicator(),
+                  child: Text('No posts yet'),
                 ),
           key: ValueKey<int>(currentIndex),
         ),

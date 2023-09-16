@@ -8,6 +8,7 @@ import 'package:manoy_app/pages/profile/shopView_message.dart';
 import 'package:manoy_app/pages/profile/viewReview.dart';
 import 'package:manoy_app/provider/bookmark/bookmarkData_provider.dart';
 import 'package:manoy_app/provider/bookmark/isBookmark_provider.dart';
+import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
 import 'package:manoy_app/provider/ratedShops/ratedShops_provider.dart';
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:manoy_app/widgets/styledTextfield.dart';
@@ -27,6 +28,7 @@ class ShopView extends ConsumerWidget {
   final String profilePhoto;
   final String coverPhoto;
   final String? userId;
+  final bool showButtons;
 
   // bool? isBookmarked;
   const ShopView({
@@ -40,6 +42,7 @@ class ShopView extends ConsumerWidget {
     required this.description,
     required this.profilePhoto,
     required this.coverPhoto,
+    required this.showButtons,
 
     // this.isBookmarked
   });
@@ -288,6 +291,238 @@ class ShopView extends ConsumerWidget {
       final averageRating = ratingsInfo[uid]!['averageRating'] as double;
       final totalRatings = ratingsInfo[uid]!['totalRatings'] as int;
       // Use averageRating and totalRatings in your UI
+    }
+
+    Future<void> approveServiceProvider(uid) async {
+      final CollectionReference serviceProvidersCollection =
+          FirebaseFirestore.instance.collection('service_provider');
+
+      try {
+        await serviceProvidersCollection.doc(uid).update({
+          'Status': 'Approved',
+        });
+
+        print('Service provider status updated to "Approved"');
+      } catch (e) {
+        print('Error updating service provider status: $e');
+      }
+    }
+
+    Future<void> rejectServiceProvider(uid) async {
+      final CollectionReference serviceProvidersCollection =
+          FirebaseFirestore.instance.collection('service_provider');
+
+      try {
+        await serviceProvidersCollection.doc(uid).update({
+          'Status': 'Rejected',
+        });
+
+        print('Service provider status updated to "Rejected"');
+      } catch (e) {
+        print('Error updating service provider status: $e');
+      }
+    }
+
+    Future approveModal() {
+      bool isChecked = false;
+      return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: StatefulBuilder(builder: (context, setState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Are you sure you want to approve this service provider?",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      "Welcome to Manoy Admin Panel,\n\n"
+                      "Our platform is dedicated to connecting reliable automobile service providers with potential customers. As an administrator, your role is crucial in ensuring the quality and integrity of our services. Please review and approve service provider registrations in adherence to our guidelines.\n\n"
+                      "Here are some key responsibilities:\n\n"
+                      "1. Registration Accuracy:\n"
+                      "   - Verify the accuracy of service provider registrations.\n"
+                      "   - Ensure that all required information is provided.\n\n"
+                      "2. Service Listings:\n"
+                      "   - Confirm that service listings accurately represent the services offered.\n"
+                      "   - Verify that service providers' listings meet our quality standards.\n\n"
+                      "3. User Interaction:\n"
+                      "   - Service providers should be easily reachable by users.\n"
+                      "   - Encourage respectful conduct in all interactions between service providers and users.\n\n"
+                      "4. Verification:\n"
+                      "   - All service providers must undergo a verification process.\n"
+                      "   - Ensure that service providers meet our verification criteria.\n\n"
+                      "5. Privacy:\n"
+                      "   - Respect and protect user data in accordance with our Privacy Policy.\n\n"
+                      "6. Intellectual Property:\n"
+                      "   - Remind service providers that all content on our platform is our intellectual property.\n"
+                      "   - Unauthorized use is strictly prohibited.\n\n"
+                      "7. Account Termination:\n"
+                      "   - Be prepared to take action, including account termination, for violations of our guidelines.\n\n"
+                      "Your role is essential in maintaining the quality and legitimacy of our platform. Please stay informed about updates to our terms and guidelines. Your commitment to these principles ensures a positive experience for all users.\n\n"
+                      "Thank you for your dedication to Manoy Admin.",
+                    ),
+                    const SizedBox(height: 20),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isChecked,
+                              onChanged: (value) {
+                                setState(() {
+                                  isChecked = value!;
+                                });
+                              },
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "I have read and understood",
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  " the Terms & Conditions",
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            StyledButton(
+                              btnText: "CONFIRM",
+                              onClick: isChecked
+                                  ? () async {
+                                      ref
+                                          .read(isLoadingProvider.notifier)
+                                          .state = true;
+                                      try {
+                                        Navigator.pop(context);
+                                        await approveServiceProvider(uid!);
+                                      } finally {
+                                        ref
+                                            .read(isLoadingProvider.notifier)
+                                            .state = false;
+                                      }
+                                    }
+                                  : null,
+                            ),
+                            StyledButton(
+                                btnText: "CANCEL",
+                                onClick: () {
+                                  Navigator.pop(context);
+                                }),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      );
+    }
+
+    Future rejectModal() {
+      bool isChecked = false;
+      return showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) => AlertDialog(
+          contentPadding: EdgeInsets.zero,
+          content: StatefulBuilder(builder: (context, setState) {
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "Are you sure you want to reject this service provider?",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                        "Please note that the rejection or termination of a service provider's account does not affect user accounts. We take non-compliance seriously to maintain the trust and quality of our platform. Users can continue to enjoy our services without disruption due to actions taken against non-compliant service providers. We encourage all service providers to carefully review and adhere to our guidelines and policies to ensure a positive experience for all users."),
+                    const SizedBox(height: 20),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: isChecked,
+                              onChanged: (value) {
+                                setState(() {
+                                  isChecked = value!;
+                                });
+                              },
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "I have read and understood",
+                                  style: TextStyle(fontSize: 14),
+                                ),
+                                Text(
+                                  " the Terms & Conditions",
+                                  style: TextStyle(fontSize: 14),
+                                )
+                              ],
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            StyledButton(
+                              btnText: "CONFIRM",
+                              onClick: isChecked
+                                  ? () async {
+                                      ref
+                                          .read(isLoadingProvider.notifier)
+                                          .state = true;
+                                      try {
+                                        Navigator.pop(context);
+                                        await rejectServiceProvider(uid!);
+                                      } finally {
+                                        ref
+                                            .read(isLoadingProvider.notifier)
+                                            .state = false;
+                                      }
+                                    }
+                                  : null,
+                            ),
+                            StyledButton(
+                                btnText: "CANCEL",
+                                onClick: () {
+                                  Navigator.pop(context);
+                                }),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      );
     }
 
     return FutureBuilder<bool>(
@@ -558,42 +793,123 @@ class ShopView extends ConsumerWidget {
                           const SizedBox(
                             height: 10,
                           ),
-                          StyledButton(
-                              btnText: "MAKE APPOINTMENT",
-                              onClick: () {
-                                Navigator.of(context).push(MaterialPageRoute(
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment
+                                .center, // Center buttons horizontally
+                            children: [
+                              StyledButton(
+                                btnText: "MAKE APPOINTMENT",
+                                onClick: () {
+                                  Navigator.of(context).push(MaterialPageRoute(
                                     builder: (context) => AppointmentPage(
-                                          name: name,
-                                          shopId: uid!,
-                                        )));
-                              }),
-                          const SizedBox(
-                            height: 10,
+                                      name: name,
+                                      shopId: uid!,
+                                    ),
+                                  ));
+                                },
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              StyledButton(
+                                btnText: 'LOCATION',
+                                onClick: () async {
+                                  final shopLocationDoc =
+                                      await FirebaseFirestore.instance
+                                          .collection('service_locations')
+                                          .doc(uid)
+                                          .get();
+
+                                  if (shopLocationDoc.exists) {
+                                    final shopLocationData = shopLocationDoc
+                                        .data() as Map<String, dynamic>;
+
+                                    final double lat =
+                                        shopLocationData['latitude'];
+                                    final double long =
+                                        shopLocationData['longitude'];
+                                    print('$lat, $long');
+                                    await openMap(
+                                        lat.toString(), long.toString());
+                                  } else {
+                                    print('Location data not found');
+                                  }
+                                },
+                              ),
+                            ],
                           ),
-                          StyledButton(
-                              btnText: 'LOCATION',
-                              onClick: () async {
-                                final shopLocationDoc = await FirebaseFirestore
-                                    .instance
-                                    .collection('service_locations')
-                                    .doc(uid)
-                                    .get();
-
-                                if (shopLocationDoc.exists) {
-                                  final shopLocationData = shopLocationDoc
-                                      .data() as Map<String, dynamic>;
-
-                                  final double lat =
-                                      shopLocationData['latitude'];
-                                  final double long =
-                                      shopLocationData['longitude'];
-                                  print('$lat, $long');
-                                  await openMap(
-                                      lat.toString(), long.toString());
-                                } else {
-                                  print('Location data not found');
-                                }
-                              }),
+                          const SizedBox(
+                            height: 50,
+                          ),
+                          // if (showButtons)
+                          // Row(
+                          //   mainAxisAlignment: MainAxisAlignment.center,
+                          //   children: [
+                          //     ElevatedButton(
+                          //       onPressed: () {
+                          //         approveModal();
+                          //       },
+                          //       child: Text(
+                          //         'Approve',
+                          //         style: TextStyle(
+                          //           fontSize: 16,
+                          //           color: Colors.white, // Text color
+                          //         ),
+                          //       ),
+                          //       style: ButtonStyle(
+                          //         backgroundColor:
+                          //             MaterialStateProperty.all<Color>(
+                          //                 Colors.green), // Background color
+                          //         shape: MaterialStateProperty.all<
+                          //             RoundedRectangleBorder>(
+                          //           RoundedRectangleBorder(
+                          //             borderRadius: BorderRadius.circular(
+                          //                 20.0), // Button shape
+                          //           ),
+                          //         ),
+                          //         elevation:
+                          //             MaterialStateProperty.all<double>(
+                          //                 3.0), // Elevation
+                          //         overlayColor:
+                          //             MaterialStateProperty.all<Color>(Colors
+                          //                 .lightGreen), // Hover effect color
+                          //       ),
+                          //     ),
+                          //     const SizedBox(
+                          //       width: 20,
+                          //     ),
+                          //     ElevatedButton(
+                          //       onPressed: () {
+                          //         rejectModal();
+                          //       },
+                          //       child: Text(
+                          //         'Reject',
+                          //         style: TextStyle(
+                          //           fontSize: 16,
+                          //           color: Colors.white, // Text color
+                          //         ),
+                          //       ),
+                          //       style: ButtonStyle(
+                          //         backgroundColor:
+                          //             MaterialStateProperty.all<Color>(
+                          //                 Colors.red), // Background color
+                          //         shape: MaterialStateProperty.all<
+                          //             RoundedRectangleBorder>(
+                          //           RoundedRectangleBorder(
+                          //             borderRadius: BorderRadius.circular(
+                          //                 20.0), // Button shape
+                          //           ),
+                          //         ),
+                          //         elevation:
+                          //             MaterialStateProperty.all<double>(
+                          //                 3.0), // Elevation
+                          //         overlayColor:
+                          //             MaterialStateProperty.all<Color>(Colors
+                          //                 .redAccent), // Hover effect color
+                          //       ),
+                          //     ),
+                          //   ],
+                          // )
                         ],
                       ),
                     ),

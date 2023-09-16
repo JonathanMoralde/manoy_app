@@ -213,6 +213,7 @@ class _CreatePostPageState extends State<CreatePostPage> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text('POSTED SUCCESSFULLY')));
+                              Navigator.pop(context);
                             }
                           })
                     ],
