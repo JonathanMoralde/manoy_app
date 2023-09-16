@@ -405,123 +405,12 @@ class ShopCard extends ConsumerWidget {
     final averageRating = ratingsInfo['averageRating'] as double;
     final totalRatings = ratingsInfo['totalRatings'] as int;
     // if (longPressed)
+
     return Stack(
       children: [
         GestureDetector(
-          // onLongPress: longPressed
-          //     ? () {
-          //         // Show a dialog or perform actions on long-press
-          //         showDialog(
-          //           context: context,
-          //           builder: (context) {
-          //             return AlertDialog(
-          //               title: Text("Actions"),
-          //               content: Row(
-          //                 mainAxisAlignment: MainAxisAlignment.center,
-          //                 children: [
-          //                   ElevatedButton(
-          //                     onPressed: () async {
-          //                       bool result = await approveModal();
-          //                       if (result) {
-          //                         print("Closing dialog");
-          //                         Navigator.of(context).pop();
-          //                       }
-          //                     },
-          //                     child: Text(
-          //                       'Approve',
-          //                       style: TextStyle(
-          //                         fontSize: 16,
-          //                         color: Colors.white,
-          //                       ),
-          //                     ),
-          //                     style: ButtonStyle(
-          //                       backgroundColor:
-          //                           MaterialStateProperty.all<Color>(
-          //                               Colors.blue),
-          //                       shape: MaterialStateProperty.all<
-          //                           RoundedRectangleBorder>(
-          //                         RoundedRectangleBorder(
-          //                           borderRadius: BorderRadius.circular(20.0),
-          //                         ),
-          //                       ),
-          //                       elevation:
-          //                           MaterialStateProperty.all<double>(3.0),
-          //                       overlayColor: MaterialStateProperty.all<Color>(
-          //                           Colors.lightGreen),
-          //                     ),
-          //                   ),
-          //                   SizedBox(
-          //                     width: 20,
-          //                   ),
-          //                   ElevatedButton(
-          //                     onPressed: () async {
-          //                       bool result = await rejectModal();
-          //                       if (result) {
-          //                         print("Closing dialog");
-          //                         Navigator.of(context).pop();
-          //                       }
-          //                     },
-          //                     child: Text(
-          //                       'Reject',
-          //                       style: TextStyle(
-          //                         fontSize: 16,
-          //                         color: Colors.white,
-          //                       ),
-          //                     ),
-          //                     style: ButtonStyle(
-          //                       backgroundColor:
-          //                           MaterialStateProperty.all<Color>(
-          //                               Colors.blue),
-          //                       shape: MaterialStateProperty.all<
-          //                           RoundedRectangleBorder>(
-          //                         RoundedRectangleBorder(
-          //                           borderRadius: BorderRadius.circular(20.0),
-          //                         ),
-          //                       ),
-          //                       elevation:
-          //                           MaterialStateProperty.all<double>(3.0),
-          //                       overlayColor: MaterialStateProperty.all<Color>(
-          //                           Colors.redAccent),
-          //                     ),
-          //                   ),
-          //                   SizedBox(
-          //                     width: 20,
-          //                   ),
-          //                   ElevatedButton(
-          //                     onPressed: () {
-          //                       Navigator.of(context).pop();
-          //                     },
-          //                     child: Text(
-          //                       'Cancel',
-          //                       style: TextStyle(
-          //                         fontSize: 16,
-          //                         color: Colors.white,
-          //                       ),
-          //                     ),
-          //                     style: ButtonStyle(
-          //                       backgroundColor:
-          //                           MaterialStateProperty.all<Color>(
-          //                               Colors.blue),
-          //                       shape: MaterialStateProperty.all<
-          //                           RoundedRectangleBorder>(
-          //                         RoundedRectangleBorder(
-          //                           borderRadius: BorderRadius.circular(20.0),
-          //                         ),
-          //                       ),
-          //                       elevation:
-          //                           MaterialStateProperty.all<double>(3.0),
-          //                       overlayColor: MaterialStateProperty.all<Color>(
-          //                           Colors.redAccent),
-          //                     ),
-          //                   ),
-          //                 ],
-          //               ),
-          //             );
-          //           },
-          //         );
-          //       }
-          //     : null,
           onTap: () {
+            // Handle the regular tap action here
             handleTap();
           },
           child: Padding(
@@ -561,9 +450,8 @@ class ShopCard extends ConsumerWidget {
                           Flexible(
                             child: Text(
                               name,
-                              maxLines: 2, // Set a maximum number of lines
-                              overflow: TextOverflow
-                                  .ellipsis, // Handle long names with ellipsis
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
                                   fontWeight: FontWeight.w700,
                                   letterSpacing: 1,
@@ -670,6 +558,121 @@ class ShopCard extends ConsumerWidget {
               ),
             ),
           ),
+        ),
+        GestureDetector(
+          onLongPress: longPressed
+              ? () {
+                  // Show a dialog or perform actions on long-press
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: Text("Actions"),
+                        content: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () async {
+                                bool result = await approveModal();
+                                if (result) {
+                                  print("Closing dialog");
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              child: Text(
+                                'Approve',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.blue),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                ),
+                                elevation:
+                                    MaterialStateProperty.all<double>(3.0),
+                                overlayColor: MaterialStateProperty.all<Color>(
+                                    Colors.lightGreen),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                bool result = await rejectModal();
+                                if (result) {
+                                  print("Closing dialog");
+                                  Navigator.of(context).pop();
+                                }
+                              },
+                              child: Text(
+                                'Reject',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.blue),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                ),
+                                elevation:
+                                    MaterialStateProperty.all<double>(3.0),
+                                overlayColor: MaterialStateProperty.all<Color>(
+                                    Colors.redAccent),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.blue),
+                                shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
+                                  ),
+                                ),
+                                elevation:
+                                    MaterialStateProperty.all<double>(3.0),
+                                overlayColor: MaterialStateProperty.all<Color>(
+                                    Colors.redAccent),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                }
+              : null,
         ),
         if (isLoading) // Display a loading indicator over the widget
           Center(
