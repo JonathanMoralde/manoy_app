@@ -101,6 +101,7 @@ class ShopCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(isLoadingProvider);
     Future<void> approveServiceProvider(uid) async {
       final CollectionReference serviceProvidersCollection =
           FirebaseFirestore.instance.collection('service_provider');
@@ -404,271 +405,277 @@ class ShopCard extends ConsumerWidget {
     final averageRating = ratingsInfo['averageRating'] as double;
     final totalRatings = ratingsInfo['totalRatings'] as int;
     // if (longPressed)
-
-    return GestureDetector(
-      onLongPress: longPressed
-          ? () {
-              // Show a dialog or perform actions on long-press
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    title: Text("Actions"),
-                    content: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () async {
-                            bool result = await approveModal();
-                            if (result) {
-                              print("Closing dialog");
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: Text(
-                            'Approve',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.blue),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                            ),
-                            elevation: MaterialStateProperty.all<double>(3.0),
-                            overlayColor: MaterialStateProperty.all<Color>(
-                                Colors.lightGreen),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        ElevatedButton(
-                          onPressed: () async {
-                            bool result = await rejectModal();
-                            if (result) {
-                              print("Closing dialog");
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: Text(
-                            'Reject',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.blue),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                            ),
-                            elevation: MaterialStateProperty.all<double>(3.0),
-                            overlayColor: MaterialStateProperty.all<Color>(
-                                Colors.redAccent),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: Text(
-                            'Cancel',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.blue),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
-                              ),
-                            ),
-                            elevation: MaterialStateProperty.all<double>(3.0),
-                            overlayColor: MaterialStateProperty.all<Color>(
-                                Colors.redAccent),
-                          ),
-                        ),
-                      ],
+    return Stack(
+      children: [
+        GestureDetector(
+          // onLongPress: longPressed
+          //     ? () {
+          //         // Show a dialog or perform actions on long-press
+          //         showDialog(
+          //           context: context,
+          //           builder: (context) {
+          //             return AlertDialog(
+          //               title: Text("Actions"),
+          //               content: Row(
+          //                 mainAxisAlignment: MainAxisAlignment.center,
+          //                 children: [
+          //                   ElevatedButton(
+          //                     onPressed: () async {
+          //                       bool result = await approveModal();
+          //                       if (result) {
+          //                         print("Closing dialog");
+          //                         Navigator.of(context).pop();
+          //                       }
+          //                     },
+          //                     child: Text(
+          //                       'Approve',
+          //                       style: TextStyle(
+          //                         fontSize: 16,
+          //                         color: Colors.white,
+          //                       ),
+          //                     ),
+          //                     style: ButtonStyle(
+          //                       backgroundColor:
+          //                           MaterialStateProperty.all<Color>(
+          //                               Colors.blue),
+          //                       shape: MaterialStateProperty.all<
+          //                           RoundedRectangleBorder>(
+          //                         RoundedRectangleBorder(
+          //                           borderRadius: BorderRadius.circular(20.0),
+          //                         ),
+          //                       ),
+          //                       elevation:
+          //                           MaterialStateProperty.all<double>(3.0),
+          //                       overlayColor: MaterialStateProperty.all<Color>(
+          //                           Colors.lightGreen),
+          //                     ),
+          //                   ),
+          //                   SizedBox(
+          //                     width: 20,
+          //                   ),
+          //                   ElevatedButton(
+          //                     onPressed: () async {
+          //                       bool result = await rejectModal();
+          //                       if (result) {
+          //                         print("Closing dialog");
+          //                         Navigator.of(context).pop();
+          //                       }
+          //                     },
+          //                     child: Text(
+          //                       'Reject',
+          //                       style: TextStyle(
+          //                         fontSize: 16,
+          //                         color: Colors.white,
+          //                       ),
+          //                     ),
+          //                     style: ButtonStyle(
+          //                       backgroundColor:
+          //                           MaterialStateProperty.all<Color>(
+          //                               Colors.blue),
+          //                       shape: MaterialStateProperty.all<
+          //                           RoundedRectangleBorder>(
+          //                         RoundedRectangleBorder(
+          //                           borderRadius: BorderRadius.circular(20.0),
+          //                         ),
+          //                       ),
+          //                       elevation:
+          //                           MaterialStateProperty.all<double>(3.0),
+          //                       overlayColor: MaterialStateProperty.all<Color>(
+          //                           Colors.redAccent),
+          //                     ),
+          //                   ),
+          //                   SizedBox(
+          //                     width: 20,
+          //                   ),
+          //                   ElevatedButton(
+          //                     onPressed: () {
+          //                       Navigator.of(context).pop();
+          //                     },
+          //                     child: Text(
+          //                       'Cancel',
+          //                       style: TextStyle(
+          //                         fontSize: 16,
+          //                         color: Colors.white,
+          //                       ),
+          //                     ),
+          //                     style: ButtonStyle(
+          //                       backgroundColor:
+          //                           MaterialStateProperty.all<Color>(
+          //                               Colors.blue),
+          //                       shape: MaterialStateProperty.all<
+          //                           RoundedRectangleBorder>(
+          //                         RoundedRectangleBorder(
+          //                           borderRadius: BorderRadius.circular(20.0),
+          //                         ),
+          //                       ),
+          //                       elevation:
+          //                           MaterialStateProperty.all<double>(3.0),
+          //                       overlayColor: MaterialStateProperty.all<Color>(
+          //                           Colors.redAccent),
+          //                     ),
+          //                   ),
+          //                 ],
+          //               ),
+          //             );
+          //           },
+          //         );
+          //       }
+          //     : null,
+          onTap: () {
+            handleTap();
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Container(
+              width: double.infinity,
+              height: height ?? 110,
+              decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(8)),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        bottomLeft: Radius.circular(8),
+                      ),
+                      child: CachedNetworkImage(
+                        imageUrl: image,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  );
-                },
-              );
-            }
-          : null,
-      onTap: () {
-        handleTap();
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Container(
-          width: double.infinity,
-          height: height ?? 110,
-          decoration: BoxDecoration(
-              color: Colors.grey.shade200,
-              borderRadius: BorderRadius.circular(8)),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(8),
-                    bottomLeft: Radius.circular(8),
                   ),
-                  child: CachedNetworkImage(
-                    imageUrl: image,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+                  const SizedBox(
+                    width: 5,
                   ),
-                ),
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Expanded(
-                flex: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          name,
-                          maxLines: 2, // Set a maximum number of lines
-                          overflow: TextOverflow
-                              .ellipsis, // Handle long names with ellipsis
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1,
-                              fontSize: 15),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 3,
-                      ),
-                      Row(
+                  Expanded(
+                    flex: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "${averageRating.toStringAsFixed(1)}/5",
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                          Icon(
-                            Icons.star,
-                            color: Colors.yellow.shade700,
-                            size: 16,
+                          Flexible(
+                            child: Text(
+                              name,
+                              maxLines: 2, // Set a maximum number of lines
+                              overflow: TextOverflow
+                                  .ellipsis, // Handle long names with ellipsis
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1,
+                                  fontSize: 15),
+                            ),
                           ),
                           const SizedBox(
-                            width: 5,
+                            height: 3,
                           ),
-                          Text("($totalRatings)")
+                          Row(
+                            children: [
+                              Text(
+                                "${averageRating.toStringAsFixed(1)}/5",
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                              Icon(
+                                Icons.star,
+                                color: Colors.yellow.shade700,
+                                size: 16,
+                              ),
+                              const SizedBox(
+                                width: 5,
+                              ),
+                              Text("($totalRatings)")
+                            ],
+                          ),
+                          const SizedBox(
+                            height: 3,
+                          ),
+                          Text(
+                            address,
+                            style: const TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                for (final cat in category) Text('$cat, ')
+                              ],
+                            ),
+                          ),
+                          if (showStatus)
+                            FutureBuilder<String>(
+                              future: fetchStatusForShop(uid!),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return Text('Error: ${snapshot.error}');
+                                }
+
+                                final status = snapshot.data;
+
+                                if (status == null) {
+                                  return Text('No status available.');
+                                }
+
+                                Color statusColor;
+                                switch (status) {
+                                  case 'Pending':
+                                    statusColor = Colors.orange;
+                                    break;
+                                  case 'Approved':
+                                    statusColor = Colors.green;
+                                    break;
+                                  case 'Rejected':
+                                    statusColor = Colors.red;
+                                    break;
+                                  default:
+                                    statusColor = Colors.black;
+                                }
+
+                                return Row(
+                                  children: [
+                                    Text(
+                                      'Status:',
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      '$status',
+                                      style: TextStyle(
+                                        fontSize: 15,
+                                        color: statusColor,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            )
                         ],
                       ),
-                      const SizedBox(
-                        height: 3,
-                      ),
-                      Text(
-                        address,
-                        style: const TextStyle(
-                          fontSize: 15,
-                        ),
-                      ),
-                      // Text(
-                      //   "$category",
-                      //   style: TextStyle(
-                      //     fontSize: 14,
-                      //     fontStyle: FontStyle.italic,
-                      //   ),
-                      // ),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            for (final cat in category) Text('$cat, ')
-                          ],
-                        ),
-                      ),
-                      if (showStatus)
-                        FutureBuilder<String>(
-                          future: fetchStatusForShop(uid!),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              return CircularProgressIndicator();
-                            } else if (snapshot.hasError) {
-                              return Text('Error: ${snapshot.error}');
-                            }
-
-                            final status = snapshot.data;
-
-                            if (status == null) {
-                              return Text('No status available.');
-                            }
-
-                            Color statusColor;
-                            switch (status) {
-                              case 'Pending':
-                                statusColor = Colors.orange;
-                                break;
-                              case 'Approved':
-                                statusColor = Colors.green;
-                                break;
-                              case 'Rejected':
-                                statusColor = Colors.red;
-                                break;
-                              default:
-                                statusColor = Colors.black;
-                            }
-
-                            return Row(
-                              children: [
-                                Text(
-                                  'Status:',
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  '$status',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    color: statusColor,
-                                  ),
-                                ),
-                              ],
-                            );
-                          },
-                        )
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
-      ),
+        if (isLoading) // Display a loading indicator over the widget
+          Center(
+            child: CircularProgressIndicator(),
+          ),
+      ],
     );
   }
 }
