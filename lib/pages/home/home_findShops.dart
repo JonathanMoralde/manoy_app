@@ -91,6 +91,7 @@ class FindShops extends ConsumerWidget {
                             coverPhoto: shopCoverPhoto,
                             businessHours: shopBusinessHours,
                             description: shopDescription,
+                            showStatus: false,
                             // isBookmarked
                             //: isBookmarked,
                           ),

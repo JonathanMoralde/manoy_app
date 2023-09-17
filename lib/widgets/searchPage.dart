@@ -78,10 +78,13 @@ class _SearchPageState extends State<SearchPage> {
                   address: shopData['Service Address'] ?? '',
                   uid: shopData['uid'] ?? '',
                   image: shopData['Profile Photo'] ?? '',
-                  category: shopData['Category'] ?? '',
+                  category: (shopData['Category'] as List<dynamic>)
+                      .map((item) => item.toString())
+                      .toList(),
                   businessHours: shopData['Business Hours'] ?? '',
                   description: shopData['Description'] ?? '',
                   coverPhoto: shopData['Cover Photo'] ?? '',
+                  showStatus: false,
                 ),
             ],
           ),

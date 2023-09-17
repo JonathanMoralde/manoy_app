@@ -1,20 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:manoy_app/pages/admin/posts_page.dart';
 import 'package:manoy_app/pages/admin/service_provider.dart';
-import 'package:manoy_app/pages/home/home_findShops.dart';
-import 'package:manoy_app/pages/home/home_forYou.dart';
-import 'package:manoy_app/pages/loginScreen.dart';
-import 'package:manoy_app/pages/profile/shopView.dart';
-import 'package:manoy_app/provider/home/activeDisplay_provider.dart';
-import 'package:manoy_app/widgets/bottomNav.dart';
-import 'package:manoy_app/widgets/searchPage.dart';
-import 'package:manoy_app/widgets/slider.dart';
 
-import '../../provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
+import 'package:manoy_app/pages/loginScreen.dart';
+
+import 'package:manoy_app/provider/home/activeDisplay_provider.dart';
+
 import '../../provider/userDetails/uid_provider.dart';
 
 class AdminPage extends ConsumerWidget {
@@ -77,12 +72,26 @@ class AdminPage extends ConsumerWidget {
                     ),
                   ),
                   SizedBox(height: 10),
-                  Text(
-                    'Admin', // Replace with the user's name
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
+                  Row(
+                    children: [
+                      Text(
+                        'ADMIN', // Replace with the user's name
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        'admin@manoy.com', // Replace with the user's name
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                   SizedBox(height: 5),
                   Text(
@@ -185,7 +194,9 @@ class AdminPage extends ConsumerWidget {
             // SliderBar(),
             Expanded(
               child: SingleChildScrollView(
-                child: activeDisplay == "For You" ? PostsPage() : FindShops(),
+                child: activeDisplay == "For You"
+                    ? PostsPage()
+                    : ServiceProviderPage(),
               ),
             ),
           ],
