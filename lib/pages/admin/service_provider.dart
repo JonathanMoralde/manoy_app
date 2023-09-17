@@ -52,10 +52,7 @@ class ServiceProviderPage extends ConsumerWidget {
 
                     print(shopCategory);
                     return (activeCategory == "All" ||
-                                stringList.contains(activeCategory)) &&
-                            shopStatus == 'Pending' ||
-                        shopStatus == 'Approved' ||
-                        shopStatus == 'Rejected';
+                        stringList.contains(activeCategory));
                   }).toList();
 
                   return Column(
@@ -70,6 +67,7 @@ class ServiceProviderPage extends ConsumerWidget {
                           shopCategory.map((item) => item.toString()).toList();
                       final shopBusinessHours = itemDoc['Business Hours'];
                       final shopDescription = itemDoc['Description'];
+                      final status = itemDoc['Status'];
 
                       print(shopCategory);
                       // bool isBookmarked = false;
@@ -95,6 +93,7 @@ class ServiceProviderPage extends ConsumerWidget {
                             description: shopDescription,
                             showStatus: true,
                             longPressed: true,
+                            showRating: false,
 
                             // isBookmarked
                             //: isBookmarked,

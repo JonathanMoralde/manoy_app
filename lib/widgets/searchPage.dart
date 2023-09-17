@@ -11,10 +11,14 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   // ... inside your _SearchPageState class
+
   void performSearch(String query) {
     final allShops = FirebaseFirestore.instance.collection('service_provider');
 
-    allShops.get().then((snapshot) {
+    allShops
+        .where('Status', isEqualTo: 'Approved') // Filter by status
+        .get()
+        .then((snapshot) {
       final matchingShops = snapshot.docs
           .where((doc) =>
               doc['Service Name'].toLowerCase().contains(query.toLowerCase()))
@@ -85,6 +89,7 @@ class _SearchPageState extends State<SearchPage> {
                   description: shopData['Description'] ?? '',
                   coverPhoto: shopData['Cover Photo'] ?? '',
                   showStatus: false,
+                  showRating: true,
                 ),
             ],
           ),
