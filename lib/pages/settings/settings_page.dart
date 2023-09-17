@@ -11,6 +11,7 @@ import 'package:manoy_app/pages/settings/settings_supporting_pages/help_page.dar
 import 'package:manoy_app/pages/settings/settings_supporting_pages/terms_condition.dart';
 import 'package:manoy_app/provider/bottomNav/currentIndex_provider.dart';
 import 'package:manoy_app/provider/selectedCategory/selectedCategory_provider.dart';
+import 'package:manoy_app/provider/serviceProviderDetails/allServiceProvider_provider.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/serviceProviderDetails_provider.dart';
 import 'package:manoy_app/provider/timepicker/selectedTime_provider.dart';
 import 'package:manoy_app/provider/uploadIage/selectedImage_provider.dart';
@@ -40,6 +41,57 @@ class SettingsPage extends ConsumerWidget {
     print('isServiceNameNull: $isServiceNameNull');
     print('uid: $uid');
 
+    // final uid = ref.watch(uidProvider);
+
+    // GETTING SHOP DATA
+    Future<void> _refresh() async {
+      final serviceProvider = ref.watch(allServiceProvider);
+      serviceProvider.when(
+          data: (itemDocs) async {
+            // print(itemDocs);
+            final userServiceAccount = itemDocs.firstWhere(
+              (itemDoc) => itemDoc.id == uid,
+            );
+
+            if (userServiceAccount.exists) {
+              final userData =
+                  userServiceAccount.data() as Map<String, dynamic>;
+
+              final serviceName = userData['Service Name'];
+              final serviceAddress = userData['Service Address'];
+              final description = userData['Description'];
+
+              final businessHours = userData['Business Hours'];
+              final category = userData['Category'] as List<dynamic>;
+              List<String> stringList =
+                  category.map((item) => item.toString()).toList();
+              final profilePhoto = userData['Profile Photo'];
+              final coverPhoto = userData['Cover Photo'];
+
+              ref.read(serviceNameProvider.notifier).state = serviceName;
+              ref.read(serviceAddressProvider.notifier).state = serviceAddress;
+              ref.read(descriptionProvider.notifier).state = description;
+              ref.read(businessHoursProvider.notifier).state = businessHours;
+              ref.read(categoryProvider.notifier).state = stringList;
+              ref.read(profilePhotoProvider.notifier).state = profilePhoto;
+              ref.read(coverPhotoProvider.notifier).state = coverPhoto;
+
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+              prefs.setString('serviceName', serviceName);
+              prefs.setString('serviceAddress', serviceAddress);
+              prefs.setString('description', description);
+              prefs.setString('businessHours', businessHours);
+              prefs.setStringList('category', stringList);
+              prefs.setString('profilePhoto', profilePhoto);
+              prefs.setString('coverPhoto', coverPhoto);
+              print(serviceName);
+            }
+          },
+          error: (error, stackTrace) => Text("Error: $error"),
+          loading: () => const CircularProgressIndicator());
+      // print(serviceProvider);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -57,184 +109,192 @@ class SettingsPage extends ConsumerWidget {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                const SizedBox(height: 20),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: UserProfilePhoto(uid: uid), // Use the new widget
-                  ),
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.center,
+      body: RefreshIndicator(
+        onRefresh: _refresh,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 20),
+              Row(
+                children: [
+                  const SizedBox(height: 20),
+                  Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.only(right: 75),
-                      child: Text(
-                        fullName ?? "User",
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                      padding: const EdgeInsets.all(8.0),
+                      child: UserProfilePhoto(uid: uid), // Use the new widget
+                    ),
+                  ),
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 75),
+                        child: Text(
+                          fullName ?? "User",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            StyledSettingsButton(
-              buttonText: 'Apply Service Provider Account',
-              onPressed: isServiceNameNull && uid != null
-                  ? () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (BuildContext context) {
-                          return ApplyProvider(uid: uid);
-                        }),
-                      );
-                    }
-                  : null,
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            StyledSettingsButton(
-              buttonText: 'Contact Information',
-              onPressed: () {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (BuildContext context) {
-                  return ContactInfoPage(userId: uid!);
-                }));
-              },
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            StyledSettingsButton(
-              buttonText: 'Change Profile Picture',
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) =>
-                            const ChangeProfilePicturePage()));
-                // TODO NAVIGATE TO CHANGE PROFILE PHOTO FORM
-                // TODO import uploadImage_input.dart and button
-                // TODO PASS BELOW AS PARAMETER FOR TEXT & ONPRESSED
-                // ? import Imagepicker package
-                /* 
-                String? selectedImagePath;
-
-                Future<void> _pickImage() async {
-                final ImagePicker _picker = ImagePicker();
-                final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-
-                if (image != null) {
-                  setState(() {
-                    selectedImagePath1 = image.path; // Store the selected image path
-                  });
+                ],
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              StyledSettingsButton(
+                buttonText: 'Apply Service Provider Account',
+                onPressed: isServiceNameNull && uid != null
+                    ? () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (BuildContext context) {
+                            return ApplyProvider(uid: uid);
+                          }),
+                        );
+                      }
+                    : null,
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              StyledSettingsButton(
+                buttonText: 'Contact Information',
+                onPressed: () {
+                  Navigator.of(context)
+                      .push(MaterialPageRoute(builder: (BuildContext context) {
+                    return ContactInfoPage(userId: uid!);
+                  }));
+                },
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              StyledSettingsButton(
+                buttonText: 'Change Profile Picture',
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const ChangeProfilePicturePage()));
+                  // TODO NAVIGATE TO CHANGE PROFILE PHOTO FORM
+                  // TODO import uploadImage_input.dart and button
+                  // TODO PASS BELOW AS PARAMETER FOR TEXT & ONPRESSED
+                  // ? import Imagepicker package
+                  /* 
+                  String? selectedImagePath;
+          
+                  Future<void> _pickImage() async {
+                  final ImagePicker _picker = ImagePicker();
+                  final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+          
+                  if (image != null) {
+                    setState(() {
+                      selectedImagePath1 = image.path; // Store the selected image path
+                    });
+                  }
                 }
-              }
+          
+                  */
+                },
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              StyledSettingsButton(
+                buttonText: 'Change Password',
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ForgotPassPage()));
+                },
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              StyledSettingsButton(
+                buttonText: 'Terms and Condition',
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              const TermsAndConditionsScreen()));
 
-                */
-              },
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            StyledSettingsButton(
-              buttonText: 'Change Password',
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => ForgotPassPage()));
-              },
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            StyledSettingsButton(
-              buttonText: 'Terms and Condition',
-              onPressed: () {
-                Navigator.push(
-                    context,
+                  // TODO NAVIGATE TO TERMS AND CONDITION PAGE
+                },
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              StyledSettingsButton(
+                buttonText: 'Help',
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const HelpPage()));
+
+                  // TODO NAVIGATE TO HELP PAGE
+                },
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              StyledSettingsButton(
+                buttonText: 'Log out',
+                onPressed: () async {
+                  SharedPreferences prefs =
+                      await SharedPreferences.getInstance();
+                  prefs.clear();
+                  await FirebaseAuth.instance.signOut();
+
+                  // RESET STATES
+                  ref.read(currentIndexProvider.notifier).state = 0;
+                  ref.read(fullnameProvider.notifier).state = null;
+                  ref.read(phoneNumProvider.notifier).state = null;
+                  ref.read(addressProvider.notifier).state = null;
+                  ref.read(genderProvider.notifier).state = null;
+                  ref.read(birthdayProvider.notifier).state = null;
+                  ref.read(serviceNameProvider.notifier).state = null;
+                  ref.read(serviceAddressProvider.notifier).state = null;
+                  ref.read(descriptionProvider.notifier).state = null;
+                  ref.read(businessHoursProvider.notifier).state = null;
+                  ref.read(categoryProvider.notifier).state = [];
+                  ref.read(profilePhotoProvider.notifier).state = null;
+                  ref.read(coverPhotoProvider.notifier).state = null;
+                  ref.read(isBookmarkProvider.notifier).state = false;
+                  ref.read(serviceNameProvider.notifier).state = null;
+                  ref.read(serviceAddressProvider.notifier).state = null;
+                  ref.read(descriptionProvider.notifier).state = null;
+                  ref.read(businessHoursProvider.notifier).state = null;
+                  ref.read(categoryProvider.notifier).state = [];
+                  ref.read(profilePhotoProvider.notifier).state = null;
+                  ref.read(coverPhotoProvider.notifier).state = null;
+                  ref.read(selectedCategoryProvider.notifier).state = [];
+                  ref.read(selectedTime2Provider.notifier).state = null;
+                  ref.read(selectedTime1Provider.notifier).state = null;
+                  ref.read(selectedImagePath1Provider.notifier).state = null;
+                  ref.read(selectedImagePath2Provider.notifier).state = null;
+
+                  // store role in sharedPreferences
+                  // SharedPreferences prefs = await SharedPreferences.getInstance();
+                  // prefs.setBool('isLogged', false);
+
+                  Navigator.of(context).pushAndRemoveUntil(
                     MaterialPageRoute(
-                        builder: (context) =>
-                            const TermsAndConditionsScreen()));
-
-                // TODO NAVIGATE TO TERMS AND CONDITION PAGE
-              },
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            StyledSettingsButton(
-              buttonText: 'Help',
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const HelpPage()));
-
-                // TODO NAVIGATE TO HELP PAGE
-              },
-            ),
-            const SizedBox(
-              height: 5,
-            ),
-            StyledSettingsButton(
-              buttonText: 'Log out',
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                prefs.clear();
-                await FirebaseAuth.instance.signOut();
-
-                // RESET STATES
-                ref.read(currentIndexProvider.notifier).state = 0;
-                ref.read(fullnameProvider.notifier).state = null;
-                ref.read(phoneNumProvider.notifier).state = null;
-                ref.read(addressProvider.notifier).state = null;
-                ref.read(genderProvider.notifier).state = null;
-                ref.read(birthdayProvider.notifier).state = null;
-                ref.read(serviceNameProvider.notifier).state = null;
-                ref.read(serviceAddressProvider.notifier).state = null;
-                ref.read(descriptionProvider.notifier).state = null;
-                ref.read(businessHoursProvider.notifier).state = null;
-                ref.read(categoryProvider.notifier).state = [];
-                ref.read(profilePhotoProvider.notifier).state = null;
-                ref.read(coverPhotoProvider.notifier).state = null;
-                ref.read(isBookmarkProvider.notifier).state = false;
-                ref.read(serviceNameProvider.notifier).state = null;
-                ref.read(serviceAddressProvider.notifier).state = null;
-                ref.read(descriptionProvider.notifier).state = null;
-                ref.read(businessHoursProvider.notifier).state = null;
-                ref.read(categoryProvider.notifier).state = [];
-                ref.read(profilePhotoProvider.notifier).state = null;
-                ref.read(coverPhotoProvider.notifier).state = null;
-                ref.read(selectedCategoryProvider.notifier).state = [];
-                ref.read(selectedTime2Provider.notifier).state = null;
-                ref.read(selectedTime1Provider.notifier).state = null;
-                ref.read(selectedImagePath1Provider.notifier).state = null;
-                ref.read(selectedImagePath2Provider.notifier).state = null;
-
-                // store role in sharedPreferences
-                // SharedPreferences prefs = await SharedPreferences.getInstance();
-                // prefs.setBool('isLogged', false);
-
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (context) => LoginScreen(),
-                  ),
-                  (Route<dynamic> route) => false,
-                );
-              },
-            ),
-          ],
+                      builder: (context) => LoginScreen(),
+                    ),
+                    (Route<dynamic> route) => false,
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: const BottomNav(),

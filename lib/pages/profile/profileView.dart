@@ -342,7 +342,8 @@ class ProfileView extends ConsumerWidget {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: CachedNetworkImageProvider(profilePhoto!),
+                    backgroundImage: CachedNetworkImageProvider(profilePhoto ??
+                        "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.stickpng.com%2Fimg%2Ficons-logos-emojis%2Fusers%2Fsimple-user-icon&psig=AOvVaw0RX_ZkmXovuLhGMin_rCbW&ust=1695041921601000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCIim4q3ZsYEDFQAAAAAdAAAAABAE"),
                   ),
                   SizedBox(height: 10),
                   Text(
@@ -479,7 +480,8 @@ class ProfileView extends ConsumerWidget {
                             width: 100,
                             height: 100,
                             child: CachedNetworkImage(
-                              imageUrl: profilePhoto,
+                              imageUrl: profilePhoto ??
+                                  "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.stickpng.com%2Fimg%2Ficons-logos-emojis%2Fusers%2Fsimple-user-icon&psig=AOvVaw0RX_ZkmXovuLhGMin_rCbW&ust=1695041921601000&source=images&cd=vfe&opi=89978449&ved=0CBAQjRxqFwoTCIim4q3ZsYEDFQAAAAAdAAAAABAE",
                               width: double.infinity,
                               fit: BoxFit.cover,
                             ),
