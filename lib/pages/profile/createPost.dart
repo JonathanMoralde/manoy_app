@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as path; // Import the path package
 import 'package:manoy_app/widgets/styledButton.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
 
 class CreatePostPage extends StatefulWidget {
   const CreatePostPage({Key? key}) : super(key: key);
@@ -210,9 +212,10 @@ class _CreatePostPageState extends State<CreatePostPage> {
                             // Only call the upload function from StyledButton's callback
                             await _uploadImageAndSavePost();
                             if (imageUrl != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('POSTED SUCCESSFULLY')));
+                              Fluttertoast.showToast(
+                                msg: "POSTED SUCCESSFULLY",
+                                // gravity: ToastGravity.CENTER,
+                              );
                               Navigator.pop(context);
                             }
                           })

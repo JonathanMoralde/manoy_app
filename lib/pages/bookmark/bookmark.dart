@@ -61,6 +61,7 @@ class BookmarkPage extends ConsumerWidget {
                           description: shopData['Description'],
                           coverPhoto: shopData['Cover Photo'],
                           showStatus: false,
+                          showRating: true,
                           // isBookmarked: true,
                         ),
                         const SizedBox(

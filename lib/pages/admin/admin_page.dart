@@ -85,7 +85,7 @@ class AdminPage extends ConsumerWidget {
                         width: 5,
                       ),
                       Text(
-                        'admin@manoy.com', // Replace with the user's name
+                        'JONNEL', // Replace with the user's name
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -93,14 +93,14 @@ class AdminPage extends ConsumerWidget {
                       ),
                     ],
                   ),
-                  SizedBox(height: 5),
-                  Text(
-                    'admin@example.com', // Replace with the user's email
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                    ),
-                  ),
+                  // SizedBox(height: 5),
+                  // Text(
+                  //   'admin@example.com', // Replace with the user's email
+                  //   style: TextStyle(
+                  //     color: Colors.white,
+                  //     fontSize: 14,
+                  //   ),
+                  // ),
                 ],
               ),
             ),

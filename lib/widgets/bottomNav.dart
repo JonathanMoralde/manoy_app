@@ -18,7 +18,7 @@ class BottomNav extends ConsumerWidget {
         ref.watch(currentIndexProvider); // Remove 'final' keyword
 
     final serviceName = ref.watch(serviceNameProvider);
-
+    // final shopName = ref.watch(serviceProviderDetailsStreamProvider);
     final bottomNavigationBarItems = <BottomNavigationBarItem>[
       BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
       BottomNavigationBarItem(icon: Icon(Icons.bookmark), label: "Bookmark"),

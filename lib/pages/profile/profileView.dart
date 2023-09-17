@@ -136,10 +136,6 @@ class ProfileView extends ConsumerWidget {
           await serviceProviderDoc.delete();
 
           print('Document deleted successfully');
-
-          // Navigate to a "Success" page
-
-          // Note: You can also pass data to the SuccessPage if needed.
         } else {
           print('User not logged in');
         }
@@ -431,16 +427,16 @@ class ProfileView extends ConsumerWidget {
                 ));
               },
             ),
-            ListTile(
-              leading: Icon(Icons.remove_circle_rounded),
-              title: Text("Remove Shop"),
-              onTap: () {
-                termsModal(context);
-                // Navigator.of(context).push(MaterialPageRoute(
-                //   builder: (context) => AppointmentsListsPage(),
-                // ));
-              },
-            ),
+            // ListTile(
+            //   leading: Icon(Icons.remove_circle_rounded),
+            //   title: Text("Remove Shop"),
+            //   onTap: () {
+            //     termsModal(context);
+            //     // Navigator.of(context).push(MaterialPageRoute(
+            //     //   builder: (context) => AppointmentsListsPage(),
+            //     // ));
+            //   },
+            // ),
           ],
         ),
       ),
@@ -558,6 +554,7 @@ class ProfileView extends ConsumerWidget {
                   height: 10,
                 ),
                 Text("Category: $category", style: TextStyle(fontSize: 15)),
+
                 const SizedBox(
                   height: 5,
                 ),
