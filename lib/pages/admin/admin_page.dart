@@ -7,6 +7,7 @@ import 'package:manoy_app/pages/admin/posts_page.dart';
 import 'package:manoy_app/pages/admin/service_provider.dart';
 
 import 'package:manoy_app/pages/loginScreen.dart';
+import 'package:manoy_app/pages/settings/settings_supporting_pages/change_profile_picture_page.dart';
 
 import 'package:manoy_app/provider/home/activeDisplay_provider.dart';
 
@@ -65,11 +66,8 @@ class AdminPage extends ConsumerWidget {
                   CircleAvatar(
                     radius: 40,
                     backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person,
-                      size: 60,
-                      color: Colors.blue,
-                    ),
+                    child: UserProfilePhoto(
+                        uid: uid), // Use UserProfilePhoto widget
                   ),
                   SizedBox(height: 10),
                   Row(
@@ -78,7 +76,7 @@ class AdminPage extends ConsumerWidget {
                         'ADMIN', // Replace with the user's name
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 20,
+                          fontSize: 17,
                         ),
                       ),
                       const SizedBox(
@@ -88,19 +86,21 @@ class AdminPage extends ConsumerWidget {
                         'JONNEL', // Replace with the user's name
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 20,
+                            fontSize: 17,
                             fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
-                  // SizedBox(height: 5),
-                  // Text(
-                  //   'admin@example.com', // Replace with the user's email
-                  //   style: TextStyle(
-                  //     color: Colors.white,
-                  //     fontSize: 14,
-                  //   ),
-                  // ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Text(
+                    'admin@manoy.com', // Replace with the user's name
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.normal),
+                  ),
                 ],
               ),
             ),
@@ -108,7 +108,8 @@ class AdminPage extends ConsumerWidget {
               leading: Icon(Icons.person),
               title: Text('Profile'),
               onTap: () {
-                // Implement your profile page navigation logic here
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => ChangeProfilePicturePage()));
               },
             ),
             ListTile(
@@ -203,5 +204,63 @@ class AdminPage extends ConsumerWidget {
         ),
       ),
     );
+  }
+}
+
+class UserProfilePhoto extends ConsumerWidget {
+  final String? uid;
+
+  const UserProfilePhoto({Key? key, required this.uid}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    if (uid == null) {
+      return const Icon(
+        Icons.account_circle_rounded,
+        size: 80,
+      );
+    }
+
+    return FutureBuilder<String?>(
+      future: getUserProfilePhoto(uid), // A function to fetch profile photo URL
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return const Icon(Icons.error);
+        } else if (snapshot.hasData) {
+          final profilePhoto = snapshot.data;
+          if (profilePhoto != null) {
+            return CircleAvatar(
+              backgroundImage: NetworkImage(profilePhoto),
+              radius: 60,
+            );
+          }
+        }
+        return const Icon(
+          Icons.account_circle_rounded,
+          size: 80,
+        );
+      },
+    );
+  }
+}
+
+// ... Rest of the code remains unchanged ...
+
+Future<String?> getUserProfilePhoto(String? uid) async {
+  try {
+    final DocumentSnapshot<Map<String, dynamic>> userDoc =
+        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+
+    if (userDoc.exists) {
+      final String? profilePhotoUrl = userDoc.data()?['profilePhoto'];
+      return profilePhotoUrl;
+    } else {
+      return null; // User document not found
+    }
+  } catch (error) {
+    print("Error fetching user's profile photo: $error");
+    return null;
   }
 }

@@ -445,10 +445,12 @@ class ShopCard extends ConsumerWidget {
                             "7. Account Termination:\n"
                             "   - Be prepared to take action, including account termination and rejection of service provider for violations of our guidelines.\n\n"
                             "Your role is essential in maintaining the quality and legitimacy of our platform. Please stay informed about updates to our terms and guidelines. Your commitment to these principles ensures a positive experience for all users.\n\n"
-                            "Would you like to approve or reject this service provider?",
+                            "Would you like to approve or reject this service provider?\n\n"
+                            "Tap anywhere outside the dialog to exit.",
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 20.0,
                             children: [
                               ElevatedButton(
                                 onPressed: () async {
@@ -456,7 +458,6 @@ class ShopCard extends ConsumerWidget {
                                   Navigator.of(context).pop();
                                   Fluttertoast.showToast(
                                     msg: "Service provider has been approved",
-                                    // gravity: ToastGravity.CENTER,
                                   );
                                 },
                                 child: Text(
@@ -483,16 +484,12 @@ class ShopCard extends ConsumerWidget {
                                           Colors.lightGreen),
                                 ),
                               ),
-                              SizedBox(
-                                width: 20,
-                              ),
                               ElevatedButton(
                                 onPressed: () async {
                                   rejectServiceProvider(uid);
                                   Navigator.of(context).pop();
                                   Fluttertoast.showToast(
                                     msg: "Service provider has been rejected",
-                                    // gravity: ToastGravity.CENTER,
                                   );
                                 },
                                 child: Text(
@@ -519,39 +516,36 @@ class ShopCard extends ConsumerWidget {
                                           Colors.redAccent),
                                 ),
                               ),
-                              SizedBox(
-                                width: 20,
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text(
-                                  'Cancel',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.blue),
-                                  shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20.0),
-                                    ),
-                                  ),
-                                  elevation:
-                                      MaterialStateProperty.all<double>(3.0),
-                                  overlayColor:
-                                      MaterialStateProperty.all<Color>(
-                                          Colors.redAccent),
-                                ),
-                              ),
+                              // ElevatedButton(
+                              //   onPressed: () {
+                              //     Navigator.of(context).pop();
+                              //   },
+                              //   child: Text(
+                              //     'Cancel',
+                              //     style: TextStyle(
+                              //       fontSize: 16,
+                              //       color: Colors.white,
+                              //     ),
+                              //   ),
+                              //   style: ButtonStyle(
+                              //     backgroundColor:
+                              //         MaterialStateProperty.all<Color>(
+                              //             Colors.blue),
+                              //     shape: MaterialStateProperty.all<
+                              //         RoundedRectangleBorder>(
+                              //       RoundedRectangleBorder(
+                              //         borderRadius: BorderRadius.circular(20.0),
+                              //       ),
+                              //     ),
+                              //     elevation:
+                              //         MaterialStateProperty.all<double>(3.0),
+                              //     overlayColor:
+                              //         MaterialStateProperty.all<Color>(
+                              //             Colors.redAccent),
+                              //   ),
+                              // ),
                             ],
-                          ),
+                          )
                         ],
                       ),
                     ),
