@@ -37,35 +37,37 @@ class HomePage extends ConsumerWidget {
             if (userServiceAccount.exists) {
               final userData =
                   userServiceAccount.data() as Map<String, dynamic>;
+              if (userData['Status'] == 'Approved') {
+                final serviceName = userData['Service Name'];
+                final serviceAddress = userData['Service Address'];
+                final description = userData['Description'];
 
-              final serviceName = userData['Service Name'];
-              final serviceAddress = userData['Service Address'];
-              final description = userData['Description'];
+                final businessHours = userData['Business Hours'];
+                final category = userData['Category'] as List<dynamic>;
+                List<String> stringList =
+                    category.map((item) => item.toString()).toList();
+                final profilePhoto = userData['Profile Photo'];
+                final coverPhoto = userData['Cover Photo'];
+                // final status = userData['Status'];
+                ref.read(serviceNameProvider.notifier).state = serviceName;
+                ref.read(serviceAddressProvider.notifier).state =
+                    serviceAddress;
+                ref.read(descriptionProvider.notifier).state = description;
+                ref.read(businessHoursProvider.notifier).state = businessHours;
+                ref.read(categoryProvider.notifier).state = stringList;
+                ref.read(profilePhotoProvider.notifier).state = profilePhoto;
+                ref.read(coverPhotoProvider.notifier).state = coverPhoto;
 
-              final businessHours = userData['Business Hours'];
-              final category = userData['Category'] as List<dynamic>;
-              List<String> stringList =
-                  category.map((item) => item.toString()).toList();
-              final profilePhoto = userData['Profile Photo'];
-              final coverPhoto = userData['Cover Photo'];
-
-              ref.read(serviceNameProvider.notifier).state = serviceName;
-              ref.read(serviceAddressProvider.notifier).state = serviceAddress;
-              ref.read(descriptionProvider.notifier).state = description;
-              ref.read(businessHoursProvider.notifier).state = businessHours;
-              ref.read(categoryProvider.notifier).state = stringList;
-              ref.read(profilePhotoProvider.notifier).state = profilePhoto;
-              ref.read(coverPhotoProvider.notifier).state = coverPhoto;
-
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-              prefs.setString('serviceName', serviceName);
-              prefs.setString('serviceAddress', serviceAddress);
-              prefs.setString('description', description);
-              prefs.setString('businessHours', businessHours);
-              prefs.setStringList('category', stringList);
-              prefs.setString('profilePhoto', profilePhoto);
-              prefs.setString('coverPhoto', coverPhoto);
-              print(serviceName);
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+                prefs.setString('serviceName', serviceName);
+                prefs.setString('serviceAddress', serviceAddress);
+                prefs.setString('description', description);
+                prefs.setString('businessHours', businessHours);
+                prefs.setStringList('category', stringList);
+                prefs.setString('profilePhoto', profilePhoto);
+                prefs.setString('coverPhoto', coverPhoto);
+                print(serviceName);
+              }
             }
           },
           error: (error, stackTrace) => Text("Error: $error"),

@@ -4,7 +4,6 @@ import 'package:manoy_app/pages/home/home.dart';
 import 'package:manoy_app/pages/profile/appointments_lists.dart';
 import 'package:manoy_app/pages/profile/edit_profile.dart';
 import 'package:manoy_app/pages/profile/profileView_messageInbox.dart';
-import 'package:manoy_app/pages/profile/success_page.dart';
 import 'package:manoy_app/provider/isLoading/isLoading_provider.dart';
 import 'package:manoy_app/provider/selectedCategory/selectedCategory_provider.dart';
 import 'package:manoy_app/provider/serviceProviderDetails/deletingSeriviceProvider_provider.dart';
